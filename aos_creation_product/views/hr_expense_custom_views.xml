@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="hr_expense_custom_view_form" model="ir.ui.view">
+        <field name="name">hr.expense.view.form</field>
+        <field name="model">hr.expense.custom</field>
+        <field name="inherit_id" ref="ilg_advance.hr_expense_custom_view_form"/>
+        <field name="groups_id" eval="[(4, ref('aos_creation_product.group_product_creation'))]"/>
+        <field name="arch" type="xml">
+            <field name="product_id" position="attributes">
+                <attribute name="options">{'no_open': True, 'no_create': True}</attribute>
+            </field>
+        </field>
+    </record>
+
+    <record id="hr_expense_advance_view_form" model="ir.ui.view">
+        <field name="name">hr.expense.advance.view.form</field>
+        <field name="model">hr.expense.advance</field>
+        <field name="inherit_id" ref="ilg_advance.hr_expense_advance_view_form"/>
+        <field name="groups_id" eval="[(4, ref('aos_creation_product.group_product_creation'))]"/>
+        <field name="arch" type="xml">
+            <field name="product_id" position="attributes">
+                <attribute name="options">{'no_open': True, 'no_create': True}</attribute>
+            </field>
+        </field>
+    </record>
+
+    <record id="hr_expense_custom_line_view_form" model="ir.ui.view">
+        <field name="name">hr.expense.advance.line.view.form</field>
+        <field name="model">hr.expense.advance.line</field>
+        <field name="inherit_id" ref="ilg_advance.hr_expense_custom_line_view_form"/>
+        <field name="groups_id" eval="[(4, ref('aos_creation_product.group_product_creation'))]"/>
+        <field name="arch" type="xml">
+            <field name="product_id" position="attributes">
+                <attribute name="options">{'no_open': True, 'no_create': True}</attribute>
+            </field>
+        </field>
+    </record>
+</odoo>

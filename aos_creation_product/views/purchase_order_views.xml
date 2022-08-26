@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="purchase_order_form_view" model="ir.ui.view">
+        <field name="name">purchase.order.form.view</field>
+        <field name="model">purchase.order</field>
+        <field name="inherit_id" ref="purchase.purchase_order_form"/>
+        <!-- <field name="groups_id" eval="[(6,0, [ref('aos_creation_product.group_product_creation')])]"/> -->
+        <field name="arch" type="xml">
+        	<!-- <xpath expr="//field[@name='order_line']/tree/field[@name='product_id']" position="after">
+                <field name="product_id" 
+                attrs="{
+                    'readonly': [('state', 'in', ('purchase', 'to approve','done', 'cancel'))], 
+                    'required': [('display_type', '=', False)],
+                }" 
+                context="{
+                    'partner_id':parent.partner_id, 
+                    'quantity':product_qty,'uom':product_uom, 
+                    'company_id': parent.company_id}" 
+                force_save="1" 
+                domain="[('purchase_ok', '=', True), '|', ('company_id', '=', False), ('company_id', '=', parent.company_id)]"/>
+            </xpath> -->
+            <!-- <xpath expr="//field[@name='order_line']/tree/field[@name='product_id']" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </xpath> -->
+            <xpath expr="//field[@name='order_line']/form/group/group/field[@name='product_id']" position="attributes">
+                <attribute name="options">{'no_open': True, 'no_create': True}</attribute>
+            </xpath>
+            <xpath expr="//field[@name='order_line']/tree/field[@name='product_id']" position="attributes">
+                <attribute name="options">{'no_open': True, 'no_create': True}</attribute>
+            </xpath>
+            <!-- <xpath expr="//field[@name='order_line']/tree/field[@name='product_id'][2]" position="attributes">
+                <attribute name="options">{'no_open': True, 'no_create': True}</attribute>
+            </xpath> -->
+            <xpath expr="//field[@name='order_line']/kanban/field[@name='product_id']" position="attributes">
+                <attribute name="options">{'no_open': True, 'no_create': True}</attribute>
+            </xpath>
+        </field>
+    </record>
+    
+</odoo>

@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_order_form_inherit_aos" model="ir.ui.view">
+        <field name="name">sale.order.form</field>
+        <field name="model">sale.order</field>
+        <field name="inherit_id" ref="sale.view_order_form"/>
+        <!-- <field name="groups_id" eval="[(6,0, [ref('aos_creation_product.group_product_creation')])]"/> -->
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='order_line']/form/group/group/field[@name='product_id']" position="attributes">
+                <attribute name="options">{'no_open': False, 'no_create': True}</attribute>
+            </xpath>
+            <!-- <xpath expr="//field[@name='order_line']/tree/field[@name='product_id'][1]" position="attributes">
+                <attribute name="options">{'no_open': True, 'no_create': True}</attribute>
+            </xpath> -->
+            <xpath expr="//field[@name='order_line']/tree/field[@name='product_id']" position="attributes">
+                <attribute name="options">{'no_open': True, 'no_create': True}</attribute>
+            </xpath>
+            <xpath expr="//field[@name='order_line']/tree/field[@name='product_template_id']" position="attributes">
+                <attribute name="options">{'no_open': True, 'no_create': True}</attribute>
+            </xpath>
+            <xpath expr="//field[@name='order_line']/kanban/field[@name='product_id']" position="attributes">
+                <attribute name="options">{'no_open': True, 'no_create': True}</attribute>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="sale_order_form_quote" model="ir.ui.view">
+        <field name="name">sale.order.form.quote</field>
+        <field name="model">sale.order</field>
+        <field name="inherit_id" ref="sale_management.sale_order_form_quote"/>
+        <!-- <field name="groups_id" eval="[(4, ref('aos_creation_product.group_product_creation'))]"/> -->
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='sale_order_option_ids']/form/group/field[@name='product_id']" position="attributes">
+                <attribute name="options">{'no_open': True, 'no_create': True}</attribute>
+            </xpath>
+            <xpath expr="//field[@name='sale_order_option_ids']/tree/field[@name='product_id']" position="attributes">
+                <attribute name="options">{'no_open': True, 'no_create': True}</attribute>
+            </xpath>
+            <xpath expr="//field[@name='sale_order_option_ids']/kanban/field[@name='product_id']" position="attributes">
+                <attribute name="options">{'no_open': True, 'no_create': True}</attribute>
+            </xpath>
+        </field>
+    </record>
+    
+</odoo>
