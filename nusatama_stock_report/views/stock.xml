@@ -7,8 +7,8 @@
         <field name="inherit_id" ref="stock.view_picking_form"/>
         <field name="arch" type="xml">
             <xpath expr="//header" position="inside">
-                <button string="Print DO" name="print_do" type="object" class="oe_highlight"/>
-                <button string="Print BAST" name="print_bast" type="object" class="oe_highlight"/>
+                <button string="Print DO" name="print_do" type="object" class="oe_highlight" attrs="{'invisible':[('state','not in',['assigned','done']),('picking_type_code','!=','OUT')]}"/>
+                <button string="Print BAST" name="print_bast" type="object" class="oe_highlight" attrs="{'invisible':[('state','not in',['assigned','done']),('picking_type_code','!=','OUT')]}"/>
             </xpath>
             <xpath expr="//field[@name='origin']" position="after">
                 <field name="chassis_number" />
