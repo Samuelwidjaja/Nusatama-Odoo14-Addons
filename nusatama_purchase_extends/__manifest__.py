@@ -9,12 +9,13 @@
     """,
     # data files always loaded at installation
     'data': [
+        'views/purchase_order.xml',
         'reports/report_purchase.xml',
-        'reports/report.xml'
+        'reports/report.xml',
     ],
     # data files containing optionally loaded demonstration data
-    'images':[
-        'static/image/nusatama.png'
-        'static/image/table.jpg'
-    ]
+    # 'images':[
+    #     'static/image/nusatama.png'
+    #     'static/image/table.jpg'
+    # ]
 }
