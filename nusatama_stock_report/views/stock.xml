@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="stock_picking_form_extend" model="ir.ui.view">
+        <field name="name">stock.picking.form.extend</field>
+        <field name="model">stock.picking</field>
+        <field name="inherit_id" ref="stock.view_picking_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//header" position="inside">
+                <button string="Print DO" name="print_do" type="object" class="oe_highlight" attrs="{'invisible':[('state','not in',['assigned','done'])]}"/>
+                <button string="Print BAST" name="print_bast" type="object" class="oe_highlight" attrs="{'invisible':[('state','not in',['assigned','done'])]}"/>
+            </xpath>
+            <xpath expr="//field[@name='origin']" position="after">
+                <field name="chassis_number" />
+                <field name="engine_number" />
+            </xpath>
+            <field name="group_id" position="after">
+                <field name="incoterm_id" options="{'no_open':True}" widget="selection" groups="sale_stock.group_display_incoterm"/>
+            </field>
+        </field>
+    </record>
+
+</odoo>

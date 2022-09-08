@@ -1,0 +1,169 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <data>
+        <template id="purchase_order_report_document">
+            <t t-call="web.basic_layout">
+                <div class="header">
+                    <div class="top" style="width:100%;">
+                        <div class="image" style="margin:auto;">
+                            <img t-att-src="'/nusatama_purchase_extends/static/image/header3.png'" style="width:100%; height:130px;"/>
+                        </div>
+                    </div>
+                    <div style="width:100%;">
+                        <div style="float:left; width:50%;">
+                            <table class="table table-sm table-borderless">
+                                <tr>
+                                    <td style="padding:3px;">Kepada Yth</td>
+                                    <t t-set="contact" t-value="doc.partner_id.parent_id" t-if="doc.partner_id.parent_id"/>
+                                    <t t-set="contact" t-value="doc.partner_id" t-if="not doc.partner_id.parent_id"/>
+                                    <td style="padding:3px;">: <span t-field="contact.name" /><br/>
+                                        <span t-field="contact.street"/><br/>
+                                        <span t-field="contact.city"/>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td style="padding:3px;">Telp/Fax</td>
+                                    <td style="padding:3px;">: <span t-field="contact.phone"/> /</td>
+                                </tr>
+                                <tr>
+                                    <td style="padding:3px;"><u>UP</u> <br/>Attn</td>
+                                    <td style="padding:3px;">: <t t-esc="doc.partner_contact_id.name"/></td>
+                                </tr>
+                            </table>
+                        </div>
+
+                        <div style="float:right; width:50%;">
+                            <table class="table table-sm table-borderless">
+                                <tr>
+                                    <td style="padding:3px; text-align:right;">PO NO</td>
+                                    <td style="padding:3px; width:190px;">: <t t-esc="doc.name"/></td>
+                                </tr>
+                                <tr>
+                                    <td style="padding:3px; text-align:right;">PO Tgl</td>
+                                    <td style="padding:3px; width:190px;">: <span t-field="doc.date_order" t-options='{"format": "dd-MM-yyyy"}'/></td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+                    <span style="clear:both;"></span>
+                </div>
+                <div class="page">
+                    <table width="100%">
+                        <tr align="center">
+                            <td style="border-top:1px solid #000; border-right:1px solid #000; border-left:1px solid #000;">NO</td>
+                            <td style="border-top:1px solid #000; border-right:1px solid #000;">Nama Barang</td>
+                            <td style="border-top:1px solid #000; border-right:1px solid #000;" colspan="2">Banyaknya</td>
+                            <td style="border-top:1px solid #000; border-right:1px solid #000;">Harga Satuan</td>
+                            <td style="border-top:1px solid #000; border-right:1px solid #000;">Jumlah</td>
+                        </tr>
+                        <tr align="center">
+                            <td style="border-bottom:1px solid #000; border-right:1px solid #000; border-left:1px solid #000;"></td>
+                            <td style="border-bottom:1px solid #000; border-right:1px solid #000;"></td>
+                            <td style="border-top:1px solid #000; border-bottom:1px solid #000; border-right:1px solid #000;">Qty</td>
+                            <td style="border-top:1px solid #000; border-bottom:1px solid #000; border-right:1px solid #000;">Satuan</td>
+                            <td style="border-bottom:1px solid #000; border-right:1px solid #000;">(RP)</td>
+                            <td style="border-bottom:1px solid #000; border-right:1px solid #000;">(RP)</td>
+                        </tr>
+                        <t t-set="number" t-value="1"/>
+                        <t t-set="subtotal" t-value="0"/>
+                        
+                        <t t-foreach="doc.order_line" t-as="product">
+                                <tr>
+                                    <td style="padding:5px; border-right:1px solid #000; border-left:1px solid #000;" align="center">
+                                            <span t-esc="number"/>
+                                            <t t-set="number" t-value="number + 1"/>
+                                    </td>
+                                    <td style="padding:5px; border-right:1px solid #000; border-left:1px solid #000;">
+                                            <span t-esc="product.product_id.display_name"/>
+                                    </td>
+                                    <td style="padding:5px; border-right:1px solid #000; border-left:1px solid #000;" align="center">
+                                            <span t-esc="'{0:,.2f}'.format(product.product_qty)"/>
+                                    </td>
+                                    <td style="padding:5px; border-right:1px solid #000; border-left:1px solid #000;" align="center">
+                                            <span t-esc="product.product_uom.name"/>
+                                    </td>
+                                    <td style="padding:5px; border-right:1px solid #000; border-left:1px solid #000;" align="center">
+                                            <span t-esc="'{0:,.2f}'.format(product.price_unit)"/>
+                                    </td>
+                                    
+                                    <td style="padding:5px; border-right:1px solid #000; border-left:1px solid #000;" align="right">
+                                            <!-- <t t-esc="subtotal "/> -->
+                                            <!-- <t t-raw="product.taxes_id.compute_all(price_unit=product.price_unit)"/> -->
+                                            <!-- <t t-set="taxes" t-value="product.taxes_id.compute_all(price_unit=product.price_unit,quantity=product.product_qty)"/> -->
+                                        
+                                            <!-- <t t-esc="doc.subtotal_include"/> -->
+                                            <!-- <t t-set="total_included" t-value="taxes.get('total_included',0)"/> -->
+                                            <span t-esc="'{0:,.2f}'.format(product.price_subtotal)"/>
+                                    </td>
+                                </tr>
+                        </t>
+                        <tr style="border-top:1px solid #000;">
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td>Total</td>
+                            <td style="border:1px solid #000; padding:5px;" align="right">
+                                <t t-esc="'{0:,.2f}'.format(doc.amount_total)"/>
+                            </td>
+                        </tr>
+                    </table>   
+                    <div class="bottom" style="width:100%;">
+                        Keterangan:
+                        <div class="first-bottom" style="width:40%; border:1px solid #000; padding:0 3px 0 6px;">
+                            Pembayaran : <br/>
+                            7 Hari Setelah Pengiriman <br/> <br/>
+
+                            Catatan: <t t-esc="doc.notes"/>
+                        </div>
+
+                        <div class="second-bottom" style="border:1px solid #000; width:100%; padding-left:5px;">
+                            Hormat Kami,
+
+                                <div class="ttd">
+                                
+                                    <table style="width:100%;">
+                                        <tr>
+                                            <td colspan="3" align="center">PT NUSATAMA BERKAH</td>
+                                            <td align="center">Menyetujui,</td>
+                                        </tr>
+                                        <tr>
+                                            <td height="75"></td>
+                                            <td height="75"></td>
+                                        </tr>
+                                        <tr>
+                                            <td></td>
+                                            <td><span t-field="doc.create_uid.name"/></td>
+                                            <td></td>
+                                            <td align="center"><span t-field="doc.partner_contact_id.name"/></td>
+                                        </tr>
+                                    </table>
+
+                                </div>
+                        </div>
+
+                        <div class="third-bottom" style="border:1px solid #000; padding:0 0 0 10px;">
+                            <b>
+                                CATATAN: <br/>
+                                - Mohon pada saat tagihan dilampirkan Invoice, Faktur Pajak,Tanda terima barang dan copy PO
+                            </b>
+                        </div>
+                    </div> 
+           </div>
+            </t>
+        </template>
+
+
+        <template id="purchase_order_report">
+            <t t-call="web.html_container">
+                <t t-foreach="docs" t-as="doc">
+                    <t t-call="nusatama_purchase_extends.purchase_order_report_document"/>
+                </t>
+            </t>
+        </template>
+    
+    </data>
+    
+
+</odoo>

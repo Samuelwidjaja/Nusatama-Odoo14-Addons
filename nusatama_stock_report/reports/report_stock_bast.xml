@@ -1,0 +1,162 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="stock_picking_bast_report_document">
+        <div class="header" style="width:100%;">
+            <div class="logo" style="float:left; width:60%;">
+                <img t-attf-src="/nusatama_stock_report/static/src/image/Header Receipt Goods.png" style="width:100%;"/>
+            </div>
+            <div style="width:40%; float:right; font-size:13px;">
+                <table class="table table-sm table-borderless" style="width:100%;">
+                    <tr style="background-color:#000; color:blue; font-style:italic; font-size:14px;">
+                        <th class="text-center" style="border:1px solid #000;" colspan="2">Delivery Note (BAST)</th>
+                    </tr>
+                    <tr>
+                        <td style="width:150px; background-color:#eee; border:1px solid #000;">No</td>
+                        <td style="border:1px solid #000;"><span t-field="o.name"/></td>
+                    </tr>
+                    <tr>
+                        <td style="width:150px; background-color:#eee; border:1px solid #000;">Date</td>
+                        <td style="border:1px solid #000;">
+                            <span t-field="o.scheduled_date" t-options="{'format':'dd-MM-yyyy'}" t-if="o.state != 'done'"/>
+                            <span t-field="o.date_done" t-options="{'format':'dd-MM-yyyy'}" t-if="o.state == 'done'"/>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="width:150px; background-color:#eee; border:1px solid #000;">Incoterm</td>
+                        <td style="border:1px solid #000;"><span t-field="o.incoterm_id.name"/></td>
+                    </tr>
+                    <tr>
+                        <td style="width:150px; background-color:#eee; border:1px solid #000;">Location</td>
+                        <td style="border:1px solid #000;"><span/></td>
+                    </tr>
+                </table>
+            </div>
+            <span style="clear:both; width:100%;"></span>
+        </div>
+
+        <div class="page" style="width:100%;">
+            <table style="width:100%;" class="table table-sm table-borderless">
+                <tr>
+                    <td style="width:180px;">Customer Name</td>
+                    <td style="border-bottom:1px solid #000;"><span t-field="o.partner_id.display_name"/></td>
+                </tr>
+                <tr>
+                    <td style="width:180px;">Customer Address</td>
+                    <td style="border-bottom:1px solid #000;"><span t-esc="o.partner_id.street"/> <span t-esc="o.partner_id.street2"/>, <span t-esc="o.partner_id.city"/> <span t-esc="o.partner_id.zip"/></td>
+                </tr>
+                <tr>
+                    <td style="width:180px;">Delivery To</td>
+                    <td style="border-bottom:1px solid #000;"><span t-field="o.partner_contact_id.display_name"/></td>
+                </tr>
+                <tr>
+                    <td style="width:180px;">Delivery Address</td>
+                    <td style="border-bottom:1px solid #000;"><span t-field="o.company_id.street"/> <span t-field="o.company_id.street"/>, <span t-field="o.company_id.city"/> <span t-field="o.company_id.zip"/></td>
+                </tr>
+            </table>
+
+            <t t-set="mapping_products" t-value="o.move_ids_without_package.product_id.mapped('name')"/>
+            <t t-set="products" t-value='", ".join(mapping_products)'/>
+
+            <div>
+                <p>We are pleased to inform the successful delivery of :</p>
+                <h2 style="margin-top:10px;" class="text-bold"><t t-esc="str(products)"/></h2>
+                <p>Please find below the detail of the delivery :</p>
+            </div>
+
+            <table class="table table-sm table-borderless">
+                <tr>
+                    <td style="width:15%; border:1px solid #000; background-color:#eee;">Date</td>
+                    <td style="width:35%; border:1px solid #000;"><span t-field="o.scheduled_date" t-options="{'format':'dd-MM-yyyy'}"/></td>
+                    <td style="width:15%; border:1px solid #000; background-color:#eee;">PO No.</td>
+                    <td style="width:35%; border:1px solid #000;"><span t-field="o.no_po"/></td>
+                </tr>
+                <tr>
+                    <td style="width:15%; border:1px solid #000; background-color:#eee;">Delivery Date</td>
+                    <td style="width:35%; border:1px solid #000;"><span t-field="o.date_done" t-options="{'format':'dd-MM-yyyy'}"/></td>
+                    <td style="width:15%; border:1px solid #000; background-color:#eee;">Incoterm</td>
+                    <td style="width:35%; border:1px solid #000;"><span t-field="o.incoterm_id.name"/></td>
+                </tr>
+                <tr>
+                    <td style="width:15%; border:1px solid #000; background-color:#eee;">Note</td>
+                    <td style="width:35%; border:1px solid #000;"><span t-field="o.note"/></td>
+                    <td style="width:15%; border:1px solid #000; background-color:#eee;">Incoterm Loc.</td>
+                    <td style="width:35%; border:1px solid #000;"><span t-field="o.incoterm_id.name"/></td>
+                </tr>
+            </table>
+
+            <table class="table table-sm table-borderless" style="width:100%;">
+                <tr>
+                    <th class="text-center" style="background-color:#eee; border:1px solid #000; width:7%;">Item No</th>
+                    <th class="text-center" style="background-color:#eee; border:1px solid #000; width:58%;">Item Name</th>
+                    <th class="text-center" style="background-color:#eee; border:1px solid #000; width:20%;">Unit Of Issue</th>
+                    <th class="text-center" style="background-color:#eee; border:1px solid #000; width:15%;">Qty</th>
+                </tr>
+                <t t-set="num" t-value="1"/>
+                <t t-set="serial_numbers" t-value="[]"/>
+                <t t-set="serial_number" t-value="[]"/>
+                <tr t-foreach="o.move_ids_without_package" t-as="line">
+                    <td style="border-left:1px solid #000; border-right:1px solid #000;" class="text-center"><t t-esc="num"/> <t t-set="num" t-value="num + 1"/></td>
+                    <td style="border-left:1px solid #000; border-right:1px solid #000;"><span t-field="line.product_id.name"/></td>
+                    <td style="border-left:1px solid #000; border-right:1px solid #000;"><span t-field="line.product_uom.name"/></td>
+                    <td style="border-left:1px solid #000; border-right:1px solid #000;" class="text-right"><span t-field="line.quantity_done"/></td>
+                    <t t-set="serial_numberss" t-value="serial_numbers.append(line.move_line_ids.mapped('lot_id').mapped('name'))"/>
+                </tr>
+                <t t-foreach="serial_numbers" t-as="line">
+                    <t t-foreach="line" t-as="l">
+                        <t t-if="l not in serial_number">
+                            <t t-set="sn" t-value="serial_number.append(l)"/>
+                        </t>
+                    </t>
+                </t>
+                <tr>
+                    <td style="border-left:1px solid #000; border-right:1px solid #000;"></td>
+                    <td style="border-left:1px solid #000; border-right:1px solid #000;">S/N: <t t-esc="', '.join(serial_number)"/></td>
+                    <td style="border-left:1px solid #000; border-right:1px solid #000;"></td>
+                    <td style="border-left:1px solid #000; border-right:1px solid #000;"></td>
+                </tr>
+                <tr>
+                    <td style="border-left:1px solid #000; border-right:1px solid #000;"></td>
+                    <td style="border-left:1px solid #000; border-right:1px solid #000;">Chassis No: <span t-field="o.chassis_number"/></td>
+                    <td style="border-left:1px solid #000; border-right:1px solid #000;"></td>
+                    <td style="border-left:1px solid #000; border-right:1px solid #000;"></td>
+                </tr>
+                <tr>
+                    <td style="border-left:1px solid #000; border-right:1px solid #000; border-bottom:1px solid #000;"></td>
+                    <td style="border-left:1px solid #000; border-right:1px solid #000; border-bottom:1px solid #000;">Engine No: <span t-field="o.engine_number"/></td>
+                    <td style="border-left:1px solid #000; border-right:1px solid #000; border-bottom:1px solid #000;"></td>
+                    <td style="border-left:1px solid #000; border-right:1px solid #000; border-bottom:1px solid #000;"></td>
+                </tr>
+            </table>
+        </div>
+        
+        <div class="footer" style="width:100%;">
+            <div>
+                <p style="margin-bottom:5px;">All above item(s) are received in good condition as aggred upon on the Purchase Order</p>
+                <p>For and on behalf of</p>
+            </div>
+            <table class="table table-sm table-borderless" style="width:80%; margin:0 auto;">
+                <tr style="background-color:yellow;">
+                    <td class="text-center" style="border:1px solid #000; width:50%;">PT. Nusatama Berkah</td>
+                    <td class="text-center" style="border:1px solid #000; width:50%;"><span t-field="o.partner_id.name"/></td>
+                </tr>
+                <tr>
+                    <td style="border-left:1px solid #000; border-right:1px solid #000; height:85px; width:50%;"></td>
+                    <td style="border-left:1px solid #000; border-right:1px solid #000; height:85px; width:50%;"></td>
+                </tr>
+                <tr>
+                    <td class="text-center text-bold" style="border-left:1px solid #000; border-right:1px solid #000; border-bottom:1px solid #000; width:50%;"><span t-field="o.sale_id.create_uid.name"/></td>
+                    <td class="text-center text-bold" style="border-left:1px solid #000; border-right:1px solid #000; border-bottom:1px solid #000; width:50%;"><span/></td>
+                </tr>
+            </table>
+        </div>
+    </template>
+
+    <template id="stock_picking_bast_report">
+        <t t-call="web.basic_layout">
+            <t t-foreach="docs" t-as="o">
+                <t t-call="nusatama_stock_report.stock_picking_bast_report_document"/>
+            </t>
+        </t>
+    </template>
+
+</odoo>

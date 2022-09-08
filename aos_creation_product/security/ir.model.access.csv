@@ -11,3 +11,5 @@ stock.access_product_template_stock_manager,product.template stock_manager,produ
 stock.access_product_product_stock_manager,product.product stock_manager,product.model_product_product,stock.group_stock_manager,1,0,0,0
 product.access_product_product_manager,product.product manager,product.model_product_product,base.group_system,1,0,0,0
 product.access_product_template_manager,product.template.manager,product.model_product_template,base.group_system,1,0,0,0
+mrp.access_product_product_mrp_manager,product.product mrp_manager,product.model_product_product,mrp.group_mrp_manager,1,0,0,0
+mrp.access_product_template_mrp_manager,product.template mrp_manager,product.model_product_template,mrp.group_mrp_manager,1,0,0,0

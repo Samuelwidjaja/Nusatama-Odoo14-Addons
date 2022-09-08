@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+        <!-- Report Action Delivery Order-->
+        <record id="report_stock_delivery_order" model="ir.actions.report">
+            <field name="name">Delivery Order</field>
+            <field name="model">stock.picking</field>
+            <field name="report_type">qweb-pdf</field>
+            <field name="report_name">nusatama_stock_report.stock_picking_delivery_order</field>
+            <field name="binding_type">report</field>
+            <field name="binding_model_id" eval="False"/>
+        </record>
+
+        <!-- Report Action BAST -->
+        <record id="report_stock_picking_bast" model="ir.actions.report">
+            <field name="name">Picking Bast</field>
+            <field name="model">stock.picking</field>
+            <field name="report_type">qweb-pdf</field>
+            <field name="report_name">nusatama_stock_report.stock_picking_bast_report</field>
+            <field name="binding_type">report</field>
+            <field name="binding_model_id" eval="False"/>
+        </record>
+
+        <record id="stock_report_paperformat" model="report.paperformat">
+                <field name="name">Paperformat Stock Report</field>
+                <field name="default" eval="True"/>
+                <field name="format">A5</field>
+                <field name="page_height">0</field>
+                <field name="page_width">0</field>
+                <field name="orientation">Landscape</field>
+                <field name="margin_top">41</field>
+                <field name="margin_bottom">5</field>
+                <field name="margin_left">3</field>
+                <field name="margin_right">3</field>
+                <field name="header_line" eval="False"/>
+                <field name="header_spacing">39</field>
+                <field name="dpi">90</field>
+                <field name="report_ids" eval="[
+                        (4,ref('nusatama_stock_report.report_stock_delivery_order')),
+                ]"/>
+        </record>
+
+        <record id="stock_report_bast_paperformat" model="report.paperformat">
+                <field name="name">Paperformat Stock Bast Report</field>
+                <field name="default" eval="True"/>
+                <field name="format">A4</field>
+                <field name="page_height">0</field>
+                <field name="page_width">0</field>
+                <field name="orientation">Portrait</field>
+                <field name="margin_top">43</field>
+                <field name="margin_bottom">55</field>
+                <field name="margin_left">3</field>
+                <field name="margin_right">3</field>
+                <field name="header_line" eval="False"/>
+                <field name="header_spacing">41</field>
+                <field name="dpi">90</field>
+                <field name="report_ids" eval="[
+                        (4,ref('nusatama_stock_report.report_stock_picking_bast'))
+                ]"/>
+        </record>
+</odoo>

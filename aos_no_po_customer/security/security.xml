@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record model="res.groups" id="group_dir_approved">
+        <field name="name">Sale Director Approved</field>
+        <field name="comment">Access Right for Sales Order Director Approved</field>
+    </record>
+
+    <record model="res.groups" id="group_cr_limit_approved">
+        <field name="name">Sale Credit Limit Approved</field>
+        <field name="comment">Access Right for Sales Order Credit Limit Approved</field>
+    </record>
+</odoo>
