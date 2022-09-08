@@ -17,3 +17,13 @@ class PurchaseOrder(models.Model):
             #         # get one if vendor have childs contact
             #         if child_contacts:
             #             rec.partner_contact_id = child_contacts[0].id
+
+    def update_attachment_rfq(self):
+        template_rqf = self.env.ref('purchase.email_template_edi_purchase',raise_if_not_found=False)
+        template_po = self.env.ref('purchase.email_template_edi_purchase_done',raise_if_not_found=False)
+        nusatama_report = self.env.ref('nusatama_purchase_extends.action_purchase_report',raise_if_not_found=False)
+
+        # update attachment send email po
+        if nusatama_report:
+            # template_po.update({'report_template':nusatama_report.id})
+            template_rqf.update({'report_template':nusatama_report.id})

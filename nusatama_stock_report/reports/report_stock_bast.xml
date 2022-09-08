@@ -3,7 +3,7 @@
     <template id="stock_picking_bast_report_document">
         <div class="header" style="width:100%;">
             <div class="logo" style="float:left; width:60%;">
-                <img t-attf-src="/nusatama_stock_report/static/src/image/Header Receipt Goods.png" style="width:100%;"/>
+                <img t-attf-src="/nusatama_stock_report/static/src/image/Header.png" style="width:100%;"/>
             </div>
             <div style="width:40%; float:right; font-size:13px;">
                 <table class="table table-sm table-borderless" style="width:100%;">

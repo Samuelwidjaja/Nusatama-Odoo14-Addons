@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="stock_picking_good_receipt_document">
+        <div class="header" style="width:100%;">
+            <div class="logo">
+                <img t-attf-src="nusatama_stock_report/static/src/image/Header.png" width="100%"/>
+            </div>
+        </div>
+
+        <div class="page" style="width:100%;">
+            <table class="table table-sm table-borderless" style="width:60%;">
+                <tr style="border-bottom:1px solid #000;">
+                    <td style="width:18%;">NO. PO</td>
+                    <td>: <span t-field="o.origin"/></td>
+                </tr>
+                <tr style="border-bottom:1px solid #000;">
+                    <td style="width:18%;">VENDOR</td>
+                    <td>: <span t-field="o.partner_id.name"/></td>
+                </tr>
+            </table>
+
+            <h3 class="text-center text-bold">Tanda Terima Barang</h3>
+            <table class="table table-sm table-borderless" style="width:100%;">
+                <tr>
+                    <th style="width:5%; border:1px solid #000;">NO</th>
+                    <th class="text-center" style="border:1px solid #000;">NAMA BARANG</th>
+                    <th colspan="2" class="text-center" style="border:1px solid #000;">JUMLAH / SATUAN</th>
+                    <th class="text-center" style="border:1px solid #000;">KETERANGAN</th>
+                </tr>
+                <t t-set="num" t-value="1"/>
+                <t t-if="o.move_ids_without_package">
+                    <tr t-foreach="o.move_ids_without_package" t-as="line">
+                        <td class="text-center" style="border-left:1px solid #000; border-right:1px solid #000;"><t t-esc="num"/> <t t-set="num" t-value="num + 1"/></td>
+                        <td style="border-left:1px solid #000; border-right:1px solid #000;"><span t-field="line.product_id.display_name"/></td>
+                        <td class="text-right" style="border-left:1px solid #000; border-right:1px solid #000;"><span t-field="line.quantity_done"/></td>
+                        <td class="text-center" style="border-left:1px solid #000; border-right:1px solid #000;"><span t-field="line.product_uom.name"/></td>
+                        <td style="border-left:1px solid #000; border-right:1px solid #000;"><span t-field="line.description_picking"/></td>
+                    </tr>
+                </t>
+                <t t-else="">
+                    <tr>
+                        <td colspan="5" class="text-center text-bold" style="border-left:1px solid #000; border-right:1px solid #000;">NO DATA</td>
+                    </tr>
+                </t>
+                <tr>
+                    <td colspan="5" class="text-right" style="border-top:1px solid #000; border-left:1px solid #000; border-right:1px solid #000; padding-top:5px;">Bekasi,.....................................................20..........</td>
+                </tr>
+                <tr>
+                    <td colspan="2" style="border-left:1px solid #000; padding-left:10px;">Diterima Oleh: <span t-field="o.write_uid.name"/></td>
+                    <td colspan="3" style="border-right:1px solid #000; padding-left:14px;">Dikirim Oleh: <span/></td>
+                </tr>
+                <tr>
+                    <td colspan="2" style="border-left:1px solid #000; padding-left:10px; border-bottom:1px solid #000;">Tanggal: <span t-field="o.date_done" t-options="{'format':'dd-MM-yyyy'}"/></td>
+                    <td colspan="3" style="border-right:1px solid #000; padding-left:14px; border-bottom:1px solid #000;">Tanggal: <span t-field="o.date_done" t-options="{'format':'dd-MM-yyyy'}"/></td>
+                </tr>
+            </table>
+        </div>
+    </template>
+
+    <template id="stock_picking_good_receipt">
+        <t t-call="web.basic_layout">
+            <t t-foreach="docs" t-as="o">
+                <t t-call="nusatama_stock_report.stock_picking_good_receipt_document"/>
+            </t>
+        </t>
+    </template>    
+
+</odoo>
