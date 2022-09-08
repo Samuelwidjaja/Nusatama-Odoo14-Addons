@@ -1,0 +1,16 @@
+<?xml version='1.0' encoding='utf-8'?>
+<odoo>
+    <record id="sale_inherit_po" model="ir.ui.view">
+        <field name="name">sale_inherited_po</field>
+        <field name="model">sale.order</field>
+        <field name="inherit_id" ref="sale.view_order_form"/>
+        <field name="arch" type="xml">
+            <field name ="analytic_account_id" position="attributes">
+                <attribute name="readonly">1</attribute> 
+            </field>
+            <xpath expr="/form/sheet/group[1]/group/field[@name='partner_id']" position="after">
+                    <field name="customer_reference" string="Customer Reference" attrs="{'readonly':[('state','!=','draft')]}"/>
+            </xpath>
+        </field>
+    </record>
+</odoo>
