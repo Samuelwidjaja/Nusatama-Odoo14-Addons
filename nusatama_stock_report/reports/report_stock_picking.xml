@@ -5,7 +5,7 @@
         <!-- Header -->
         <div class="header" style="width:100%;">
             <div class="logo" style="width:70%; float:left;">
-                <img t-attf-src="/nusatama_stock_report/static/src/image/Header Receipt Goods.png" style="width:100%;"/>
+                <img t-attf-src="/nusatama_stock_report/static/src/image/Header.png" style="width:100%;"/>
             </div>
             <div style="width:30%; float:right;">
                 <table class="table table-sm table-borderless" style="width:100%;">
