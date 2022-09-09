@@ -12,7 +12,7 @@
                     <attribute name="invisible">1</attribute>
             </xpath>
             <field name="partner_id" position="after">
-                <field name="client_order_ref" attrs="{'readonly':[('state','!=','draft')]}"/>
+                <field name="client_order_ref" attrs="{'readonly':[('state','in',('sale','done'))]}"/>
             </field>
         </field>
     </record>
