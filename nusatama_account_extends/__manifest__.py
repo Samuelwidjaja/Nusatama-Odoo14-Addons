@@ -12,7 +12,7 @@
         # 'views/account_invoice.xml',
         'report/report_action.xml',
         'report/report_account_invoice.xml',
-        'views/res_company.xml',
+        # 'views/res_company.xml',
     ],
     # data files containing optionally loaded demonstration data
     'demo': [

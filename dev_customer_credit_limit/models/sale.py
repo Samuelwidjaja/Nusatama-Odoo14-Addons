@@ -14,15 +14,14 @@ class sale_order(models.Model):
     _inherit= 'sale.order'
     
     exceeded_amount = fields.Float('Exceeded Amount')
-    state = fields.Selection(selection_add=[('credit_limit', 'Credit limit')])
-#     state = fields.Selection([
-#         ('draft', 'Quotation'),
-#         ('sent', 'Quotation Sent'),
-#         ('credit_limit', 'Credit limit'),
-#         ('sale', 'Sales Order'),
-#         ('done', 'Locked'),
-#         ('cancel', 'Cancelled'),
-#         ], string='Status', readonly=True, copy=False, index=True, track_visibility='onchange', track_sequence=3, default='draft')
+    state = fields.Selection([
+        ('draft', 'Quotation'),
+        ('sent', 'Quotation Sent'),
+        ('credit_limit', 'Credit limit'),
+        ('sale', 'Sales Order'),
+        ('done', 'Locked'),
+        ('cancel', 'Cancelled'),
+    ], string='Status', readonly=True, copy=False, index=True, tracking=3, default='draft')
         
     @api.onchange('partner_id')
     def onchange_partner_id(self):
