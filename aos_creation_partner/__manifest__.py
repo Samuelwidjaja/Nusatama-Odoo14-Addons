@@ -14,7 +14,7 @@ Partner
     'category' : 'Tools',
     'website': 'https://www.alphasoft.co.id/',
     'images':  ['images/main_screenshot.png'],
-    'depends' : ['account', 'sale_management', 'purchase', 'stock'],
+    'depends' : ['account', 'sale_management', 'purchase', 'stock','mrp'],
     'data': [
         'security/ir_group.xml',
         'security/ir.model.access.csv',
