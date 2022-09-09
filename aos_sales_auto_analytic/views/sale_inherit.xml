@@ -8,9 +8,12 @@
             <field name ="analytic_account_id" position="attributes">
                 <attribute name="readonly">1</attribute> 
             </field>
-            <xpath expr="/form/sheet/group[1]/group/field[@name='partner_id']" position="after">
-                    <field name="customer_reference" string="Customer Reference" attrs="{'readonly':[('state','!=','draft')]}"/>
+            <xpath expr="//field[@name='client_order_ref']" position="attributes">
+                    <attribute name="invisible">1</attribute>
             </xpath>
+            <field name="partner_id" position="after">
+                <field name="client_order_ref" attrs="{'readonly':[('state','!=','draft')]}"/>
+            </field>
         </field>
     </record>
 </odoo>

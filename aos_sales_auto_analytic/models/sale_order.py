@@ -4,10 +4,14 @@ from odoo.exceptions import UserError, ValidationError
 
 class SaleOrder(models.Model):
     _inherit = "sale.order"
-    customer_reference = fields.Char()
+    # customer_reference = fields.Char()
     
     def action_confirm(self):
+        if not self.client_order_ref:
+            raise UserError('Customer Reference cannot empty and must be fill')
+
         result = super(SaleOrder, self).action_confirm()
+
         if not self.analytic_account_id:
             self._saleorder_analytic_account_value()
         return result
