@@ -9,7 +9,7 @@
     """,
     # data files always loaded at installation
     'data': [
-        # 'views/purchase_order.xml',
+        'views/purchase_order.xml',
         'reports/report_purchase.xml',
         'reports/report.xml',
     ],

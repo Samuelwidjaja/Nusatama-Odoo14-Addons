@@ -3,17 +3,26 @@
     <data>
         <function model="purchase.order" name="update_attachment_rfq" eval="[[]]"/>
     </data>
+    <record id="purchase.action_report_purchase_order" model="ir.actions.report">
+        <field name="binding_model_id" eval="False"/>
+    </record>
+    <record id="purchase.report_purchase_quotation" model="ir.actions.report">
+        <field name="binding_model_id" eval="False"/>
+    </record>
     <record id="purchase_replace_button_print_quotation" model="ir.ui.view">
         <field name="name">replace_button_print_quotation</field>
         <field name="model">purchase.order</field>
         <field name="inherit_id" ref="purchase.purchase_order_form"/>
         <field name="arch" type="xml">
-            <xpath expr="//button[@name='print_quotation'][1]" position="attributes">
+            <xpath expr="//header" position="inside">
+                <button string="Print PO" name="%(purchase.action_report_purchase_order)d" attrs="{'invisible':[('state','not in',('purchase','done'))]}" type="action" class="oe_highlight"/>
+            </xpath>
+            <!-- <xpath expr="//button[@name='print_quotation'][1]" position="attributes">
                 <attribute name="invisible">1</attribute>
             </xpath>
             <xpath expr="//button[@name='print_quotation'][2]" position="attributes">
                 <attribute name="invisible">1</attribute>
-            </xpath>
+            </xpath> -->
         </field>
     </record>
 

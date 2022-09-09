@@ -2,6 +2,17 @@
 <odoo>
 
     <data>
+
+        <record id="action_purchase_report" model="ir.actions.report">
+            <field name="name">Request For Quotation</field>
+            <field name="model">purchase.order</field>
+            <field name="report_type">qweb-pdf</field>
+            <field name="report_name">nusatama_purchase_extends.purchase_order_report</field>
+            <field name="report_file">nusatama_purchase_extends.purchase_order_report</field>
+            <field name="print_report_name">'Request for Quotation - %s' % (object.name)</field>
+            <field name="binding_model_id" ref="model_purchase_order"/>
+            <field name="binding_type">report</field>
+        </record>
         <record id="paperformat_purchase_order_report" model="report.paperformat">
             <field name="name">Paperformat Purchase Report</field>
             <field name="default" eval="True"/>
@@ -16,16 +27,7 @@
             <field name="header_line" eval="False"/>
             <field name="header_spacing">77</field>
             <field name="dpi">90</field>
+            <field name="report_ids" eval="[(4,ref('nusatama_purchase_extends.action_purchase_report'))]"/>
         </record>
-
-        <report
-            id="action_purchase_report"
-            model="purchase.order"
-            string="Purchase Report"
-            report_type="qweb-pdf"
-            name="nusatama_purchase_extends.purchase_order_report"
-            file="nusatama_purchase_extends.purchase_order_report"
-            paperformat="nusatama_purchase_extends.paperformat_purchase_order_report"
-        />
     </data>
 </odoo>
