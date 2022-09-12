@@ -12,13 +12,19 @@
             <xpath expr="//field[@name='finished_move_line_ids']/tree/field[@name='product_id']" position="attributes">
                 <attribute name="options">{'no_open': True, 'no_create': True}</attribute>
             </xpath>
+            <xpath expr="//field[@name='move_raw_ids']/tree/field[@name='product_id']" position="attributes">
+                <attribute name="options">{'no_open': True, 'no_create': True}</attribute>
+            </xpath>
+            <xpath expr="//field[@name='move_byproduct_ids']/tree/field[@name='product_id']" position="attributes">
+                <attribute name="options">{'no_open': True, 'no_create': True}</attribute>
+            </xpath>
         </field>
     </record>
 
-    <record id="view_stock_move_raw_tree" model="ir.ui.view">
+    <!-- <record id="view_stock_move_raw_tree" model="ir.ui.view">
         <field name="name">stock.move.raw.tree</field>
         <field name="model">stock.move</field>
-        <field name="inherit_id" ref="mrp.view_stock_move_raw_tree"/>
+        <field name="inherit_id" ref="mrp.mrp_production_tree_view"/>
         <field name="groups_id" eval="[(4, ref('aos_creation_product.group_product_creation'))]"/>
         <field name="priority">1000</field>
         <field name="arch" type="xml">
@@ -26,9 +32,9 @@
                 <attribute name="options">{'no_open': True, 'no_create': True}</attribute>
             </xpath>
         </field>
-    </record>
+    </record> -->
 
-    <record id="view_stock_move_lots" model="ir.ui.view">
+    <!-- <record id="view_stock_move_lots" model="ir.ui.view">
         <field name="name">stock.move.lots.form</field>
         <field name="model">stock.move</field>
         <field name="priority">1000</field>
@@ -39,7 +45,7 @@
                 <attribute name="options">{'no_open': True, 'no_create': True}</attribute>
             </xpath>
         </field>
-    </record>
+    </record> -->
     <record id="mrp_bom_form_view" model="ir.ui.view">
         <field name="name">mrp.bom.form</field>
         <field name="model">mrp.bom</field>
