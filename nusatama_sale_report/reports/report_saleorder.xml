@@ -3,6 +3,15 @@
 <template id="sale.report_saleorder_document">
     <t t-set="company" t-value="doc.company_id"/>
     <t t-call="web.external_layout_clean">
+        <style type="text/css">
+        .o_report_layout_clean table thead tr th{
+            border-top: 3px solid #1A5FCA !important;
+            text-transform: uppercase;
+        }
+        .o_report_layout_clean table tbody tr:last-child td{
+            border-bottom: 3px solid #1A5FCA;
+        }
+    </style>
         <t t-set="doc" t-value="doc.with_context(lang=doc.partner_id.lang)" />
         <t t-set="address">
             <div t-field="doc.partner_id"
@@ -27,7 +36,7 @@
         <div class="page">
             <div class="oe_structure"/>
 
-            <h2 class="mt16">
+            <h2 class="mt16" style="color:#1A5FCA;">
                 <t t-if="not (env.context.get('proforma', False) or is_pro_forma)">
                     <span t-if="doc.state not in ['draft','sent']">Order # </span>
                     <span t-if="doc.state in ['draft','sent']">Quotation # </span>
@@ -40,42 +49,41 @@
 
             <div class="row mt32 mb32" id="informations">
                 <div t-if="doc.client_order_ref" class="col-auto col-3 mw-100 mb-2">
-                    <strong>Your Reference:</strong>
+                    <strong style="color:#1A5FCA;">Your Reference:</strong>
                     <p class="m-0" t-field="doc.client_order_ref"/>
                 </div>
                 <div t-if="doc.date_order and doc.state not in ['draft','sent']" class="col-auto col-3 mw-100 mb-2">
-                    <strong>Order Date:</strong>
+                    <strong style="color:#1A5FCA;">Order Date:</strong>
                     <p class="m-0" t-field="doc.date_order"/>
                 </div>
                 <div t-if="doc.date_order and doc.state in ['draft','sent']" class="col-auto col-3 mw-100 mb-2">
-                    <strong>Quotation Date:</strong>
+                    <strong style="color:#1A5FCA;">Quotation Date:</strong>
                     <p class="m-0" t-field="doc.date_order" t-options='{"widget": "date"}'/>
                 </div>
                 <div t-if="doc.validity_date and doc.state in ['draft', 'sent']" class="col-auto col-3 mw-100 mb-2" name="expiration_date">
-                    <strong>Expiration:</strong>
+                    <strong style="color:#1A5FCA;">Expiration:</strong>
                     <p class="m-0" t-field="doc.validity_date"/>
                 </div>
                 <div t-if="doc.user_id.name" class="col-auto col-3 mw-100 mb-2">
-                    <strong>Salesperson:</strong>
+                    <strong style="color:#1A5FCA;">Salesperson:</strong>
                     <p class="m-0" t-field="doc.user_id"/>
                 </div>
             </div>
 
             <!-- Is there a discount on at least one line? -->
             <t t-set="display_discount" t-value="any(l.discount for l in doc.order_line)"/>
-
             <table class="table table-sm o_main_table">
                 <!-- In case we want to repeat the header, remove "display: table-row-group" -->
                 <thead style="display: table-row-group">
                     <tr>
-                        <th name="th_description" class="text-left">Description</th>
-                        <th name="th_quantity" class="text-right">Quantity</th>
-                        <th name="th_priceunit" class="text-right">Unit Price</th>
-                        <th name="th_discount" t-if="display_discount" class="text-right" groups="product.group_discount_per_so_line">
+                        <th name="th_description" style="color:#1A5FCA;" class="text-left">Description</th>
+                        <th name="th_quantity" style="color:#1A5FCA;" class="text-right">Quantity</th>
+                        <th name="th_priceunit" style="color:#1A5FCA;" class="text-right">Unit Price</th>
+                        <th name="th_discount" t-if="display_discount" style="color:#1A5FCA;" class="text-right" groups="product.group_discount_per_so_line">
                             <span>Disc.%</span>
                         </th>
-                        <th name="th_taxes" class="text-right">Taxes</th>
-                        <th name="th_subtotal" class="text-right">
+                        <th name="th_taxes" style="color:#1A5FCA;" class="text-right">Taxes</th>
+                        <th name="th_subtotal" style="color:#1A5FCA;" class="text-right">
                             <span groups="account.group_show_line_subtotals_tax_excluded">Amount</span>
                             <span groups="account.group_show_line_subtotals_tax_included">Total Price</span>
                         </th>
@@ -128,7 +136,7 @@
                         <t t-if="current_section and (line_last or doc.order_line[line_index+1].display_type == 'line_section')">
                             <tr class="is-subtotal text-right">
                                 <td name="td_section_subtotal" colspan="99">
-                                    <strong class="mr16">Subtotal</strong>
+                                    <strong class="mr16" style="color:#1A5FCA;">Subtotal</strong>
                                     <span
                                         t-esc="current_subtotal"
                                         t-options='{"widget": "monetary", "display_currency": doc.pricelist_id.currency_id}'
@@ -144,8 +152,8 @@
                 <div id="total" class="row" name="total">
                     <div t-attf-class="#{'col-6' if report_type != 'html' else 'col-sm-7 col-md-6'} ml-auto">
                         <table class="table table-sm">
-                            <tr class="border-black o_subtotal" style="">
-                                <td name="td_amount_untaxed_label"><strong>Subtotal</strong></td>
+                            <tr class="border-black o_subtotal">
+                                <td name="td_amount_untaxed_label"><strong style="color:#1A5FCA;">Subtotal</strong></td>
                                 <td name="td_amount_untaxed" class="text-right">
                                     <span t-field="doc.amount_untaxed"/>
                                 </td>
@@ -174,7 +182,7 @@
                                 </tr>
                             </t>
                             <tr class="border-black o_total">
-                                <td name="td_amount_total_label"><strong>Total</strong></td>
+                                <td name="td_amount_total_label"><strong style="color:#1A5FCA;">Total</strong></td>
                                 <td name="td_amount_total" class="text-right">
                                     <span t-field="doc.amount_total"/>
                                 </td>
@@ -206,6 +214,25 @@
                 <strong>Fiscal Position Remark:</strong>
                 <span t-field="doc.fiscal_position_id.sudo().note"/>
             </p>
+        </div>
+        <div t-attf-class="footer o_clean_footer o_company_#{company.id}_layout" style="border-top:3px solid #1A5FCA;">
+            <div class="row mt8">
+                <div class="col-3">
+                    <span t-field="company.report_footer"/>
+                </div>
+                <div class="col-4 text-right">
+                    <span class="company_address" t-field="company.partner_id"
+                        t-options='{"widget": "contact", "fields": ["address"], "no_marker": true}'/>
+                </div>
+                <div class="col-4">
+                    <h4 class="mt0 mb0 text-uppercase" t-field="company.report_header"/>
+                </div>
+                <div class="col-1">
+                    <ul t-if="report_type == 'pdf'" class="list-inline pagenumber float-right text-center" style="background-color:#1A5FCA; border:2px solid #1A5FCA;">
+                        <li class="list-inline-item"><strong><span class="page"/></strong></li>
+                    </ul>
+                </div>
+            </div>
         </div>
     </t>
 </template>
