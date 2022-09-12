@@ -8,6 +8,7 @@
             <field name="report_name">nusatama_stock_report.stock_picking_delivery_order</field>
             <field name="binding_type">report</field>
             <field name="binding_model_id" eval="False"/>
+            <field name="print_report_name">'Delivery Order - %s - %s' % (object.partner_id.name or '', object.name)</field>
         </record>
 
         <!-- Report Action BAST -->
@@ -18,16 +19,17 @@
             <field name="report_name">nusatama_stock_report.stock_picking_bast_report</field>
             <field name="binding_type">report</field>
             <field name="binding_model_id" eval="False"/>
+            <field name="print_report_name">'BAST - %s - %s' % (object.partner_id.name or '', object.name)</field>
         </record>
 
 	<!-- Report Good Receipt -->
         <record id="report_good_receipt" model="ir.actions.report">
-			<field name="name">Receipt Good</field>
+	        <field name="name">Receipt Good</field>
             <field name="model">stock.picking</field>
             <field name="report_type">qweb-pdf</field>
             <field name="report_name">nusatama_stock_report.stock_picking_good_receipt</field>
             <field name="binding_type">report</field>
-			<field name="binding_model_id" eval="True"/>
+			<field name="binding_model_id" ref="stock.model_stock_picking"/>
         </record>
 
         <record id="stock_report_paperformat" model="report.paperformat">
