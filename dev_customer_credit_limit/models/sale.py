@@ -129,9 +129,9 @@ class sale_order(models.Model):
 
             draft_invoice_lines_amount = "{:.2f}".format(draft_invoice_lines_amount)
             to_invoice_amount = "{:.2f}".format(to_invoice_amount)
-            draft_invoice_lines_amount = float(draft_invoice_lines_amount)
+            draft_invoice_lines_amount = abs(float(draft_invoice_lines_amount))
             to_invoice_amount = float(to_invoice_amount)
-            available_credit = partner_id.credit_limit - partner_id.credit - to_invoice_amount - draft_invoice_lines_amount - self.amount_total
+            available_credit = partner_id.credit_limit - partner_id.credit - to_invoice_amount - draft_invoice_lines_amount
             if self.amount_total > available_credit:
                 imd = self.env['ir.model.data']
                 exceeded_amount = (to_invoice_amount + draft_invoice_lines_amount + partner_id.credit + self.amount_total) - partner_id.credit_limit
