@@ -9,11 +9,11 @@
     """,
     # data files always loaded at installation
     'data': [
-        'views/stock.xml',
         'reports/report_stock_picking.xml',
         'reports/report_stock_bast.xml',
         'reports/report_good_receipt.xml',
         'reports/report_action.xml',
+        'views/stock.xml',
     ],
     # data files containing optionally loaded demonstration data
     'images':[

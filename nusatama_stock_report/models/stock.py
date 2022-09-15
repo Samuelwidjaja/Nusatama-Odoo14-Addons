@@ -24,9 +24,3 @@ class StockPicking(models.Model):
                 rec.incoterm_id = incoterm.id
             else:
                 rec.incoterm_id = False
-
-    def print_do(self):
-        return self.env.ref('nusatama_stock_report.report_stock_delivery_order').report_action(self)
-    
-    def print_bast(self):
-        return self.env.ref('nusatama_stock_report.report_stock_picking_bast').report_action(self)
