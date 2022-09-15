@@ -49,7 +49,7 @@
                 <field name="page_height">0</field>
                 <field name="page_width">0</field>
                 <field name="orientation">Landscape</field>
-                <field name="margin_top"45</field>
+                <field name="margin_top">45</field>
                 <field name="margin_bottom">5</field>
                 <field name="margin_left">3</field>
                 <field name="margin_right">3</field>
