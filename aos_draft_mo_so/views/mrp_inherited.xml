@@ -8,7 +8,9 @@
             <xpath expr="//button[@name='action_confirm']" position="attributes">
                     <attribute name="groups">mrp.group_mrp_manager</attribute>
             </xpath>
-            
+            <xpath expr="//button[@name='action_view_mo_delivery']" position="attributes">
+                    <attribute name="attrs">{'invisible': [('state', '=', 'draft')]}</attribute>
+            </xpath>
         </field>
     </record>
 </odoo>

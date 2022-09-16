@@ -3,17 +3,33 @@ from odoo import api, fields, models
 
 class MrpAutomation(models.Model):
     _inherit = "mrp.production"
+        
+    confirm =fields.Boolean()
     
     def action_confirm(self):
-        test = 1 
         super(MrpAutomation,self).action_confirm()
         for production in self :
-            if production['state'] == 'confirmed' and test == 1 :
-                production['state'] = 'draft'
-                test +=1
-            else :
-               production['state'] = 'confirmed' 
-            
+            if production['origin'] != False:
+                if production['state'] == 'confirmed' and production['confirm'] == False :
+                    production['state'] = 'draft'
+                    production['confirm'] = True
+                else :
+                    production['state'] = 'confirmed'
+
+class StockMoves(models.Model):
+    _inherit = "stock.move"
+    
+    confirm =fields.Boolean()
+    
+    def _action_confirm(self):
+        super(StockMoves,self)._action_confirm()
+        for production in self :
+                if production['state'] == 'assigned' and production['confirm'] == False :
+                    production['state'] = 'confirmed'
+                    production['confirm'] == True
+                else :
+                    production['state'] = 'assigned'
+
         
         
                 
