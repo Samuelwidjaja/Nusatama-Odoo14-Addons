@@ -8,8 +8,53 @@
             <xpath expr="//button[@name='action_confirm']" position="attributes">
                     <attribute name="groups">mrp.group_mrp_manager</attribute>
             </xpath>
-            <xpath expr="//button[@name='action_view_mo_delivery']" position="attributes">
-                    <attribute name="attrs">{'invisible': [('state', '=', 'draft')]}</attribute>
+        </field>
+    </record>
+    <record id="mrp_production_inherits" model="ir.ui.view">
+        <field name="name">mrp.production.inherits</field>
+        <field name="model">mrp.production</field>
+        <field name="inherit_id" ref="mrp.mrp_production_tree_view"/>
+        <field name="arch" type="xml">
+            <xpath expr="//tree" position="attributes">
+                    <attribute name="create">false</attribute>
+                    <attribute name="edit">false</attribute>
+            </xpath>
+        </field>
+    </record>
+    <record id="mrp_manager_access" model="ir.ui.view">
+        <field name="name">mrp.manager.create.access</field>
+        <field name="model">mrp.production</field>
+        <field name="inherit_id" ref="mrp.mrp_production_tree_view"/>
+        <field name="groups_id" eval="[(4, ref('mrp.group_mrp_manager'))]"/>
+        <field name="arch" type="xml">
+             <xpath expr="//tree" position="attributes">
+                 <attribute name="create">true</attribute>
+                 <attribute name="edit">true</attribute>
+            </xpath>
+        </field>
+    </record>
+    
+     <record id="user_block_create_edit" model="ir.ui.view">
+        <field name="name">mrp.user.create.edit.block</field>
+        <field name="model">mrp.production</field>
+        <field name="inherit_id" ref="mrp.mrp_production_form_view"/>
+        <field name="groups_id" eval="[(4, ref('mrp.group_mrp_user'))]"/>
+        <field name="arch" type="xml">
+             <xpath expr="//form" position="attributes">
+                 <attribute name="create">false</attribute>
+                 <attribute name="edit">false</attribute>
+            </xpath>
+        </field>
+    </record>
+    <record id="mrp_manager_form_access" model="ir.ui.view">
+        <field name="name">mrp.manager.form.create.access</field>
+        <field name="model">mrp.production</field>
+        <field name="inherit_id" ref="mrp.mrp_production_form_view"/>
+        <field name="groups_id" eval="[(4, ref('mrp.group_mrp_manager'))]"/>
+        <field name="arch" type="xml">
+             <xpath expr="//form" position="attributes">
+                 <attribute name="create">true</attribute>
+                 <attribute name="edit">true</attribute>
             </xpath>
         </field>
     </record>
