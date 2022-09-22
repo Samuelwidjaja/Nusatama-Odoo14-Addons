@@ -72,29 +72,7 @@ class sale_order(models.Model):
                         order.append(line.order_id.id)
                     
                 to_invoice_amount += taxes['total_included']
-            #SO DRAFT
-            # domain = [
-            #     ('order_id.partner_id', 'in', partner_ids),
-            #     ('order_id.state', 'in', ['draft','sent'])]
-            # draft_order_lines = self.env['sale.order.line'].search(domain)
-            # draft_invoice_amount = 0.0
-            # for line in draft_order_lines:
-            #     not_invoiced = line.product_uom_qty - line.qty_invoiced
-            #     price = line.price_unit * (1 - (line.discount or 0.0) / 100.0)
-            #     taxes = line.tax_id.compute_all(
-            #         price, line.order_id.currency_id,
-            #         not_invoiced,
-            #         product=line.product_id, partner=line.order_id.partner_id)
-            #     if line.order_id.id not in order:
-            #         if line.order_id.invoice_ids:
-            #             for inv in line.order_id.invoice_ids:
-            #                 if inv.state == 'draft':
-            #                     order.append(line.order_id.id)
-            #                     break
-            #         else:
-            #             order.append(line.order_id.id)
-            #     draft_invoice_amount += taxes['total_included']
-            # #END SO DRAFT
+
             domain = [
                 ('move_id.partner_id', 'in', partner_ids),
                 ('move_id.state', '=', 'draft'),
@@ -123,7 +101,8 @@ class sale_order(models.Model):
                     price, line.move_id.currency_id,
                     line.quantity,
                     product=line.product_id, partner=line.move_id.partner_id)
-                draft_invoice_lines_amount += taxes['total_included']
+                if not taxes.get('base_tags'):
+                    draft_invoice_lines_amount += taxes['total_included']
                 if line.move_id.id not in invoice:
                     invoice.append(line.move_id.id)
 
