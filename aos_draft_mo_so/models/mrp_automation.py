@@ -1,19 +1,28 @@
-from odoo import api, fields, models
+from odoo import api, fields, models, tools
 
 
 class MrpAutomation(models.Model):
     _inherit = "mrp.production"
-    
+        
+    confirm =fields.Boolean()
     def action_confirm(self):
-        test = 1 
-        super(MrpAutomation,self).action_confirm()
         for production in self :
-            if production['state'] == 'confirmed' and test == 1 :
-                production['state'] = 'draft'
-                test +=1
+            if production['origin'] != False:
+                if production['state'] == 'draft' and production['confirm'] == False :
+                    production['state'] = 'draft'
+                    production['confirm'] = True
+                else :
+                    super(MrpAutomation,self).action_confirm()
             else :
-               production['state'] = 'confirmed' 
-            
+                    super(MrpAutomation,self).action_confirm()
+
+                    
+
+
+                    
+                
+    
+
         
         
                 

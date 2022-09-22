@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+        <record model="ir.ui.view" id="add_component_wizard_form">
+            <field name="name">add.component</field>
+            <field name="model">add.component</field>
+            <field name="type">form</field>
+            <field name="arch" type="xml">
+                <form string="Add More Material">
+                    <notebook >
+                        <page string="Add Component" name="components">
+                            <field name="name" readonly="1"/>
+                            <field name="add_component">
+                                <tree editable="bottom">
+                                    <field name="box" />
+                                    <field name="product_id" string="Products"/>
+                                    <field name="product_qty" string="Qty"/>
+                                </tree>
+                            </field>
+                        </page>
+                    </notebook>
+                    <footer>
+                        <button class="oe_highlight" type='object' name="save_exit" string="Save And Exit" />
+                    </footer>
+                </form>
+            </field>
+        </record>
+    </data>
+    <record id="action_add_component_wizard" model="ir.actions.act_window">
+            <field name="name">Add Component</field>
+            <field name="res_model">add.component</field>
+            <!-- <field name="view_type">form</field> -->
+            <field name="view_mode">form</field>
+            <field name="view_id" ref="add_component_wizard_form"/>
+            <field name="target">new</field>
+    </record>
+</odoo>
