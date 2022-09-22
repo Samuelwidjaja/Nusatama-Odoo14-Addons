@@ -10,7 +10,7 @@ class StockMove(models.Model):
         for rec in self :
                 rec.write(
                     {"analytic_account_id" : rec.group_id.mrp_production_ids.analytic_account_id})
-        super(StockMove,self)._action_confirm() 
+        return super(StockMove,self)._action_confirm() 
   
     
     
