@@ -94,6 +94,7 @@ class sale_order(models.Model):
                 ('sale_line_ids','=',False)]
             draft_invoice_lines = self.env['account.move.line'].search(domain)
             invoice=[]
+            draft_invoice_lines_amount = 0.0
             for line in draft_invoice_lines:
                 price = line.price_unit * (1 - (line.discount or 0.0) / 100.0)
                 taxes = line.tax_ids.compute_all(
