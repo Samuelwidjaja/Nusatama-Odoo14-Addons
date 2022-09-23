@@ -103,15 +103,15 @@ class sale_order(models.Model):
                     product=line.product_id, partner=line.move_id.partner_id)
                 if taxes['total_included'] > 0:
                     draft_invoice_lines_amount += taxes['total_included']
-                if line.move_id.id not in invoice:
-                    invoice.append(line.move_id.id)
+                    if line.move_id.id not in invoice:
+                        invoice.append(line.move_id.id)
 
             draft_invoice_lines_amount = "{:.2f}".format(draft_invoice_lines_amount)
             to_invoice_amount = "{:.2f}".format(to_invoice_amount)
             draft_invoice_lines_amount = float(draft_invoice_lines_amount)
             to_invoice_amount = float(to_invoice_amount)
             available_credit = (partner_id.credit_limit - partner_id.credit - to_invoice_amount - draft_invoice_lines_amount) - self.amount_total
-            if self.amount_total > available_credit:
+            if available_credit < 0:
                 imd = self.env['ir.model.data']
                 exceeded_amount = (to_invoice_amount + draft_invoice_lines_amount + partner_id.credit + self.amount_total) - partner_id.credit_limit
                 exceeded_amount = "{:.2f}".format(exceeded_amount)
