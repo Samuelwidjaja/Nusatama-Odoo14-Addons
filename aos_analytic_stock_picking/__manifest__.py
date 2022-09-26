@@ -13,7 +13,7 @@
     'category' : 'Tools',
     'website': 'https://www.alphasoft.co.id/',
     'images':  ['images/main_screenshot.png'],
-    'depends' : ['mrp','aos_sales_auto_analytic', "mrp_analytic","stock"],
+    'depends' : ['mrp','aos_sales_auto_analytic', "mrp_analytic","stock",'stock_analytic'],
     'data': [
     ],
     'demo': [],

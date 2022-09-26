@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+
+        <record id="budget_alert_approval_config" model="res.groups">
+	        <field name="name">Over Budget Approval</field>
+	        <field name="users" eval="[(4, ref('base.user_root'))]"/>
+	    </record>
+        <record id="budget_password_approval_config" model="res.groups">
+	        <field name="name">Over Budget Password</field>
+	        <field name="users" eval="[(4, ref('base.user_root'))]"/>
+	    </record>
+
+    </data>
+</odoo>

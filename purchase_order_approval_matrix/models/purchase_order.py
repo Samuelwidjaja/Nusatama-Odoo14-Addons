@@ -90,7 +90,8 @@ class PurchaseOrder(models.Model):
 
     def button_confirm(self):
         for order in self:
-            if order.state not in ['draft', 'sent']:
+            print ('--APPROVAL MATRIX--',order.state,self._context)
+            if order.state not in ['draft', 'sent'] and not self._context.get('action_budget'):
                 continue
             
             # check approval matrix
