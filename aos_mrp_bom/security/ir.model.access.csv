@@ -1,0 +1,3 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_add_component,access_add_component,aos_mrp_bom.model_add_component,base.group_user,1,1,1,1
+access_add_product,access_add_product,aos_mrp_bom.model_add_product,base.group_user,1,1,1,1

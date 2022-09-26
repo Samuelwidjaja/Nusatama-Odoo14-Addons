@@ -72,29 +72,7 @@ class sale_order(models.Model):
                         order.append(line.order_id.id)
                     
                 to_invoice_amount += taxes['total_included']
-            #SO DRAFT
-            # domain = [
-            #     ('order_id.partner_id', 'in', partner_ids),
-            #     ('order_id.state', 'in', ['draft','sent'])]
-            # draft_order_lines = self.env['sale.order.line'].search(domain)
-            # draft_invoice_amount = 0.0
-            # for line in draft_order_lines:
-            #     not_invoiced = line.product_uom_qty - line.qty_invoiced
-            #     price = line.price_unit * (1 - (line.discount or 0.0) / 100.0)
-            #     taxes = line.tax_id.compute_all(
-            #         price, line.order_id.currency_id,
-            #         not_invoiced,
-            #         product=line.product_id, partner=line.order_id.partner_id)
-            #     if line.order_id.id not in order:
-            #         if line.order_id.invoice_ids:
-            #             for inv in line.order_id.invoice_ids:
-            #                 if inv.state == 'draft':
-            #                     order.append(line.order_id.id)
-            #                     break
-            #         else:
-            #             order.append(line.order_id.id)
-            #     draft_invoice_amount += taxes['total_included']
-            # #END SO DRAFT
+
             domain = [
                 ('move_id.partner_id', 'in', partner_ids),
                 ('move_id.state', '=', 'draft'),
@@ -113,26 +91,27 @@ class sale_order(models.Model):
             domain = [
                 ('move_id.partner_id', 'in', partner_ids),
                 ('move_id.state', '=', 'draft'),
-                ('sale_line_ids', '=', False)]
+                ('sale_line_ids','=',False)]
             draft_invoice_lines = self.env['account.move.line'].search(domain)
-            draft_invoice_lines_amount = 0.0
             invoice=[]
+            draft_invoice_lines_amount = 0.0
             for line in draft_invoice_lines:
                 price = line.price_unit * (1 - (line.discount or 0.0) / 100.0)
-                taxes = (line.tax_ids or line.tax_line_id).compute_all(
+                taxes = line.tax_ids.compute_all(
                     price, line.move_id.currency_id,
                     line.quantity,
                     product=line.product_id, partner=line.move_id.partner_id)
-                draft_invoice_lines_amount += taxes['total_included']
-                if line.move_id.id not in invoice:
-                    invoice.append(line.move_id.id)
+                if taxes['total_included'] > 0:
+                    draft_invoice_lines_amount += taxes['total_included']
+                    if line.move_id.id not in invoice:
+                        invoice.append(line.move_id.id)
 
             draft_invoice_lines_amount = "{:.2f}".format(draft_invoice_lines_amount)
             to_invoice_amount = "{:.2f}".format(to_invoice_amount)
-            draft_invoice_lines_amount = abs(float(draft_invoice_lines_amount))
+            draft_invoice_lines_amount = float(draft_invoice_lines_amount)
             to_invoice_amount = float(to_invoice_amount)
-            available_credit = partner_id.credit_limit - partner_id.credit - to_invoice_amount - draft_invoice_lines_amount
-            if self.amount_total > available_credit:
+            available_credit = (partner_id.credit_limit - partner_id.credit - to_invoice_amount - draft_invoice_lines_amount) - self.amount_total
+            if available_credit < 0:
                 imd = self.env['ir.model.data']
                 exceeded_amount = (to_invoice_amount + draft_invoice_lines_amount + partner_id.credit + self.amount_total) - partner_id.credit_limit
                 exceeded_amount = "{:.2f}".format(exceeded_amount)
