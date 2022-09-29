@@ -41,3 +41,6 @@ access_account_recurring_entries_line,access.account.recurring.entries.line,mode
 
 access_multiple_invoice,multiple_invoice,model_multiple_invoice,account.group_account_manager,1,1,1,1
 access_multiple_invoice_layout,multiple_invoice_layout,model_multiple_invoice_layout,account.group_account_manager,1,1,1,1
+
+access_config_filter,access_config_filter,model_config_filter,,1,1,1,1
+access_config_filter_line,access_config_filter_line,model_config_filter_line,,1,1,1,1
