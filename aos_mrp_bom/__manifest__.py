@@ -13,7 +13,7 @@
     'category' : 'Tools',
     'website': 'https://www.alphasoft.co.id/',
     'images':  ['images/main_screenshot.png'],
-    'depends' : ['mrp','stock', 'product'],
+    'depends' : ['mrp','stock', 'product', 'aos_analytic_stock_picking'],
     'data': [
         'security/ir.model.access.csv',
         'wizard/add_component.xml',
