@@ -125,13 +125,15 @@ class AccountMove(models.Model):
         res_ids = super(AccountMove, self).create(vals_list)
         #print ('---s---',not res_ids.line_ids.filtered(lambda ml: ml.analytic_account_id.budget_line),not self._context.get('picking_budget'))
         if not res_ids.line_ids.filtered(lambda ml: ml.analytic_account_id.budget_line) and not self._context.get('picking_budget'):
+            print ('===CREATE====AnalyticLine===',res_ids)
             res_ids.line_ids.filtered(lambda ml: ml.analytic_account_id.budget_line).auth_create_analytic_lines()
         return res_ids
 
     def write(self, vals):
         res = super(AccountMove, self).write(vals)
-        #print ('==auth_create_analytic_lines==',not self._context.get('picking_budget'))
+        print ('==auth_create_analytic_lines==',self)
         if ('line_ids' in vals or ('state' in vals and vals['state'] in ('draft','posted')) and not self._context.get('picking_budget')):
+            print ('===WRITE====AnalyticLine===',res,self,self.line_ids)#.filtered(lambda ml: ml.analytic_account_id.budget_line))
             self.line_ids.filtered(lambda ml: ml.analytic_account_id.budget_line).auth_create_analytic_lines()
         return res
     
@@ -177,7 +179,7 @@ class AccountMoveLine(models.Model):
     committed_analytic_line_ids = fields.Many2many('account.analytic.line',
         'account_anayltic_line_move_line_rel',
         'move_line_id', 'analytic_line_id', 
-        string='Commited Analytic lines')
+        string='Committed Analytic lines')
 
     # @api.model
     # def create(self, vals_list):
@@ -247,12 +249,13 @@ class AccountMoveLine(models.Model):
         print ("""UPDATE ANALYTIC LINE""")
         amount = (self.credit or 0.0) - (self.debit or 0.0)
         amount_practical = self.company_currency_id.with_context(date=self.date or fields.Date.context_today(self)).compute(amount, self.analytic_account_id.currency_id) if self.analytic_account_id.currency_id else amount
-        print ('==AMT==',obj_line.committed_amount,amount_practical)
+        print ('==CMAMT==',obj_line.committed_amount,amount_practical,obj_line.committed_amount-amount_practical)
         print ('==QTY==',obj_line.unit_amount,self.quantity)
+        print ('==AMT==',obj_line.amount,amount_practical,obj_line.amount+amount_practical)
         return {
             'committed_amount': obj_line.committed_amount - amount_practical,
             'unit_amount': obj_line.unit_amount + self.quantity,
-            'amount': amount_practical,
+            'amount': obj_line.amount + amount_practical,
             'move_id': self.id,
         }
     
@@ -263,19 +266,22 @@ class AccountMoveLine(models.Model):
         #DON'T DELETE ANALYTIC LINE JUST UPDATE AMOUNT AND MOVE LINE ID
         #self.mapped('invoice_id').mapped('analytic_invoice_line_ids')
         #self.mapped('analytic_line_ids').unlink()
-        #print ('==create_analytic_lines==',self.mapped('move_id').mapped('line_ids').mapped('committed_analytic_line_ids'))
+        print ('==create_analytic_lines account==',self.mapped('move_id').mapped('line_ids').mapped('committed_analytic_line_ids'))
         if self.mapped('move_id').mapped('line_ids').mapped('committed_analytic_line_ids'):
             for obj_line in self.mapped('move_id').mapped('line_ids').mapped('committed_analytic_line_ids'):
-                move_line = self.filtered(lambda x: x.product_id == obj_line.product_id and x.analytic_account_id == obj_line.account_id and x.quantity == obj_line.unit_amount and x.account_id == obj_line.committed_account_id)
+                move_line = self.filtered(lambda x: x.product_id == obj_line.product_id and x.analytic_account_id == obj_line.account_id and x.account_id == obj_line.committed_account_id)
                 if ((not move_line.move_id.has_budget_alert_warn and not move_line.move_id.has_budget_alert_stop) or self._context.get('action_budget')) and obj_line.account_id == move_line.analytic_account_id:# and obj_line.unit_amount == move_line.quantity:
                     vals_line = move_line._auth_update_analytic_line(obj_line)
                     obj_line.write(vals_line)
         else:
-            self.mapped('analytic_line_ids').unlink()
+            #self.mapped('analytic_line_ids').unlink()
             for obj_line in self:
                 if obj_line.analytic_account_id:
                     vals_line = obj_line._prepare_analytic_line()
                     self.env['account.analytic.line'].create(vals_line)
+        
+        
+        
 
             
             

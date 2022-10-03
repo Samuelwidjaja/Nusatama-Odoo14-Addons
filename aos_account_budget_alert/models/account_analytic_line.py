@@ -26,4 +26,3 @@ class AccountAnalyticLine(models.Model):
             'analytic_line_id', 'move_line_id',
         'Invoice Line', ondelete='cascade', index=True)
     
-    

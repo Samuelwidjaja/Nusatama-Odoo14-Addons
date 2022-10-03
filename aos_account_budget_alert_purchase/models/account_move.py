@@ -4,6 +4,18 @@
 from odoo import api, fields, models, _
 from odoo.tools import ustr
 from odoo.exceptions import UserError
+# committed_analytic_line_ids
+
+class AccountMove(models.Model):
+    _inherit = "account.move"
+
+    @api.model_create_multi
+    def create(self, vals_list):
+        res_ids = super(AccountMove, self).create(vals_list)
+        mlines = res_ids.line_ids.filtered(lambda ml: ml.analytic_account_id.budget_line and not ml.committed_analytic_line_ids and ml.purchase_line_id.committed_analytic_line_ids)
+        alines = mlines.mapped('purchase_line_id').mapped('committed_analytic_line_ids')
+        mlines.committed_analytic_line_ids = [(6, 0, alines.ids)]
+        return res_ids
 
 class AccountMoveLine(models.Model):
     _inherit = "account.move.line"
@@ -32,17 +44,17 @@ class AccountMoveLine(models.Model):
                 obj_line.committed_analytic_line_ids.account_id = obj_line.analytic_account_id.id
                 obj_line.committed_analytic_line_ids.product_id = obj_line.product_id.id
                 if obj_line.move_id.state == 'draft':
-                    #print ('---draft---',obj_line.committed_analytic_line_ids.unit_amount,obj_line.committed_analytic_line_ids,obj_line.committed_analytic_line_ids.committed_amount,obj_line.committed_analytic_line_ids.amount,amount_practical,obj_line.debit,obj_line.credit)
-                    obj_line.committed_analytic_line_ids.unit_amount = obj_line.committed_analytic_line_ids.unit_amount + obj_line.quantity if obj_line.move_id.move_type in ('in_invoice', 'out_refund') else -obj_line.quantity
-                    obj_line.committed_analytic_line_ids.committed_amount = (obj_line.committed_analytic_line_ids.committed_amount + amount_practical) if not self._context.get('picking_budget') else 0
-                    obj_line.committed_analytic_line_ids.amount = obj_line.committed_analytic_line_ids.amount - amount_practical
-                    obj_line.committed_analytic_line_ids.move_id = False
-                elif obj_line.move_id.state == 'posted':
-                    #print ('---posted---',obj_line.committed_analytic_line_ids.unit_amount,obj_line.committed_analytic_line_ids.committed_amount,obj_line.committed_analytic_line_ids.amount,amount_practical if obj_line.debit else amount_practical)
-                    obj_line.committed_analytic_line_ids.unit_amount = obj_line.committed_analytic_line_ids.unit_amount - obj_line.quantity if obj_line.move_id.move_type in ('in_invoice', 'out_refund') else obj_line.quantity
-                    obj_line.committed_analytic_line_ids.committed_amount = (obj_line.committed_analytic_line_ids.committed_amount - amount_practical) if not self._context.get('picking_budget') else 0
-                    obj_line.committed_analytic_line_ids.amount = obj_line.committed_analytic_line_ids.amount + amount_practical
-                    obj_line.committed_analytic_line_ids.move_id = obj_line.move_id.id,
+                    print ('---draft---',obj_line.committed_analytic_line_ids,'commited',obj_line.committed_analytic_line_ids.committed_amount,'amount',obj_line.committed_analytic_line_ids.amount,'practical',amount_practical)
+                    obj_line.committed_analytic_line_ids.unit_amount = obj_line.committed_analytic_line_ids.unit_amount - obj_line.quantity if obj_line.move_id.move_type in ('in_invoice', 'out_refund') else -obj_line.quantity
+                    obj_line.committed_analytic_line_ids.committed_amount = obj_line.committed_analytic_line_ids.committed_amount + amount_practical if obj_line.move_id.move_type in ('in_invoice', 'out_refund') else -amount_practical
+                    obj_line.committed_analytic_line_ids.amount = obj_line.committed_analytic_line_ids.amount - amount_practical if obj_line.move_id.move_type in ('in_invoice', 'out_refund') else amount_practical
+                    #obj_line.committed_analytic_line_ids.move_id = False
+                # elif obj_line.move_id.state == 'posted':
+                #     print ('---posted---',obj_line.committed_analytic_line_ids.unit_amount,obj_line.committed_analytic_line_ids.committed_amount,obj_line.committed_analytic_line_ids.amount,amount_practical if obj_line.debit else amount_practical)
+                #     obj_line.committed_analytic_line_ids.unit_amount = obj_line.committed_analytic_line_ids.unit_amount + obj_line.quantity if obj_line.move_id.move_type in ('in_invoice', 'out_refund') else obj_line.quantity
+                #     obj_line.committed_analytic_line_ids.committed_amount = (obj_line.committed_analytic_line_ids.committed_amount - amount_practical) if not self._context.get('picking_budget') else 0
+                #     obj_line.committed_analytic_line_ids.amount = obj_line.committed_analytic_line_ids.amount + amount_practical
+                #     obj_line.committed_analytic_line_ids.move_id = obj_line.move_id.id,
                 if self._context.get('picking_id'):
                     obj_line.committed_analytic_line_ids.picking_id = self._context.get('picking_id').id
                     obj_line.committed_analytic_line_ids.stock_move_id = self._context.get('move_lines').filtered(lambda ml: ml.product_id == obj_line.product_id and ml.quantity_done == abs(obj_line.quantity))
@@ -91,3 +103,24 @@ class AccountMoveLine(models.Model):
         #         'user_id': move_line.move_id.user_id.id or move_line._uid,
         #     })
         # return result
+
+    def create_analytic_lines(self):
+        """ Create analytic items upon validation of an account.move.line having an analytic account. This
+            method first remove any existing analytic item related to the line before creating any new one.
+        """
+        #DON'T DELETE ANALYTIC LINE JUST UPDATE AMOUNT AND MOVE LINE ID
+        #self.mapped('invoice_id').mapped('analytic_invoice_line_ids')
+        #self.mapped('analytic_line_ids').unlink()
+        print ('==create_analytic_lines purchase==',self.mapped('move_id').mapped('line_ids').mapped('committed_analytic_line_ids'))
+        if self.mapped('move_id').mapped('line_ids').mapped('committed_analytic_line_ids'):
+            for obj_line in self.mapped('move_id').mapped('line_ids').mapped('committed_analytic_line_ids'):
+                move_line = self.filtered(lambda x: x.product_id == obj_line.product_id and x.analytic_account_id == obj_line.account_id and (x.account_id == obj_line.committed_account_id or x.purchase_line_id == obj_line.purchase_line_id))
+                if ((not move_line.move_id.has_budget_alert_warn and not move_line.move_id.has_budget_alert_stop) or self._context.get('action_budget')) and obj_line.account_id == move_line.analytic_account_id:# and obj_line.unit_amount == move_line.quantity:
+                    vals_line = move_line._auth_update_analytic_line(obj_line)
+                    obj_line.write(vals_line)
+        else:
+            #self.mapped('analytic_line_ids').unlink()
+            for obj_line in self:
+                if obj_line.analytic_account_id:
+                    vals_line = obj_line._prepare_analytic_line()
+                    self.env['account.analytic.line'].create(vals_line)

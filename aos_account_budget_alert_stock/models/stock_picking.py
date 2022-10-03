@@ -33,6 +33,7 @@ class StockPicking(models.Model):
             order.budget_alert_info = ''
             order.has_budget_alert_warn = False
             order.has_budget_alert_stop = False
+            committed_amount = sum(move._get_price_unit()*move.product_uom_qty*(-1 if move.location_id.usage == 'internal' else 1) for move in order.move_lines.filtered(lambda ml: ml.analytic_account_id.budget_line))
             #print ('---',planned_amount,committed_amount,practical_amount,budget_ilines)
             if (committed_amount + practical_amount) - planned_amount < 0.0:# and order.move_type in ('in_invoice', 'out_refund'):
                 budget_alert_info_warn = budget_alert_info_stop = ''
@@ -140,16 +141,6 @@ class StockPicking(models.Model):
                 self.send_mail_approve_over_budget()
         return res
 
-    # def action_invoice_open(self):
-    #     result = super(StockPicking, self).action_invoice_open()
-    #     self._check_budget_alert_info()
-    #     if self.has_budget_alert_warn:
-    #         self.state = 'over'
-    #         if not self.notify_budget_alert:
-    #             #print "SEND EMAIL TO BUDGET MANAGER"
-    #             self.send_mail_approve_over_budget()
-    #     return result
-    
     def action_over_budget(self):
         for inv in self:
             inv.approval_user_id = self.env.user.id
@@ -163,120 +154,4 @@ class StockMove(models.Model):
     committed_analytic_line_ids = fields.Many2many('account.analytic.line', 
         'account_anayltic_line_stock_move_rel',
         'analytic_line_id', 'stock_move_id', 
-        string='Commited Analytic lines')
-
-    # def _prepare_account_move_line(
-    #     self, qty, cost, credit_account_id, debit_account_id, description
-    # ):
-    #     self.ensure_one()
-    #     res = super(StockMove, self)._prepare_account_move_line(
-    #         qty, cost, credit_account_id, debit_account_id, description
-    #     )
-    #     for line in res:
-    #         if (
-    #             line[2]["account_id"]
-    #             != self.product_id.categ_id.property_stock_valuation_account_id.id
-    #         ):
-    #             if self.ids:
-    #                 line[2].update(
-    #                     {"stock_move_ids": [(6, 0, self.ids)]}
-    #                 )
-    #     return res
-
-    # def _prepare_procurement_values(self):
-    #     """
-    #     Allows to transmit analytic account from moves to new
-    #     moves through procurement.
-    #     """
-    #     res = super()._prepare_procurement_values()
-    #     if self.ids:
-    #         res.update(
-    #             {
-    #                 "stock_move_ids": [(6, 0, self.ids)],
-    #             }
-    #         )
-    #     return res
-
-    # @api.model
-    # def _prepare_merge_moves_distinct_fields(self):
-    #     fields = super()._prepare_merge_moves_distinct_fields()
-    #     fields.append("stock_move_ids")
-    #     return fields
-
-    # def auth_create_analytic_lines(self):
-    #     """ Create analytic items upon validation of an account.move.line having an analytic account. This
-    #         method first remove any existing analytic item related to the line before creating any new one.
-    #         aos_account_budget_alert
-    #     """
-    #     for obj_line in self:
-    #         if obj_line.committed_analytic_line_ids and obj_line.analytic_account_id:
-    #             obj_line.committed_analytic_line_ids.committed_amount = obj_line.price_subtotal if obj_line.move_id.move_type in ('out_invoice', 'in_refund') else -obj_line.price_subtotal
-    #             obj_line.committed_analytic_line_ids.committed_account_id = obj_line.account_id.id
-    #             obj_line.committed_analytic_line_ids.account_id = obj_line.analytic_account_id.id
-    #             obj_line.committed_analytic_line_ids.product_id = obj_line.product_id.id
-    #             obj_line.committed_analytic_line_ids.unit_amount = obj_line.quantity
-    #         elif not obj_line.committed_analytic_line_ids and obj_line.analytic_account_id:
-    #             vals_line = obj_line._auth_prepare_analytic_line()
-    #             self.env['account.analytic.line'].create(vals_line)
- 
-    # def _auth_prepare_analytic_line(self):
-    #     """ Prepare the values used to create() an account.analytic.line upon validation of an account.move.line having
-    #         an analytic account. This method is intended to be extended in other modules.
-    #     """
-    #     result = []
-    #     for move_line in self:
-    #         amount = 0.0
-    #         committed_amount = move_line.price_subtotal if move_line.move_id.move_type in ('out_invoice', 'in_refund') else -move_line.price_subtotal
-    #         #amount = (move_line.credit or 0.0) - (move_line.debit or 0.0)
-    #         #default_name = move_line.name or (move_line.ref or '/' + ' -- ' + (move_line.partner_id and move_line.partner_id.name or '/'))
-    #         result.append({
-    #             'name': move_line.name,
-    #             'date': move_line.move_id.date,
-    #             'account_id': move_line.analytic_account_id.id,
-    #             'tag_ids': [(6, 0, move_line.analytic_tag_ids.ids)],
-    #             'unit_amount': 0,#move_line.quantity,
-    #             'product_id': move_line.product_id and move_line.product_id.id or False,
-    #             'product_uom_id': move_line.product_uom_id and move_line.product_uom_id.id or False,
-    #             'committed_amount': move_line.company_currency_id.with_context(date=move_line.move_id.invoice_date or fields.Date.context_today(move_line)).compute(committed_amount, move_line.analytic_account_id.currency_id) if move_line.analytic_account_id.currency_id else committed_amount,
-    #             'amount': move_line.company_currency_id.with_context(date=move_line.move_id.invoice_date or fields.Date.context_today(move_line)).compute(amount, move_line.analytic_account_id.currency_id) if move_line.analytic_account_id.currency_id else amount,
-    #             'ref': move_line.move_id.ref or False,
-    #             'invoice_id': move_line.move_id.id,
-    #             'invoice_line_id': move_line.id,
-    #             'committed_account_id': move_line.account_id.id,
-    #             'move_id': False,
-    #             'user_id': move_line.move_id.user_id.id or move_line._uid,
-    #         })
-    #     return result
-        
-    # def _auth_update_analytic_line(self, obj_line):
-    #     print ("""UPDATE ANALYTIC LINE""")
-    #     amount = (self.credit or 0.0) - (self.debit or 0.0)
-    #     amount_practical = self.company_currency_id.with_context(date=self.date or fields.Date.context_today(self)).compute(amount, self.analytic_account_id.currency_id) if self.analytic_account_id.currency_id else amount
-    #     print ('==AMT==',obj_line.committed_amount,amount_practical)
-    #     print ('==QTY==',obj_line.unit_amount,self.quantity)
-    #     return {
-    #         'committed_amount': obj_line.committed_amount - amount_practical,
-    #         'unit_amount': obj_line.unit_amount + self.quantity,
-    #         'amount': amount_practical,
-    #         'move_id': self.id,
-    #     }
-    
-    # def create_analytic_lines(self):
-    #     """ Create analytic items upon validation of an account.move.line having an analytic account. This
-    #         method first remove any existing analytic item related to the line before creating any new one.
-    #     """
-    #     if self.mapped('move_id').mapped('line_ids').mapped('committed_analytic_line_ids'):
-    #         for obj_line in self.mapped('move_id').mapped('line_ids').mapped('committed_analytic_line_ids'):
-    #             move_line = self.filtered(lambda x: x.product_id == obj_line.product_id and x.analytic_account_id == obj_line.account_id and x.quantity == obj_line.unit_amount and x.account_id == obj_line.committed_account_id)
-    #             if ((not move_line.move_id.has_budget_alert_warn and not move_line.move_id.has_budget_alert_stop) or self._context.get('action_budget')) and obj_line.account_id == move_line.analytic_account_id:# and obj_line.unit_amount == move_line.quantity:
-    #                 vals_line = move_line._auth_update_analytic_line(obj_line)
-    #                 obj_line.write(vals_line)
-    #     else:
-    #         self.mapped('analytic_line_ids').unlink()
-    #         for obj_line in self:
-    #             if obj_line.analytic_account_id:
-    #                 vals_line = obj_line._prepare_analytic_line()
-    #                 self.env['account.analytic.line'].create(vals_line)
-
-            
-            
+        string='Committed Analytic lines')

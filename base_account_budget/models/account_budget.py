@@ -127,6 +127,7 @@ class BudgetLines(models.Model):
                         AND general_account_id=ANY(%s)""",
                                     (line.analytic_account_id.id, date_from, date_to, acc_ids,))
                 result = self.env.cr.fetchone()[0] or 0.0
+                #print ('---_compute_practical_amount----',result,line.analytic_account_id.id, date_from, date_to, acc_ids)
             line.practical_amount = result
 
     def _compute_theoretical_amount(self):
