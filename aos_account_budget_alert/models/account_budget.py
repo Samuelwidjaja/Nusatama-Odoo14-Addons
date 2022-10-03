@@ -9,7 +9,7 @@ class BudgetLines(models.Model):
     _inherit = "budget.lines"
     _description = "Budget Line"
     
-    alert_type = fields.Selection([('stop', 'Stop'),('warn', 'Warning'),('ignore', 'Ignore')], string="Alert", default='warn')
+    alert_type = fields.Selection([('stop', 'Stop'),('warn', 'Warning'),('ignore', 'Ignore')], string="Alert", default='stop')
     committed_amount = fields.Float(compute='_compute_committed_amount', string='Committed Amount', digits=0)
 
     def _compute_committed_amount(self):

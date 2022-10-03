@@ -35,7 +35,7 @@
                     <attribute name="invisible">1</attribute>
             	</xpath>
             	<xpath expr="//field[@name='budget_line']/tree/field[@name='paid_date']" position="after">
-                    <field name="alert_type"/>
+                    <field name="alert_type" groups="aos_account_budget_alert.budget_alert_type_config"/>
             	</xpath>
             	<xpath expr="//field[@name='budget_line']/tree/field[@name='planned_amount']" position="after">
                     <field name="committed_amount"/>
@@ -52,7 +52,7 @@
                     <attribute name="invisible">1</attribute>
             	</field>
             	<field name="paid_date" position="before">
-                    <field name="alert_type"/>
+                    <field name="alert_type" groups="aos_account_budget_alert.budget_alert_type_config"/>
             	</field>
             	<field name="planned_amount" position="after">
                     <field name="committed_amount"/>
@@ -69,7 +69,7 @@
                     <attribute name="invisible">1</attribute>
             	</field>
             	<field name="paid_date" position="before">
-                    <field name="alert_type"/>
+                    <field name="alert_type" groups="aos_account_budget_alert.budget_alert_type_config"/>
             	</field>
             	<field name="planned_amount" position="after">
                     <field name="committed_amount"/>
@@ -83,13 +83,13 @@
             <field name="inherit_id" ref="base_account_budget.view_account_analytic_account_form_inherit_budget"/>
             <field name="arch" type="xml">
             	<xpath expr="//field[@name='budget_line']/tree/field[@name='paid_date']" position="after">
-                    <field name="alert_type"/>
+                    <field name="alert_type" groups="aos_account_budget_alert.budget_alert_type_config"/>
             	</xpath>
             	<xpath expr="//field[@name='budget_line']/tree/field[@name='planned_amount']" position="after">
                     <field name="committed_amount"/>
             	</xpath>
             	<xpath expr="//field[@name='budget_line']/form/field[@name='planned_amount']" position="after">
-                    <field name="alert_type"/>
+                    <field name="alert_type" groups="aos_account_budget_alert.budget_alert_type_config"/>
                     <field name="committed_amount"/>
             	</xpath>
             </field>
