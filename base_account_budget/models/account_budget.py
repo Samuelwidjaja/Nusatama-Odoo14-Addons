@@ -127,6 +127,7 @@ class BudgetLines(models.Model):
                         AND general_account_id=ANY(%s)""",
                                     (line.analytic_account_id.id, date_from, date_to, acc_ids,))
                 result = self.env.cr.fetchone()[0] or 0.0
+                #print ('---_compute_practical_amount----',result,line.analytic_account_id.id, date_from, date_to, acc_ids)
             line.practical_amount = result
 
     def _compute_theoretical_amount(self):
@@ -153,8 +154,7 @@ class BudgetLines(models.Model):
                         line.date_from)
                     elapsed_timedelta = date_to - date_from
                     if elapsed_timedelta.days > 0:
-                        theo_amt = (
-                                           elapsed_timedelta.total_seconds() / line_timedelta.total_seconds()) * line.planned_amount
+                        theo_amt = (elapsed_timedelta.total_seconds() / line_timedelta.total_seconds()) * line.planned_amount
             else:
                 if line.paid_date:
                     if fields.Datetime.from_string(line.date_to) <= fields.Datetime.from_string(line.paid_date):
@@ -173,8 +173,7 @@ class BudgetLines(models.Model):
                     elif line_timedelta.days > 0 and fields.Datetime.from_string(today) < fields.Datetime.from_string(
                             line.date_to):
                         # If today is between the budget line date_from and date_to
-                        theo_amt = (
-                                           elapsed_timedelta.total_seconds() / line_timedelta.total_seconds()) * line.planned_amount
+                        theo_amt = (elapsed_timedelta.total_seconds() / line_timedelta.total_seconds()) * line.planned_amount
                     else:
                         theo_amt = line.planned_amount
 

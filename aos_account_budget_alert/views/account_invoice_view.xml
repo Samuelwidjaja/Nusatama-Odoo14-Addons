@@ -1,0 +1,102 @@
+<odoo>
+    <data>
+
+		<record id="invoice_form_inherit" model="ir.ui.view">
+            <field name="name">account.move.form.inherit</field>
+            <field name="model">account.move</field>
+            <field name="inherit_id" ref="account.view_move_form"/>
+            <field name="arch" type="xml">
+            	<field name="move_type" position="after">
+            		<div class="alert alert-info" role="alert" style="margin-bottom:0px;" attrs="{'invisible': [('has_budget_alert_warn','=',False)]}">
+	                    <b>Budget Warning Exceed Alert</b>
+	                    <field name="budget_alert_info"/>
+	                </div>
+            		<!-- <div class="alert alert-info" role="alert" style="margin-bottom:0px;" attrs="{'invisible': [('has_budget_alert_stop','=',False)]}">
+	                    <b>Budget Stop Exceed Alert</b>
+	                    <field name="budget_alert_info"/>
+	                </div> -->
+	                <field name="has_budget_alert_warn" invisible="1"/>
+	                <field name="has_budget_alert_stop" invisible="1"/>
+	                <field name="notify_budget_alert" invisible="1"/>
+            	</field>
+            	<!-- <xpath expr="/form/header/button[@name='button_cancel']" position="before">
+            		<button name="action_over_budget" type="object" states="over" string="Budget Approve" groups="aos_account_budget_alert.budget_alert_approval_config" class="oe_highlight"/>
+            	</xpath> -->
+            	<xpath expr="/form/header/button[@name='button_cancel']" position="before">
+            		<button name="action_over_budget" type="object" states="over" string="Budget Approve" groups="aos_account_budget_alert.budget_alert_approval_config" class="oe_highlight"/>
+            	</xpath>
+            	<group id="header_right_group" position="inside">
+            		<field name="approval_user_id" readonly="1"/>
+            		<field name="approval_datetime" readonly="1"/>
+            	</group>
+            </field>
+        </record>
+
+		<record id="view_account_analytic_line_tree_alert" model="ir.ui.view">
+            <field name="name">account.analytic.line.tree.inherit</field>
+            <field name="model">account.analytic.line</field>
+            <field name="inherit_id" ref="analytic.view_account_analytic_line_tree"/>
+            <field name="arch" type="xml">
+            	<field name="amount" position="before">
+					<field name="committed_amount"/>
+					<field name="committed_account_id" optional="hide"/>
+					<!-- <field name="invoice_id" optional="hide"/> -->
+					<field name="invoice_line_ids" widget="many2many_tags" optional="hide"/>
+            	</field>
+            </field>
+        </record>
+
+		<record id="view_account_analytic_line_form_alert" model="ir.ui.view">
+            <field name="name">account.analytic.line.form.inherit</field>
+            <field name="model">account.analytic.line</field>
+            <field name="inherit_id" ref="analytic.view_account_analytic_line_form"/>
+            <field name="arch" type="xml">
+            	<!-- <field name="amount" position="after">
+	                <field name="committed_amount"/>
+            	</field> -->
+				<!-- <group name="amount" position="after">
+					<group name="budget" string="Budget">
+						<field name="committed_amount"/>
+						<field name="committed_account_id"/>
+						<field name="invoice_line_ids" widget="many2many_tags"/>
+					</group>
+				</group> -->
+				<field name="product_uom_id" position="after">
+					<field name="invoice_line_ids" widget="many2many_tags"/>
+				</field>
+				<field name="general_account_id" position="after">
+					<field name="committed_account_id"/>
+				</field>
+				<field name="amount" position="before">
+					<field name="committed_amount"/>
+				</field>
+            </field>
+        </record>
+		
+        
+        <!-- <record id="invoice_supplier_form_inherit" model="ir.ui.view">
+            <field name="name">account.move.supplier.form.inherit</field>
+            <field name="model">account.move</field>
+            <field name="inherit_id" ref="account.invoice_supplier_form"/>
+            <field name="arch" type="xml">
+            	<field name="type" position="after">
+            		<div class="alert alert-info" role="alert" style="margin-bottom:0px;" attrs="{'invisible': [('has_budget_alert_warn','=',False)]}">
+	                    <b>Budget Exceed Alert</b>
+	                    <field name="budget_alert_info"/>
+	                </div>
+	                <field name="has_budget_alert_warn" invisible="1"/>
+	                <field name="has_budget_alert_stop" invisible="1"/>
+	                <field name="notify_budget_alert" invisible="1"/>
+            	</field>
+            	<xpath expr="/form/header/button[@name='action_invoice_cancel']" position="before">
+            		<button name="action_over_budget" type="object" states="over" string="Budget Approve" groups="aos_budget_invoice_alert.budget_alert_approval_config" class="oe_highlight"/>
+            	</xpath>
+            	<field name="payment_term_id" position="after">
+            		<field name="approval_user_id" readonly="1"/>
+            		<field name="approval_datetime" readonly="1"/>
+            	</field>
+            </field>
+        </record> -->
+
+    </data>
+</odoo>

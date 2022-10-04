@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+        <!-- <record model="ir.ui.view" id="view_users_form_auth">
+            <field name="name">res.users.form.printing.preferences</field>
+            <field name="model">res.users</field>
+            <field name="inherit_id" ref="base.view_users_form" />
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='partner_id']" position="after">
+                    <field name="password_auth" password="True"/>
+                </xpath>
+            </field>
+        </record>
+		
+        <record model="ir.ui.view" id="view_users_form_simple_modif_auth">
+            <field name="name">res.users.form.printing</field>
+            <field name="model">res.users</field>
+            <field name="inherit_id" ref="base.view_users_form_simple_modif" />
+            <field name="arch" type="xml">
+                <field name="lang" position="before">
+                    <field name="password_auth" password="True"/>
+                </field>
+            </field>
+        </record> -->
+
+        <record model="ir.ui.view" id="crossovered_budget_alert_view_form">
+            <field name="name">budget.budget.view.form</field>
+            <field name="model">budget.budget</field>
+            <field name="inherit_id" ref="base_account_budget.crossovered_budget_view_form"/>
+            <field name="arch" type="xml">
+            	<xpath expr="//field[@name='budget_line']/tree" position="attributes">
+                    <attribute name="editable">bottom</attribute>
+            	</xpath>
+            	<xpath expr="//field[@name='budget_line']/tree/field[@name='paid_date']" position="attributes">
+                    <attribute name="invisible">1</attribute>
+            	</xpath>
+            	<xpath expr="//field[@name='budget_line']/tree/field[@name='paid_date']" position="after">
+                    <field name="alert_type"/>
+            	</xpath>
+            	<xpath expr="//field[@name='budget_line']/tree/field[@name='planned_amount']" position="after">
+                    <field name="committed_amount"/>
+            	</xpath>
+            </field>
+        </record>
+
+        <record model="ir.ui.view" id="view_crossovered_budget_alert_line_tree">
+            <field name="name">budget.lines.tree</field>
+            <field name="model">budget.lines</field>
+            <field name="inherit_id" ref="base_account_budget.view_budget_line_tree"/>
+            <field name="arch" type="xml">
+            	<field name="paid_date" position="attributes">
+                    <attribute name="invisible">1</attribute>
+            	</field>
+            	<field name="paid_date" position="before">
+                    <field name="alert_type"/>
+            	</field>
+            	<field name="planned_amount" position="after">
+                    <field name="committed_amount"/>
+            	</field>
+            </field>
+        </record>
+        
+        <record model="ir.ui.view" id="view_crossovered_budget_line_alert_form">
+            <field name="name">budget.line.form</field>
+            <field name="model">budget.lines</field>
+            <field name="inherit_id" ref="base_account_budget.view_budget_line_form"/>
+            <field name="arch" type="xml">
+            	<field name="paid_date" position="attributes">
+                    <attribute name="invisible">1</attribute>
+            	</field>
+            	<field name="paid_date" position="before">
+                    <field name="alert_type"/>
+            	</field>
+            	<field name="planned_amount" position="after">
+                    <field name="committed_amount"/>
+            	</field>
+            </field>
+        </record>
+
+        <record model="ir.ui.view" id="view_account_analytic_account_form_inherit_budget_alert">
+            <field name="name">account.analytic.account.form.inherit.budget</field>
+            <field name="model">account.analytic.account</field>
+            <field name="inherit_id" ref="base_account_budget.view_account_analytic_account_form_inherit_budget"/>
+            <field name="arch" type="xml">
+            	<xpath expr="//field[@name='budget_line']/tree/field[@name='paid_date']" position="after">
+                    <field name="alert_type"/>
+            	</xpath>
+            	<xpath expr="//field[@name='budget_line']/tree/field[@name='planned_amount']" position="after">
+                    <field name="committed_amount"/>
+            	</xpath>
+            	<xpath expr="//field[@name='budget_line']/form/field[@name='planned_amount']" position="after">
+                    <field name="alert_type"/>
+                    <field name="committed_amount"/>
+            	</xpath>
+            </field>
+        </record>
+        
+</odoo>
