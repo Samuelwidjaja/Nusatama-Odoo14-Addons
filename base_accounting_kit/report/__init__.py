@@ -33,3 +33,4 @@ from . import account_cash_book
 from . import account_day_book
 from . import account_asset_report
 from . import multiple_invoice_report
+from . import report_financial_excel
