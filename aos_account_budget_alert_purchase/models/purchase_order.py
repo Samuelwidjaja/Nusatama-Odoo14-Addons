@@ -34,6 +34,7 @@ class PurchaseOrder(models.Model):
             order.budget_alert_info = ''
             order.has_budget_alert_warn = False
             order.has_budget_alert_stop = False
+            committed_amount = -11500000
             print ('--->>>><<<<---',planned_amount,committed_amount,practical_amount,(committed_amount + practical_amount) - planned_amount,budget_ilines)
             if (committed_amount + practical_amount) - planned_amount < 0.0:
                 budget_alert_info_warn = budget_alert_info_stop = ''
