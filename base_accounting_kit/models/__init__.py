@@ -36,3 +36,4 @@ from . import account_dashboard
 from . import payment_matching
 from . import multiple_invoice
 from . import multiple_invoice_layout
+from . import config_filter

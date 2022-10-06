@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Months -->
+    <record id="monthly_jan" model="config.filter">
+        <field name="name">January</field>
+        <field name="month_int">1</field>
+        <field name="type">monthly</field>
+    </record>
+    <record id="monthly_feb" model="config.filter">
+        <field name="name">February</field>
+        <field name="month_int">2</field>
+        <field name="type">monthly</field>
+    </record>
+    <record id="monthly_mar" model="config.filter">
+        <field name="name">March</field>
+        <field name="month_int">3</field>
+        <field name="type">monthly</field>
+    </record>
+    <record id="monthly_apr" model="config.filter">
+        <field name="name">April</field>
+        <field name="month_int">4</field>
+        <field name="type">monthly</field>
+    </record>
+    <record id="monthly_may" model="config.filter">
+        <field name="name">May</field>
+        <field name="month_int">5</field>
+        <field name="type">monthly</field>
+    </record>
+    <record id="monthly_june" model="config.filter">
+        <field name="name">June</field>
+        <field name="month_int">6</field>
+        <field name="type">monthly</field>
+    </record>
+    <record id="monthly_jul" model="config.filter">
+        <field name="name">July</field>
+        <field name="month_int">7</field>
+        <field name="type">monthly</field>
+    </record>
+    <record id="monthly_aug" model="config.filter">
+        <field name="name">August</field>
+        <field name="month_int">8</field>
+        <field name="type">monthly</field>
+    </record>
+    <record id="monthly_sept" model="config.filter">
+        <field name="name">September</field>
+        <field name="month_int">9</field>
+        <field name="type">monthly</field>
+    </record>
+    <record id="monthly_oct" model="config.filter">
+        <field name="name">October</field>
+        <field name="month_int">10</field>
+        <field name="type">monthly</field>
+    </record>
+    <record id="monthly_nov" model="config.filter">
+        <field name="name">November</field>
+        <field name="month_int">11</field>
+        <field name="type">monthly</field>
+    </record>
+    <record id="monthly_dec" model="config.filter">
+        <field name="name">December</field>
+        <field name="month_int">12</field>
+        <field name="type">monthly</field>
+    </record>
+
+    <!-- Quarters -->
+    <record id="quarter_1" model="config.filter">
+        <field name="name">Q1</field>
+        <field name="type">quarter</field>
+    </record>
+    <record id="quarter_2" model="config.filter">
+        <field name="name">Q2</field>
+        <field name="type">quarter</field>
+    </record>
+    <record id="quarter_3" model="config.filter">
+        <field name="name">Q3</field>
+        <field name="type">quarter</field>
+    </record>
+    <record id="quarter_4" model="config.filter">
+        <field name="name">Q4</field>
+        <field name="type">quarter</field>
+    </record>
+</odoo>
