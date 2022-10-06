@@ -125,7 +125,7 @@ class AccountMove(models.Model):
         res_ids = super(AccountMove, self).create(vals_list)
         #print ('---s---',not res_ids.line_ids.filtered(lambda ml: ml.analytic_account_id.budget_line),not self._context.get('picking_budget'))
         if not res_ids.line_ids.filtered(lambda ml: ml.analytic_account_id.budget_line) and not self._context.get('picking_budget'):
-            print ('===CREATE====AnalyticLine===',res_ids)
+            #print ('===CREATE====AnalyticLine===',res_ids)
             res_ids.line_ids.filtered(lambda ml: ml.analytic_account_id.budget_line).auth_create_analytic_lines()
         return res_ids
 
@@ -133,7 +133,7 @@ class AccountMove(models.Model):
         res = super(AccountMove, self).write(vals)
         print ('==auth_create_analytic_lines==',self)
         if ('line_ids' in vals or ('state' in vals and vals['state'] in ('draft','posted')) and not self._context.get('picking_budget')):
-            print ('===WRITE====AnalyticLine===',res,self,self.line_ids)#.filtered(lambda ml: ml.analytic_account_id.budget_line))
+            #print ('===WRITE====AnalyticLine===',res,self,self.line_ids)#.filtered(lambda ml: ml.analytic_account_id.budget_line))
             self.line_ids.filtered(lambda ml: ml.analytic_account_id.budget_line).auth_create_analytic_lines()
         return res
     
@@ -249,9 +249,9 @@ class AccountMoveLine(models.Model):
         print ("""UPDATE ANALYTIC LINE""")
         amount = (self.credit or 0.0) - (self.debit or 0.0)
         amount_practical = self.company_currency_id.with_context(date=self.date or fields.Date.context_today(self)).compute(amount, self.analytic_account_id.currency_id) if self.analytic_account_id.currency_id else amount
-        print ('==CMAMT==',obj_line.committed_amount,amount_practical,obj_line.committed_amount-amount_practical)
-        print ('==QTY==',obj_line.unit_amount,self.quantity)
-        print ('==AMT==',obj_line.amount,amount_practical,obj_line.amount+amount_practical)
+        #print ('==CMAMT==',obj_line.committed_amount,amount_practical,obj_line.committed_amount-amount_practical)
+        #print ('==QTY==',obj_line.unit_amount,self.quantity)
+        #print ('==AMT==',obj_line.amount,amount_practical,obj_line.amount+amount_practical)
         return {
             'committed_amount': obj_line.committed_amount - amount_practical,
             'unit_amount': obj_line.unit_amount + self.quantity,

@@ -16,11 +16,17 @@ import odoo.addons.decimal_precision as dp
 
 class AccountAnalyticLine(models.Model):
     _inherit = 'account.analytic.line'
-    
+
+    @api.depends('invoice_line_ids')
+    def _get_commmited(self):
+        for line in self:
+            line.committed_locked = bool(line.invoice_line_ids.filtered(lambda ml: ml.parent_state != 'cancel'))
+
     committed_account_id = fields.Many2one('account.account', string='Committed Account')
     committed_amount = fields.Monetary('Committed', required=True, default=0.0)
     #invoice_ids = fields.Many2one('account.move', 'Invoice', ondelete='cascade', index=True)
     # invoice_line_id = fields.Many2one('account.move.line', 'Invoice', ondelete='cascade', index=True)
+    committed_locked = fields.Boolean('Committed Locked', compute='_get_commmited', store=True)
     invoice_line_ids = fields.Many2many('account.move.line', 
             'account_anayltic_line_move_line_rel',
             'analytic_line_id', 'move_line_id',
