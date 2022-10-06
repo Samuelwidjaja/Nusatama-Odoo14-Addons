@@ -34,7 +34,7 @@ class BudgetLines(models.Model):
                     """
                 self.env.cr.execute(query, (line.analytic_account_id.id, date_from, date_to, acc_ids,))
                 result = self.env.cr.fetchone()[0] or 0.0
-                print ('===result===111===',result)
+                print ('===result===111===',result,line.analytic_account_id.id, date_from, date_to)
                 if result == 0.0:
                     query = """
                         SELECT SUM(aal.committed_amount)
@@ -48,5 +48,6 @@ class BudgetLines(models.Model):
                         """
                     self.env.cr.execute(query, (line.analytic_account_id.id, date_from, date_to,))
                     result = self.env.cr.fetchone()[0] or 0.0
-                    print ('===result===222===',result)
+                    print ('-===query===-',query)
+                    print ('===result===222===',result,line.analytic_account_id.id, date_from, date_to)
             line.committed_amount = result
