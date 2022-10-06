@@ -34,7 +34,7 @@ class PurchaseOrder(models.Model):
             order.budget_alert_info = ''
             order.has_budget_alert_warn = False
             order.has_budget_alert_stop = False
-            print ('--->>>><<<<---',planned_amount,committed_amount,practical_amount,budget_ilines)
+            print ('--->>>><<<<---',planned_amount,committed_amount,practical_amount,(committed_amount + practical_amount) - planned_amount,budget_ilines)
             if (committed_amount + practical_amount) - planned_amount < 0.0:
                 budget_alert_info_warn = budget_alert_info_stop = ''
                 for line in order.order_line.filtered(lambda pol: pol.account_analytic_id):
@@ -213,7 +213,7 @@ class PurchaseOrderLine(models.Model):
         """
         #self.mapped('analytic_order_line').unlink()
         for obj_line in self:
-            print ('==auth_create_analytic_lines==',obj_line.committed_analytic_line_ids,obj_line.account_analytic_id)
+            #print ('==auth_create_analytic_lines==',obj_line.committed_analytic_line_ids,obj_line.account_analytic_id)
             if obj_line.committed_analytic_line_ids and obj_line.account_analytic_id:
                 #obj_line.committed_analytic_line_ids._origin.date = obj_line.order_id.date_order.date()
                 #obj_line.committed_analytic_line_ids._origin.account_id = obj_line.account_analytic_id.id
