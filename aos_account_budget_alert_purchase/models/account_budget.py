@@ -10,7 +10,7 @@ class BudgetLines(models.Model):
 
     def _compute_committed_amount(self):
         for line in self:
-            result = result2 = 0.0
+            result = 0.0
             acc_ids = line.general_budget_id.account_ids.ids
             if not acc_ids:
                 raise UserError(_("The Budget '%s' has no accounts!") % ustr(line.general_budget_id.name))
@@ -35,19 +35,21 @@ class BudgetLines(models.Model):
                 self.env.cr.execute(query, (line.analytic_account_id.id, date_from, date_to, acc_ids,))
                 result = self.env.cr.fetchone()[0] or 0.0
                 print ('===result===111===',result,line.analytic_account_id.id, date_from, date_to)
-                #if result:
-                query2 = """
-                    SELECT SUM(aal.committed_amount)
-                    FROM account_analytic_line aal
-                    LEFT JOIN purchase_order_line pol ON aal.purchase_line_id=pol.id
-                    LEFT JOIN purchase_order po ON po.id=pol.order_id
-                    WHERE aal.account_id=%s
-                        AND (aal.date >= %s AND aal.date <= %s)
-                        AND po.state != 'cancel'
-                        --AND aal.committed_locked = True
-                    """
-                self.env.cr.execute(query2, (line.analytic_account_id.id, date_from, date_to,))
-                result2 = self.env.cr.fetchone()[0] or 0.0
-                print ('-===query===-',query2)
-                print ('===result===222===',result2,line.analytic_account_id.id, date_from, date_to)
-            line.committed_amount = result + result2
+                if result == 0.0:
+                    query = """
+                        SELECT SUM(aal.committed_amount)
+                        FROM account_analytic_line aal
+                        LEFT JOIN purchase_order_line pol ON aal.purchase_line_id=pol.id
+                        LEFT JOIN purchase_order po ON po.id=pol.order_id
+                        LEFT JOIN account_move_line aml ON aml.purchase_line_id=pol.id
+                        LEFT JOIN account_move am ON am.id=aml.move_id
+                        WHERE aal.account_id=%s
+                            AND (aal.date >= %s AND aal.date <= %s)
+                            AND po.state = 'purchase'
+                            --AND aal.committed_locked = True
+                        """
+                    self.env.cr.execute(query, (line.analytic_account_id.id, date_from, date_to,))
+                    result = self.env.cr.fetchone()[0] or 0.0
+                    #print ('-===query===-',query)
+                    print ('===result===222===',result,line.analytic_account_id.id, date_from, date_to)
+            line.committed_amount = result
