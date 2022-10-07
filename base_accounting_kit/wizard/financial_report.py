@@ -54,18 +54,6 @@ class FinancialReport(models.TransientModel):
         string='Account Reports',
         required=True)
 
-    filter_selection = fields.Selection([
-        ('quarter','Quarter'),
-        ('monthly','Monthly'),
-        ('yearly','Yearly'),
-    ],string="Filter By", default='monthly')
-    
-    config_filter_id = fields.Many2one('config.filter',string="Filter Id",help="for related many2many relation")
-    from_id = fields.Many2one('config.filter',string="From")
-    to_id = fields.Many2one('config.filter',string="Compare To")
-    year_from = fields.Many2one('config.filter',domain=[('type','=','yearly')],string="From Year")
-    year_to = fields.Many2one('config.filter',domain=[('type','=','yearly')],string="Compare To Year")
-    multi_period = fields.Boolean(string="Multi Period")
     date_from = fields.Date(string='Start Date')
     date_to = fields.Date(string='End Date')
     debit_credit = fields.Boolean(
@@ -83,6 +71,18 @@ class FinancialReport(models.TransientModel):
         index=True,
         default=lambda self: self.env.company.id)
 
+    # Filter For Comparison
+    filter_selection = fields.Selection([
+        ('quarter','Quarter'),
+        ('monthly','Monthly'),
+        ('yearly','Yearly'),
+    ],string="Filter By", default='monthly')
+    
+    from_id = fields.Many2one('config.filter',string="From")
+    to_id = fields.Many2one('config.filter',string="Compare To")
+    year_from = fields.Many2one('config.filter',domain=[('type','=','yearly')],string="From Year")
+    year_to = fields.Many2one('config.filter',domain=[('type','=','yearly')],string="Compare To Year")
+    multi_period = fields.Boolean(string="Multi Period")
     # def view_report_pdf(self):
     #     """This function will be executed when we click the view button
     #     from the wizard. Based on the values provided in the wizard, this
@@ -154,7 +154,7 @@ class FinancialReport(models.TransientModel):
         data['form'] = self.read(
             ['date_from', 'enable_filter', 'debit_credit', 'date_to',
              'account_report_id', 'target_move', 'view_format',
-             'company_id'])[0]
+             'company_id','filter_selection'])[0]
         used_context = self._build_contexts(data)
         data['form']['used_context'] = dict(
             used_context,
@@ -162,11 +162,11 @@ class FinancialReport(models.TransientModel):
 
         if self.enable_filter:
             # get amount from filter
-            data_copy = data['form']
+            data_copy = data['form'].copy()
             if self.multi_period:
-                filter_result = self.range_comparison(self.year_from,self.year_to,self.from_id,self.to_id)
+                filter_result = self.range_comparison(data['form'],self.year_from,self.year_to,self.from_id,self.to_id)
             else:
-                filter_result = {f"{self.to_id.name} {self.year_to.name}":self.set_filter_data(self.to_id,self.year_to)}.items()
+                filter_result = {f"{self.to_id.name} {self.year_to.name}":self.set_filter_data(data['form'],self.to_id,self.year_to)}.items()
                 
             for line in filter_result:
                 data_copy['used_context'].update({'date_from':line[1].get('from_month'),'date_to':line[1].get('to_month')})
@@ -175,7 +175,7 @@ class FinancialReport(models.TransientModel):
                 res = self.froot(res)
                 result.update({line[0]:res})
 
-        filter_result = self.set_filter_data(self.from_id,self.year_from)
+        filter_result = self.set_filter_data(data['form'],self.from_id,self.year_from)
         data['form']['used_context'].update({'date_from':filter_result.get('from_month'),'date_to':filter_result.get('to_month')})
         data['form'].update({'date_from':filter_result.get('from_month'),'date_to':filter_result.get('to_month')})
 
@@ -197,11 +197,11 @@ class FinancialReport(models.TransientModel):
             return self.env.ref(
                 'base_accounting_kit.financial_report_excel').report_action(self,data=data)
 
-    def set_filter_data(self,filter=False,year=False):
+    def set_filter_data(self,data,filter=False,year=False):
         result = {}
         today = fields.Datetime.today()
         year_from = year.year_int if year else today.year
-        if self.filter_selection == 'quarter':
+        if data.get('filter_selection') == 'quarter':
             # if self.to_id:
             #     filter.update({'to_month_int':self.to_id.months.mapped('month_int').sort(),'year_to':year_to})
 
@@ -214,12 +214,12 @@ class FinancialReport(models.TransientModel):
             to_date = date(year_from,max(month_int),end_from_date)
 
             result.update({'from_month':from_date,'to_month':to_date})
-        elif self.filter_selection == 'monthly':
+        elif data.get('filter_selection') == 'monthly':
             from_date = date(year_from,filter.month_int,1)
             end_from_date = monthrange(year_from,from_date.month)[1]
             result.update({'from_month':from_date,'to_month':from_date.replace(day=end_from_date)})
         
-        elif self.filter_selection == 'yearly':
+        elif data.get('filter_selection') == 'yearly':
             year = filter.year_int
             month_int = filter.months.mapped('month_int')
             from_date = date(year,min(month_int),1)
@@ -228,14 +228,14 @@ class FinancialReport(models.TransientModel):
             result.update({'from_month':from_date,'to_month':to_date})
         return result
 
-    def range_comparison(self,from_year,to_year,filter_from=False,filter_to=False):
+    def range_comparison(self,data,from_year,to_year,filter_from=False,filter_to=False):
         today = date.today()
         default_from_year = from_year if from_year else self.env['config.filter'].search([('name','=',str(today.year))],limit=1)
         default_to_year = to_year if to_year else self.env['config.filter'].search([('name','=',str(today.year))],limit=1)
         result = {}
         list_result = []
-        get_all_filter_by_selection = self.env['config.filter'].search([('type','=',self.filter_selection)])
-        if self.filter_selection == 'quarter':
+        get_all_filter_by_selection = self.env['config.filter'].search([('type','=',data.get('filter_selection'))])
+        if data.get('filter_selection') == 'quarter':
             if default_to_year.year_int < default_from_year.year_int:
                 get_filter_from = self.env['config.filter'].search([('type','=','quarter'),('quarter_sequence','<',filter_from.quarter_sequence)])
                 get_filter_to = self.env['config.filter'].search([('type','=','quarter'),('quarter_sequence','>=',filter_to.quarter_sequence)])
@@ -279,7 +279,7 @@ class FinancialReport(models.TransientModel):
                 for line in get_filter:
                     list_result.append({line.name +" "+ default_from_year.name:self.set_filter_data(line,default_from_year)})
 
-        elif self.filter_selection == 'monthly':
+        elif data.get('filter_selection') == 'monthly':
             if default_to_year.year_int < default_from_year.year_int:
                 get_filter_from = self.env['config.filter'].search([('type','=','monthly'),('month_int','<',filter_from.month_int)])
                 get_filter_to = self.env['config.filter'].search([('type','=','monthly'),('month_int','>=',filter_to.month_int)])
@@ -321,13 +321,12 @@ class FinancialReport(models.TransientModel):
                 for line in get_filter:
                     list_result.append({line.name +" "+ default_from_year.name:self.set_filter_data(line,default_from_year)})
                     
-        elif self.filter_selection == 'yearly':
-            get_filter = self.env['config.filter'].search([('type','=','yearly')])
+        elif data.get('filter_selection') == 'yearly':
             if filter_from.year_int > filter_to.year_int:
-                res = get_filter.filtered(lambda x:x.year_int < filter_from.year_int and x.year_int >= filter_to.year_int)
+                res = get_all_filter_by_selection.filtered(lambda x:x.year_int < filter_from.year_int and x.year_int >= filter_to.year_int)
                 # raise UserError(f'Invalid Comparison {self.from_id.name} to {self.to_id.name}')
             else:
-                res = get_filter.filtered(lambda x:x.year_int > filter_from.year_int and x.year_int <= filter_to.year_int)
+                res = get_all_filter_by_selection.filtered(lambda x:x.year_int > filter_from.year_int and x.year_int <= filter_to.year_int)
             for line in res:
                 list_result.append({line.name:self.set_filter_data(line)})
 
