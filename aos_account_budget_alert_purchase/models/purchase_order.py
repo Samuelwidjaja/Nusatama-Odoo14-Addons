@@ -46,10 +46,10 @@ class PurchaseOrder(models.Model):
                         budget_ilines[-1][line.account_analytic_id.id]['alert_type'] == 'stop':
                         budget_alert_info_stop += '* %s - %s exceed budget %s\n'%(line.account_analytic_id.name,line.name,str(formatLang(self.env, (committed_amount + practical_amount) - planned_amount, currency_obj=line.currency_id)))
                 #self.budget_alert_info = budget_alert_info
-                if budget_ilines[-1][line.account_analytic_id.id]['alert_type'] == 'warn':
+                if line.account_analytic_id and budget_ilines[-1][line.account_analytic_id.id]['alert_type'] == 'warn':
                     order.has_budget_alert_warn = True
                     order.budget_alert_info = budget_alert_info_warn
-                if budget_ilines[-1][line.account_analytic_id.id]['alert_type'] == 'stop':
+                if line.account_analytic_id and budget_ilines[-1][line.account_analytic_id.id]['alert_type'] == 'stop':
                     order.has_budget_alert_stop = True
                     order.budget_alert_info = budget_alert_info_stop
             #print ('===_get_budget_alert_info===',order.has_budget_alert_warn,order.has_budget_alert_stop,order.budget_alert_info)
