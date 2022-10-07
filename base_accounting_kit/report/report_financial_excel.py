@@ -10,10 +10,11 @@ class PartnerXlsx(models.AbstractModel):
         sheet.set_column("A:AZ",20)
         sheet.set_column("B:B",34)
         formats = workbook.add_format
-        title = f"{data['form']['date_from'] if data['form']['date_from'] else ''} {'- ' + data['form']['date_to'] if data['form']['date_to'] else ''}"
         sheet.merge_range("A1:C1",company,formats({'bold':True,'align':'center','valign':'vcenter','font_size':16}))
         sheet.merge_range("A2:C2",data['form']['account_report_id'][1],formats({'bold':True,'valign':'vcenter','align':'center','font_size':14}))
-        sheet.merge_range("A3:C3",title,formats({'align':'center','valign':'vcenter'}))
+        if not object.enable_filter:
+            title = f"{data['form']['date_from'] if data['form']['date_from'] else ''} {'- ' + data['form']['date_to'] if data['form']['date_to'] else ''}"
+            sheet.merge_range("A3:C3",title,formats({'align':'center','valign':'vcenter'}))
         sheet.write("A6","Target Moves",formats({'align':'center'})) 
         if data['form']['target_move'] == 'all':
             sheet.write("B6",'All Entries',formats({'valign':'vcenter','align':'center'}))
@@ -33,7 +34,10 @@ class PartnerXlsx(models.AbstractModel):
 
             sheet.write(header_row,header_col,"Credit")
             header_col += 1
-        sheet.write(header_row,header_col,"Balance")
+        if object.enable_filter:
+            sheet.write(header_row,header_col,object.from_id.name + " " +(object.year_from.name if object.year_from else '') )
+        else:
+            sheet.write(header_row,header_col,"Balance")
 
         line_row = DEFAULT_COLUMN['default_row']
         line_col = DEFAULT_COLUMN['default_col']
@@ -70,5 +74,5 @@ class PartnerXlsx(models.AbstractModel):
                 line_col += 1
                 line_row = DEFAULT_COLUMN['default_row']
                 for v in data['filter'][key]:
-                    sheet.write(line_row,line_col,v['balance'])
+                    sheet.write(line_row,line_col,v['balance'],format_amount)
                     line_row += 1

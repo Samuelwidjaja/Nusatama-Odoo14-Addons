@@ -16,8 +16,8 @@
                         <group string="Dates">
                             <field name="from_id" domain="[('type','=',filter_selection)]" attrs="{'invisible':[('filter_selection','=','date')],'required':[('filter_selection','!=','date')]}" widget="selection"/>
                             <field name="year_from" domain="[('type','=','yearly')]" attrs="{'invisible':[('filter_selection','in',['date','yearly'])],'required':[('filter_selection','not in',['date','yearly'])]}" widget="selection"/>
-                            <field attrs="{'invisible':[('filter_selection','!=','date')],'required':[('filter_selection','=','date')]}" name="date_from"/>
-                            <field attrs="{'invisible':[('filter_selection','!=','date')],'required':[('filter_selection','=','date')]}" name="date_to"/>
+                            <!-- <field attrs="{'invisible':[('filter_selection','!=','date')],'required':[('filter_selection','=','date')]}" name="date_from"/>
+                            <field attrs="{'invisible':[('filter_selection','!=','date')],'required':[('filter_selection','=','date')]}" name="date_to"/> -->
                         </group>
                         <group>
                             <field name="target_move" widget="radio"/>
@@ -41,9 +41,9 @@
                         </page>
                     </notebook>
                     <footer>
-                        <button string="Print PDF" name="view_report_pdf" type="object"
-                                class="btn-primary"/>
-                        <button string="Print Excel" name="view_report_xlsx" type="object"
+                        <button string="Print PDF" name="view_report" type="object" context="{'pdf':True}"
+                                class="btn-primary" attrs="{'invisible':[('enable_filter','=',True)]}"/>
+                        <button string="Print Excel" name="view_report" type="object"
                                 class="btn-primary"/>
                         <button string="Discard" class="btn-secondary"
                                 special="cancel"/>

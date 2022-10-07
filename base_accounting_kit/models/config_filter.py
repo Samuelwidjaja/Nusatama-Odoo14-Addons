@@ -4,13 +4,13 @@ from odoo.exceptions import UserError
 class ConfigFilter(models.Model):
     _name = "config.filter"
     _description = "Configuration Filter"
-
+    
     name = fields.Char(string="Name",required=True)
     type = fields.Selection([('monthly','Monthly'),('yearly','Yearly'),('quarter','Quarter')],string="Type Filter",default="monthly",required=True)
-    month_int = fields.Integer(string="Month In Integer")
+    month_int = fields.Integer(string="Month In Integer",readonly=True)
     months = fields.One2many('config.filter.line','config_filter_id',string="Lines")
     quarter_sequence = fields.Integer(string="Quarter Sequence",help="How to describe Quarter Sequence")
-    year_int = fields.Integer(string="Year In Integer")
+    year_int = fields.Integer(string="Year In Integer",readonly=True)
     @api.onchange("type")
     def onchange_type(self):
         vals = []
