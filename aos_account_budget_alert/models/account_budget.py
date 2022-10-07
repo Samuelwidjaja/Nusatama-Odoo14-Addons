@@ -33,7 +33,9 @@ class BudgetLines(models.Model):
                         AND aal.account_id=%s
                         AND (aal.date >= %s AND aal.date <= %s)
                         AND aal.committed_account_id=ANY(%s)
-                        AND am.state != 'cancel'"""
+                        AND am.state != 'cancel'
+                        --AND aal.committed_locked = True
+                    """
                 self.env.cr.execute(query, (line.analytic_account_id.id, date_from, date_to, acc_ids,))
                 #print ('==result==',result)
                 result = self.env.cr.fetchone()[0] or 0.0

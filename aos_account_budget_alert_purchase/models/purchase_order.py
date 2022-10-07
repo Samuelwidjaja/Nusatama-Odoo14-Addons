@@ -10,6 +10,7 @@ from odoo.tools.misc import formatLang
 class PurchaseOrder(models.Model):
     _inherit = "purchase.order"
 
+    @api.depends('order_line.account_analytic_id', 'order_line.product_qty', 'order_line.price_unit')
     def _get_budget_alert_info(self):
         for order in self:
             budget_lines = order.order_line.mapped('account_analytic_id').mapped('budget_line')
@@ -33,10 +34,11 @@ class PurchaseOrder(models.Model):
             order.budget_alert_info = ''
             order.has_budget_alert_warn = False
             order.has_budget_alert_stop = False
-            #print ('---',planned_amount,committed_amount,practical_amount,budget_ilines)
+            committed_amount = committed_amount - sum(iline.price_subtotal for iline in order.order_line.filtered(lambda pol: pol.account_analytic_id.budget_line))
+            print ('--->>>><<<<---',planned_amount,committed_amount,practical_amount,(committed_amount + practical_amount) - planned_amount,budget_ilines)
             if (committed_amount + practical_amount) - planned_amount < 0.0:
                 budget_alert_info_warn = budget_alert_info_stop = ''
-                for line in order.order_line:
+                for line in order.order_line.filtered(lambda pol: pol.account_analytic_id):
                     if line.account_analytic_id and budget_ilines[-1][line.account_analytic_id.id]['planned_amount'] == planned_amount and \
                         budget_ilines[-1][line.account_analytic_id.id]['alert_type'] == 'warn':
                         budget_alert_info_warn += '* %s - %s exceed budget %s\n'%(line.account_analytic_id.name,line.name,str(formatLang(self.env, (committed_amount + practical_amount) - planned_amount, currency_obj=line.currency_id)))
@@ -44,17 +46,17 @@ class PurchaseOrder(models.Model):
                         budget_ilines[-1][line.account_analytic_id.id]['alert_type'] == 'stop':
                         budget_alert_info_stop += '* %s - %s exceed budget %s\n'%(line.account_analytic_id.name,line.name,str(formatLang(self.env, (committed_amount + practical_amount) - planned_amount, currency_obj=line.currency_id)))
                 #self.budget_alert_info = budget_alert_info
-                if budget_ilines[-1][line.account_analytic_id.id]['alert_type'] == 'warn':
+                if line.account_analytic_id and budget_ilines[-1][line.account_analytic_id.id]['alert_type'] == 'warn':
                     order.has_budget_alert_warn = True
                     order.budget_alert_info = budget_alert_info_warn
-                if budget_ilines[-1][line.account_analytic_id.id]['alert_type'] == 'stop':
+                if line.account_analytic_id and budget_ilines[-1][line.account_analytic_id.id]['alert_type'] == 'stop':
                     order.has_budget_alert_stop = True
                     order.budget_alert_info = budget_alert_info_stop
             #print ('===_get_budget_alert_info===',order.has_budget_alert_warn,order.has_budget_alert_stop,order.budget_alert_info)
  
-    has_budget_alert_warn = fields.Boolean(compute='_get_budget_alert_info', store=False)
-    has_budget_alert_stop = fields.Boolean(compute='_get_budget_alert_info', store=False)
-    budget_alert_info = fields.Text(compute='_get_budget_alert_info', store=False)
+    has_budget_alert_warn = fields.Boolean(compute='_get_budget_alert_info', store=True)
+    has_budget_alert_stop = fields.Boolean(compute='_get_budget_alert_info', store=True)
+    budget_alert_info = fields.Text(compute='_get_budget_alert_info', store=True)
     notify_budget_alert = fields.Boolean('Notify Budget Alert')
     approval_user_id = fields.Many2one('res.users','Budget Approval')
     approval_datetime = fields.Datetime('Budget Approval Date')
@@ -68,6 +70,27 @@ class PurchaseOrder(models.Model):
             #('cancel', 'Cancelled'),
         ], ondelete={'over': 'cascade'})
     
+
+    # @api.onchange('order_line')
+    # def _onchange_order_line(self):
+    #     if not self.order_line:
+    #         return
+    #     # self.order_line.filtered(lambda ml: ml.account_analytic_id.budget_line).auth_create_analytic_lines()
+    #     for line in self.order_line:
+    #         line._origin.filtered(lambda ml: ml.account_analytic_id.budget_line).auth_create_analytic_lines()
+    #         #print ('-----line=====',line,line.account_analytic_id)
+    #         if not line.account_analytic_id:
+    #             to_delete = line.committed_analytic_line_ids
+    #             line.committed_analytic_line_ids.purchase_line_id = False
+    #             to_delete.unlink()
+            # elif line.account_analytic_id:
+            #     print ('===update====',line.committed_analytic_line_ids.account_id,line.account_analytic_id,line.price_subtotal)
+            #     line.committed_analytic_line_ids.account_id = line.account_analytic_id.id
+            #     line.committed_analytic_line_ids.date = line.order_id.date_order.date()
+            #     line.committed_analytic_line_ids.product_id = line.product_id.id
+            #     line.committed_analytic_line_ids.unit_amount = line.product_qty
+            #     line.committed_analytic_line_ids.committed_amount = -line.price_subtotal
+
     def _check_budget_alert_info(self):
         for inv in self:
             #print ('_check_budget_alert_info',inv,inv.has_budget_alert_stop,self.move_type)
@@ -159,6 +182,13 @@ class PurchaseOrderLine(models.Model):
     #         'purchase_line_id', 'analytic_line_id', 
     #         string='Commited Analytic lines')
 
+    @api.onchange('account_analytic_id', 'product_id', 'quantity', 'price_unit')
+    def _onchange_account_analytic(self):
+        if not self.account_analytic_id:
+            return
+        #print ('--_onchange_account_analytic--',self.filtered(lambda ml: ml.account_analytic_id.budget_line))
+        self._origin.filtered(lambda ml: ml.account_analytic_id.budget_line).auth_create_analytic_lines()
+
     # @api.model
     # def create(self, vals_list):
     #     for vals in vals_list:
@@ -184,14 +214,30 @@ class PurchaseOrderLine(models.Model):
         """
         #self.mapped('analytic_order_line').unlink()
         for obj_line in self:
-            print ('==auth_create_analytic_lines==',obj_line.committed_analytic_line_ids,obj_line.account_analytic_id)
+            #print ('==auth_create_analytic_lines==',obj_line.committed_analytic_line_ids,obj_line.account_analytic_id)
             if obj_line.committed_analytic_line_ids and obj_line.account_analytic_id:
-                obj_line.committed_analytic_line_ids.date = obj_line.order_id.date_order.date()
-                obj_line.committed_analytic_line_ids.committed_amount = -obj_line.price_subtotal
+                #obj_line.committed_analytic_line_ids._origin.date = obj_line.order_id.date_order.date()
+                #obj_line.committed_analytic_line_ids._origin.account_id = obj_line.account_analytic_id.id
+                #obj_line.committed_analytic_line_ids._origin.product_id = obj_line.product_id.id
+                #obj_line.committed_analytic_line_ids._origin.unit_amount = obj_line.product_qty
+                #obj_line.committed_analytic_line_ids._origin.committed_amount = -obj_line.price_subtotal
+                self._cr.execute("""
+                    UPDATE account_analytic_line 
+                    SET 
+                        committed_amount=%s,
+                        date = %s::date,
+                        account_id = %s,
+                        product_id = %s,
+                        unit_amount = %s
+                    WHERE id=%s """,
+                        (-obj_line.price_subtotal,
+                        obj_line.order_id.date_order.date(),
+                        obj_line.account_analytic_id.id,
+                        obj_line.product_id.id,
+                        obj_line.product_qty,
+                        obj_line.committed_analytic_line_ids._origin.id))
+                #print ('==COMMITTED==',obj_line.committed_analytic_line_ids._origin,obj_line.account_analytic_id.id,obj_line.committed_analytic_line_ids.committed_amount)
                 #obj_line.committed_analytic_line_ids.committed_account_id = obj_line.account_id.id
-                obj_line.committed_analytic_line_ids.account_id = obj_line.account_analytic_id.id
-                obj_line.committed_analytic_line_ids.product_id = obj_line.product_id.id
-                obj_line.committed_analytic_line_ids.unit_amount = obj_line.product_qty
             elif not obj_line.committed_analytic_line_ids and obj_line.account_analytic_id:
                 vals_line = obj_line._auth_prepare_analytic_line()
                 self.env['account.analytic.line'].create(vals_line)
@@ -201,7 +247,8 @@ class PurchaseOrderLine(models.Model):
             an analytic account. This method is intended to be extended in other modules.
         """
         result = []
-        for move_line in self:
+        for move_line in self._origin:
+            #print ('----',move_line,move_line._origin)
             amount = 0.0
             committed_amount = -move_line.price_subtotal
             #amount = (move_line.credit or 0.0) - (move_line.debit or 0.0)
@@ -224,6 +271,7 @@ class PurchaseOrderLine(models.Model):
                 'move_id': False,
                 'user_id': move_line.order_id.user_id.id or move_line._uid,
             })
+        print ('===_auth_prepare_analytic_line===',result)
         return result
         
     def _auth_update_analytic_line(self):

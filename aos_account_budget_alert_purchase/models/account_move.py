@@ -9,6 +9,14 @@ from odoo.exceptions import UserError
 class AccountMove(models.Model):
     _inherit = "account.move"
 
+    def _get_budget_alert_info(self):
+        if any(self.invoice_line_ids.mapped('purchase_line_id')):
+            self.has_budget_alert_warn = self.invoice_line_ids.mapped('purchase_line_id').order_id.has_budget_alert_warn
+            self.has_budget_alert_stop = self.invoice_line_ids.mapped('purchase_line_id').order_id.has_budget_alert_stop
+            self.budget_alert_info = self.invoice_line_ids.mapped('purchase_line_id').order_id.budget_alert_info
+        else:
+            return super(AccountMove, self)._get_budget_alert_info()
+
     @api.model_create_multi
     def create(self, vals_list):
         res_ids = super(AccountMove, self).create(vals_list)
