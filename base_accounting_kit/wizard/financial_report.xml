@@ -8,21 +8,42 @@
             <field name="arch" type="xml">
                 <form>
                     <group>
+                        <group>
+                            <field name="filter_selection" required="1"/>
+                        </group>
+                        <group>
+                        </group>
                         <group string="Dates">
-                            <field name="date_from"/>
-                            <field name="date_to"/>
+                            <field name="from_id" domain="[('type','=',filter_selection)]" attrs="{'invisible':[('filter_selection','=','date')],'required':[('filter_selection','!=','date')]}" widget="selection"/>
+                            <field name="year_from" domain="[('type','=','yearly')]" attrs="{'invisible':[('filter_selection','in',['date','yearly'])],'required':[('filter_selection','not in',['date','yearly'])]}" widget="selection"/>
+                            <!-- <field attrs="{'invisible':[('filter_selection','!=','date')],'required':[('filter_selection','=','date')]}" name="date_from"/>
+                            <field attrs="{'invisible':[('filter_selection','!=','date')],'required':[('filter_selection','=','date')]}" name="date_to"/> -->
                         </group>
                         <group>
                             <field name="target_move" widget="radio"/>
                             <field name="view_format" widget="radio" invisible="1"/>
-                            <field name="enable_filter" invisible="1"/>
-                            <field name="debit_credit"/>
+                            <field name="enable_filter"/>
+                            <field name="debit_credit" attrs="{'invisible':[('enable_filter','=',True)]}"/>
                             <field name="company_id" invisible="1"/>
                         </group>
                     </group>
-
+                    <notebook attrs="{'invisible':[('enable_filter','=',False)]}">
+                        <page name="comparison" string="Comparison">
+                            <group>
+                                <group>
+                                    <field name="multi_period" />
+                                    <field name="to_id" domain="[('type','=',filter_selection)]" widget="selection"/>
+                                </group>
+                                <group>
+                                    <field name="year_to" widget="selection" attrs="{'invisible':[('filter_selection','in',['date','yearly'])]}"/>
+                                </group>
+                            </group>
+                        </page>
+                    </notebook>
                     <footer>
-                        <button string="Print" name="view_report_pdf" type="object"
+                        <button string="Print PDF" name="view_report" type="object" context="{'pdf':True}"
+                                class="btn-primary" attrs="{'invisible':[('enable_filter','=',True)]}"/>
+                        <button string="Print Excel" name="view_report" type="object"
                                 class="btn-primary"/>
                         <button string="Discard" class="btn-secondary"
                                 special="cancel"/>
