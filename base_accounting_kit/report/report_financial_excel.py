@@ -68,7 +68,7 @@ class PartnerXlsx(models.AbstractModel):
         if data.get('filter'):
             keys = data['filter'].keys()
             line_col = last_line_col
-            for key in keys:
+            for key in list(keys)[::-1]:
                 header_col += 1
                 sheet.write(header_row,header_col,key)
                 line_col += 1
