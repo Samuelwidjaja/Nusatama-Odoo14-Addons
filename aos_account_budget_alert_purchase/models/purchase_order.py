@@ -35,7 +35,7 @@ class PurchaseOrder(models.Model):
             order.has_budget_alert_warn = False
             order.has_budget_alert_stop = False
             committed_amount = committed_amount - sum(iline.price_subtotal for iline in order.order_line.filtered(lambda pol: pol.account_analytic_id.budget_line))
-            print ('--->>>><<<<---',planned_amount,committed_amount,practical_amount,(committed_amount + practical_amount) - planned_amount,budget_ilines)
+            #print ('--->>>><<<<---',planned_amount,committed_amount,sum(iline.price_subtotal for iline in order.order_line.filtered(lambda pol: pol.account_analytic_id.budget_line)),practical_amount,(committed_amount + practical_amount) - planned_amount,budget_ilines)
             if (committed_amount + practical_amount) - planned_amount < 0.0:
                 budget_alert_info_warn = budget_alert_info_stop = ''
                 for line in order.order_line.filtered(lambda pol: pol.account_analytic_id):
@@ -149,6 +149,7 @@ class PurchaseOrder(models.Model):
     
     def button_confirm(self):
         # res = super(PurchaseOrder, self).button_confirm()
+        self._get_budget_alert_info()
         if self._context.get('action_budget'):
             return super(PurchaseOrder, self).button_confirm()
         self._check_budget_alert_info()
