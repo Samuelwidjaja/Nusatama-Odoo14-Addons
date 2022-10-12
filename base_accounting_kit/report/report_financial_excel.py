@@ -42,7 +42,7 @@ class PartnerXlsx(models.AbstractModel):
         line_row = DEFAULT_COLUMN['default_row']
         line_col = DEFAULT_COLUMN['default_col']
         last_line_col = 0
-        format_amount = formats({'align':'right'})
+        format_amount = formats({'align':'right','num_format':'[$Rp-421]#,###;[$Rp-421]#,##0'})
         font_weight = formats({'bold':True})
         for line in data['report_lines']:
 
@@ -54,13 +54,13 @@ class PartnerXlsx(models.AbstractModel):
             line_col += 1
             
             if data['form']['debit_credit'] == 1:
-                sheet.write(line_row,line_col,line.get('debit'),format_amount)
+                sheet.write(line_row,line_col,line.get('debit') if line.get('debit') != 0 else 'Rp0',format_amount)
                 line_col += 1
 
-                sheet.write(line_row,line_col,line.get('credit'),format_amount)
+                sheet.write(line_row,line_col,line.get('credit') if line.get('credit') != 0 else 'Rp0',format_amount)
                 line_col += 1
 
-            sheet.write(line_row,line_col,line.get('balance'),format_amount)
+            sheet.write(line_row,line_col,line.get('balance') if line.get('balance') != 0 else 'Rp0',format_amount)
             line_row += 1
             last_line_col = line_col
             line_col = 0
@@ -74,5 +74,5 @@ class PartnerXlsx(models.AbstractModel):
                 line_col += 1
                 line_row = DEFAULT_COLUMN['default_row']
                 for v in data['filter'][key]:
-                    sheet.write(line_row,line_col,v['balance'],format_amount)
+                    sheet.write(line_row,line_col,v['balance'] if v.get('balance') != 0 else 'Rp0',format_amount)
                     line_row += 1

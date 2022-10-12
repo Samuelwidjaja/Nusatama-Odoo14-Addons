@@ -139,6 +139,7 @@ class FinancialReport(models.TransientModel):
             self.multi_period = False
             self.to_id = False
             self.year_to = False
+        else:
             self.debit_credit = False
         if self.filter_selection == 'yearly':
             self.year_from = False
@@ -363,12 +364,12 @@ class FinancialReport(models.TransientModel):
                 report_id = item['r_id']
             else:
                 item['level'] = set_report_level(item)
-            if not self._context.get('pdf'):
-                item['balance'] = f"{currency} {item['balance']:,.0f}"
+            # if not self._context.get('pdf'):
+            #     item['balance'] = f"{currency} {item['balance']:,.0f}"
             
-                if self.debit_credit == True:
-                    item['debit'] = f"{currency} {item['debit']:,.0f}"
-                    item['credit'] = f"{currency} {item['credit']:,.0f}"
+            #     if self.debit_credit == True:
+            #         item['debit'] = f"{currency} {item['debit']:,.0f}"
+            #         item['credit'] = f"{currency} {item['credit']:,.0f}"
         return report_lines
         
     def _compute_account_balance(self, accounts):
