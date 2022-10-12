@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
+    <data>
     <!-- Months -->
     <record id="monthly_jan" model="config.filter">
         <field name="name">January</field>
@@ -66,17 +67,22 @@
     <record id="quarter_1" model="config.filter">
         <field name="name">Q1</field>
         <field name="type">quarter</field>
+        <field name="quarter_sequence">1</field>
     </record>
     <record id="quarter_2" model="config.filter">
         <field name="name">Q2</field>
         <field name="type">quarter</field>
+        <field name="quarter_sequence">2</field>
     </record>
     <record id="quarter_3" model="config.filter">
         <field name="name">Q3</field>
         <field name="type">quarter</field>
+        <field name="quarter_sequence">3</field>
     </record>
     <record id="quarter_4" model="config.filter">
         <field name="name">Q4</field>
         <field name="type">quarter</field>
+        <field name="quarter_sequence">4</field>
     </record>
+    </data>
 </odoo>

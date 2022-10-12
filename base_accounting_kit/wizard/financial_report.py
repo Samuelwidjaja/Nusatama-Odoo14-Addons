@@ -20,9 +20,10 @@
 #
 #############################################################################
 import re
-
+from calendar import monthrange
+from datetime import datetime,date
 from odoo import api, models, fields
-
+from odoo.exceptions import UserError
 
 class FinancialReport(models.TransientModel):
     _name = "financial.report"
@@ -70,27 +71,277 @@ class FinancialReport(models.TransientModel):
         index=True,
         default=lambda self: self.env.company.id)
 
-    def view_report_pdf(self):
+    # Filter For Comparison
+    filter_selection = fields.Selection([
+        ('quarter','Quarter'),
+        ('monthly','Monthly'),
+        ('yearly','Yearly'),
+    ],string="Filter By", default='monthly')
+    
+    from_id = fields.Many2one('config.filter',string="From")
+    to_id = fields.Many2one('config.filter',string="Compare To")
+    year_from = fields.Many2one('config.filter',domain=[('type','=','yearly')],string="From Year")
+    year_to = fields.Many2one('config.filter',domain=[('type','=','yearly')],string="Compare To Year")
+    multi_period = fields.Boolean(string="Multi Period")
+    # def view_report_pdf(self):
+    #     """This function will be executed when we click the view button
+    #     from the wizard. Based on the values provided in the wizard, this
+    #     function will print pdf report"""
+        # self.ensure_one()
+        # data = dict()
+        # data['ids'] = self.env.context.get('active_ids', [])
+        # data['model'] = self.env.context.get('active_model', 'ir.ui.menu')
+        # data['form'] = self.read(
+        #     ['date_from', 'enable_filter', 'debit_credit', 'date_to',
+        #      'account_report_id', 'target_move', 'view_format',
+        #      'company_id'])[0]
+        # used_context = self._build_contexts(data)
+        # data['form']['used_context'] = dict(
+        #     used_context,
+        #     lang=self.env.context.get('lang') or 'en_US')
+
+        # report_lines = self.get_account_lines(data['form'])
+        # # find the journal items of these accounts
+        # journal_items = self.find_journal_items(report_lines, data['form'])
+
+        # def set_report_level(rec):
+        #     """This function is used to set the level of each item.
+        #     This level will be used to set the alignment in the dynamic reports."""
+        #     level = 1
+        #     if not rec['parent']:
+        #         return level
+        #     else:
+        #         for line in report_lines:
+        #             key = 'a_id' if line['type'] == 'account' else 'id'
+        #             if line[key] == rec['parent']:
+        #                 return level + set_report_level(line)
+
+        # # finding the root
+        # for item in report_lines:
+        #     item['balance'] = round(item['balance'], 2)
+        #     if not item['parent']:
+        #         item['level'] = 1
+        #         parent = item
+        #         report_name = item['name']
+        #         id = item['id']
+        #         report_id = item['r_id']
+        #     else:
+        #         item['level'] = set_report_level(item)
+        # currency = self._get_currency()
+        # data['currency'] = currency
+        # data['journal_items'] = journal_items
+        # data['report_lines'] = report_lines
+        # checking view type
+        # return self.env.ref(
+        #         'base_accounting_kit.financial_report_pdf').report_action(self,data)
+    def clean_filter(self):
+        if not self.enable_filter:
+            self.multi_period = False
+            self.to_id = False
+            self.year_to = False
+        else:
+            self.debit_credit = False
+        if self.filter_selection == 'yearly':
+            self.year_from = False
+
+    def view_report(self):
         """This function will be executed when we click the view button
         from the wizard. Based on the values provided in the wizard, this
-        function will print pdf report"""
+        function will print Excel report"""
         self.ensure_one()
+        self.clean_filter()
         data = dict()
-        data['ids'] = self.env.context.get('active_ids', [])
-        data['model'] = self.env.context.get('active_model', 'ir.ui.menu')
+        result = dict()
         data['form'] = self.read(
             ['date_from', 'enable_filter', 'debit_credit', 'date_to',
              'account_report_id', 'target_move', 'view_format',
-             'company_id'])[0]
+             'company_id','filter_selection'])[0]
         used_context = self._build_contexts(data)
         data['form']['used_context'] = dict(
             used_context,
             lang=self.env.context.get('lang') or 'en_US')
 
-        report_lines = self.get_account_lines(data['form'])
-        # find the journal items of these accounts
-        journal_items = self.find_journal_items(report_lines, data['form'])
+        if self.enable_filter:
+            # get amount from filter
+            data_copy = data['form'].copy()
+            if self.multi_period:
+                filter_result = self.range_comparison(data['form'],self.year_from,self.year_to,self.from_id,self.to_id)
+            else:
+                filter_result = {f"{self.to_id.name} {self.year_to.name}":self.set_filter_data(data['form'],self.to_id,self.year_to)}.items()
+                
+            for line in filter_result:
+                data_copy['used_context'].update({'date_from':line[1].get('from_month'),'date_to':line[1].get('to_month')})
+                data_copy.update({'date_from':line[1].get('from_month'),'date_to':line[1].get('to_month')})
+                res = self.get_account_lines(data_copy)
+                res = self.froot(res)
+                result.update({line[0]:res})
 
+        filter_result = self.set_filter_data(data['form'],self.from_id,self.year_from)
+        data['form']['used_context'].update({'date_from':filter_result.get('from_month'),'date_to':filter_result.get('to_month')})
+        data['form'].update({'date_from':filter_result.get('from_month'),'date_to':filter_result.get('to_month')})
+
+        report_lines = self.get_account_lines(data['form'])
+        report_lines = self.froot(report_lines)
+        # find the journal items of these accounts
+        # journal_items = self.find_journal_items(report_lines, data['form'])
+
+        # currency = self._get_currency()
+        # data['journal_items'] = journal_items
+        data['currency'] = self._get_currency()
+        data['filter'] = result
+        data['report_lines'] = report_lines
+
+        if self._context.get('pdf'):
+            return self.env.ref(
+                'base_accounting_kit.financial_report_pdf').report_action(self,data)
+        else:
+            return self.env.ref(
+                'base_accounting_kit.financial_report_excel').report_action(self,data=data)
+
+    def set_filter_data(self,data,filter=False,year=False):
+        result = {}
+        today = fields.Datetime.today()
+        year_from = year.year_int if year else today.year
+        if data.get('filter_selection') == 'quarter':
+            # if self.to_id:
+            #     filter.update({'to_month_int':self.to_id.months.mapped('month_int').sort(),'year_to':year_to})
+
+            # if self.to_id.quarter_sequence < self.from_id.quarter_sequence and year_to == year_from:
+            #     raise UserError(f"Doesnt Match Quarter {self.from_id.name} to {self.to_id.name} in the same year")
+
+            month_int = filter.months.mapped('month_int')
+            from_date = date(year_from,min(month_int),1)
+            end_from_date = monthrange(year_from,max(month_int))[1]
+            to_date = date(year_from,max(month_int),end_from_date)
+
+            result.update({'from_month':from_date,'to_month':to_date})
+        elif data.get('filter_selection') == 'monthly':
+            from_date = date(year_from,filter.month_int,1)
+            end_from_date = monthrange(year_from,from_date.month)[1]
+            result.update({'from_month':from_date,'to_month':from_date.replace(day=end_from_date)})
+        
+        elif data.get('filter_selection') == 'yearly':
+            year = filter.year_int
+            month_int = filter.months.mapped('month_int')
+            from_date = date(year,min(month_int),1)
+            end_from_date = monthrange(year_from,max(month_int))[1]
+            to_date = date(year,max(month_int),end_from_date)
+            result.update({'from_month':from_date,'to_month':to_date})
+        return result
+
+    def range_comparison(self,data,from_year,to_year,filter_from=False,filter_to=False):
+        today = date.today()
+        default_from_year = from_year if from_year else self.env['config.filter'].search([('name','=',str(today.year))],limit=1)
+        default_to_year = to_year if to_year else self.env['config.filter'].search([('name','=',str(today.year))],limit=1)
+        result = {}
+        list_result = []
+        get_all_filter_by_selection = self.env['config.filter'].search([('type','=',data.get('filter_selection'))])
+        if data.get('filter_selection') == 'quarter':
+            if default_to_year.year_int < default_from_year.year_int:
+                get_filter_from = self.env['config.filter'].search([('type','=','quarter'),('quarter_sequence','<',filter_from.quarter_sequence)])
+                get_filter_to = self.env['config.filter'].search([('type','=','quarter'),('quarter_sequence','>=',filter_to.quarter_sequence)])
+                get_filter_year = self.env['config.filter'].search([('year_int','>',default_to_year.year_int),('year_int','<',default_from_year.year_int)])
+                # raise UserError(f'Invalid Comparison {self.from_id.name} {self.year_from.name} to {self.to_id.name} {self.year_to.name}')
+                
+                for line in get_filter_from:
+                    list_result.append({line.name +" "+ default_from_year.name:self.set_filter_data(line,default_from_year)})
+
+                for line in get_filter_year:
+                    for l in get_all_filter_by_selection:
+                        list_result.append({l.name + " " + line.name:self.set_filter_data(l,line)})
+
+                for line in get_filter_to:
+                    list_result.append({line.name +" "+ default_to_year.name:self.set_filter_data(line,default_to_year)})
+                # from_date = self.set_filter_data(filter_to,to_year)
+                # raise UserError(f'Invalid Comparison {self.from_id.name} {self.year_from.name} to {self.to_id.name} {self.year_to.name}')
+
+            elif default_to_year.year_int > default_from_year.year_int:
+                get_filter_from = self.env['config.filter'].search([('type','=','quarter'),('quarter_sequence','>',filter_from.quarter_sequence)])
+                get_filter_to = self.env['config.filter'].search([('type','=','quarter'),('quarter_sequence','<=',filter_to.quarter_sequence)])
+                get_filter_year = self.env['config.filter'].search([('year_int','<',default_to_year.year_int),('year_int','>',default_from_year.year_int)])
+                # raise UserError(f'Invalid Comparison {self.from_id.name} {self.year_from.name} to {self.to_id.name} {self.year_to.name}')
+                
+                for line in get_filter_from:
+                    list_result.append({line.name +" "+ default_from_year.name:self.set_filter_data(line,default_from_year)})
+
+                for line in get_filter_year:
+                    for l in get_all_filter_by_selection:
+                        list_result.append({l.name + " " + line.name:self.set_filter_data(l,line)})
+
+                for line in get_filter_to:
+                    list_result.append({line.name +" "+ default_to_year.name:self.set_filter_data(line,default_to_year)})
+
+            elif default_to_year.year_int == default_from_year.year_int:
+                if filter_from.quarter_sequence < filter_to.quarter_sequence:
+                    get_filter = self.env['config.filter'].search([('type','=','quarter'),('quarter_sequence','>',filter_from.quarter_sequence),('quarter_sequence','<=',filter_to.quarter_sequence)])
+                else:
+                    get_filter = self.env['config.filter'].search([('type','=','quarter'),('quarter_sequence','<',filter_from.quarter_sequence),('quarter_sequence','>=',filter_to.quarter_sequence)])
+                
+                for line in get_filter:
+                    list_result.append({line.name +" "+ default_from_year.name:self.set_filter_data(line,default_from_year)})
+
+        elif data.get('filter_selection') == 'monthly':
+            if default_to_year.year_int < default_from_year.year_int:
+                get_filter_from = self.env['config.filter'].search([('type','=','monthly'),('month_int','<',filter_from.month_int)])
+                get_filter_to = self.env['config.filter'].search([('type','=','monthly'),('month_int','>=',filter_to.month_int)])
+                get_filter_year = self.env['config.filter'].search([('year_int','>',default_to_year.year_int),('year_int','<',default_from_year.year_int)])
+
+                for line in get_filter_from:
+                    list_result.append({line.name +" "+ default_from_year.name:self.set_filter_data(line,default_from_year)})
+
+                for line in get_filter_year:
+                    for l in get_all_filter_by_selection:
+                        list_result.append({l.name +" "+ line.name:self.set_filter_data(l,line)})
+
+                for line in get_filter_to:
+                    list_result.append({line.name +" "+ default_to_year.name:self.set_filter_data(line,default_to_year)})
+                # # from_date = self.set_filter_data(filter_to,to_year)
+                # raise UserError(f'Invalid Comparison {self.from_id.name} {self.year_from.name} to {self.to_id.name} {self.year_to.name}')
+
+            elif default_to_year.year_int > default_from_year.year_int:
+                get_filter_from = self.env['config.filter'].search([('type','=','monthly'),('month_int','>',filter_from.month_int)])
+                get_filter_to = self.env['config.filter'].search([('type','=','monthly'),('month_int','<=',filter_to.month_int)])
+                get_filter_year = self.env['config.filter'].search([('year_int','<',default_to_year.year_int),('year_int','>',default_from_year.year_int)])
+                # raise UserError(f'Invalid Comparison {self.from_id.name} {self.year_from.name} to {self.to_id.name} {self.year_to.name}')
+                for line in get_filter_from:
+                    list_result.append({line.name +" "+ default_from_year.name:self.set_filter_data(line,default_from_year)})
+                
+                for line in get_filter_year:
+                    for l in get_all_filter_by_selection:
+                        list_result.append({l.name +" "+ line.name:self.set_filter_data(l,line)})
+
+                for line in get_filter_to:
+                    list_result.append({line.name +" "+ default_to_year.name:self.set_filter_data(line,default_to_year)})
+
+            elif default_to_year.year_int == default_from_year.year_int:
+                if filter_from.month_int < filter_to.month_int:
+                    get_filter = self.env['config.filter'].search([('type','=','monthly'),('month_int','>',filter_from.month_int),('month_int','<=',filter_to.month_int)])
+                else:
+                    get_filter = self.env['config.filter'].search([('type','=','monthly'),('month_int','<',filter_from.month_int),('month_int','>=',filter_to.month_int)])
+                
+                for line in get_filter:
+                    list_result.append({line.name +" "+ default_from_year.name:self.set_filter_data(line,default_from_year)})
+                    
+        elif data.get('filter_selection') == 'yearly':
+            if filter_from.year_int > filter_to.year_int:
+                res = get_all_filter_by_selection.filtered(lambda x:x.year_int < filter_from.year_int and x.year_int >= filter_to.year_int)
+                # raise UserError(f'Invalid Comparison {self.from_id.name} to {self.to_id.name}')
+            else:
+                res = get_all_filter_by_selection.filtered(lambda x:x.year_int > filter_from.year_int and x.year_int <= filter_to.year_int)
+            for line in res:
+                list_result.append({line.name:self.set_filter_data(line)})
+
+        for l in list_result:
+            result.update(l)
+        return list(result.items())
+
+    def froot(self,report_lines,currency=False):
+        # finding the root
+        if not currency:
+            currency = self.env.company.currency_id.symbol
+        else:
+            currency = currency.symbol
+        
         def set_report_level(rec):
             """This function is used to set the level of each item.
             This level will be used to set the alignment in the dynamic reports."""
@@ -103,7 +354,6 @@ class FinancialReport(models.TransientModel):
                     if line[key] == rec['parent']:
                         return level + set_report_level(line)
 
-        # finding the root
         for item in report_lines:
             item['balance'] = round(item['balance'], 2)
             if not item['parent']:
@@ -114,15 +364,14 @@ class FinancialReport(models.TransientModel):
                 report_id = item['r_id']
             else:
                 item['level'] = set_report_level(item)
-        currency = self._get_currency()
-        data['currency'] = currency
-        data['journal_items'] = journal_items
-        data['report_lines'] = report_lines
-        # checking view type
-        return self.env.ref(
-            'base_accounting_kit.financial_report_pdf').report_action(self,
-                                                                      data)
-
+            # if not self._context.get('pdf'):
+            #     item['balance'] = f"{currency} {item['balance']:,.0f}"
+            
+            #     if self.debit_credit == True:
+            #         item['debit'] = f"{currency} {item['debit']:,.0f}"
+            #         item['credit'] = f"{currency} {item['credit']:,.0f}"
+        return report_lines
+        
     def _compute_account_balance(self, accounts):
         """ compute the balance, debit
         and credit for the provided accounts
@@ -384,7 +633,7 @@ class ProfitLossPdf(models.AbstractModel):
         """ Provide report values to template """
         ctx = {
             'data': data,
-            'journal_items': data['journal_items'],
+            # 'journal_items': data['journal_items'],
             'report_lines': data['report_lines'],
             'account_report': data['form']['account_report_id'][1],
             'currency': data['currency'],
