@@ -41,8 +41,12 @@ class ConfigFilter(models.Model):
     @api.model
     def _search(self, args, offset=0, limit=None, order=None, count=False, access_rights_uid=None):
         ctx = self._context
-        if 'order_display' in ctx or ctx.get('filter_selection','') == 'yearly':
-            order = ctx['order_display']
+        if ctx.get('filter_selection','') == 'yearly':
+            order = 'year_int asc'
+        elif ctx.get('filter_selection','') == 'quarter':
+            order = 'quarter_sequence asc'
+        elif ctx.get('filter_selection','') == 'monthly':
+            order = 'month_int asc'
         res = super(ConfigFilter, self)._search(
             args, offset=offset, limit=limit, order=order, count=count,access_rights_uid=access_rights_uid)
         return res
