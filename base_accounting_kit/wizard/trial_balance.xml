@@ -12,6 +12,39 @@
                     <field name="display_account" widget="radio"/>
                     <newline/>
                 </xpath>
+                <xpath expr="//field[@name='date_from']" position="replace">
+                    <field name="filter_selection" />
+                    <field name="enable_filter" />
+                    <field name="from_id" domain="[('type','=',filter_selection)]" 
+                                                        context="{'order_display': 'year_int asc','filter_selection':filter_selection}"/>
+                </xpath>
+                <xpath expr="//field[@name='date_to']" position="replace">
+                    <field name="from_year" attrs="{'required':[('filter_selection','!=','yearly')],'invisible':[('filter_selection','=','yearly')]}" 
+                                                        context="{'order_display': 'year_int asc','filter_selection':filter_selection}"/>
+                </xpath>
+                <xpath expr="//footer" position="before">
+                    <notebook attrs="{'invisible':[('enable_filter','=',False)]}">
+                        <page name="comparison" string="Comparison">
+                            <group>
+                                <group>
+                                    <!-- <field name="multi_period" /> -->
+                                    <field name="to_id" domain="[('type','=',filter_selection)]" attrs="{'required':[('enable_filter','=',True)]}" 
+                                                        context="{'order_display': 'year_int asc','filter_selection':filter_selection}"/>
+                                </group>
+                                <group>
+                                    <field name="to_year" attrs="{'invisible':[('filter_selection','in',['date','yearly'])]}" 
+                                                        context="{'order_display': 'year_int asc','filter_selection':filter_selection}"/>
+                                </group>
+                            </group>
+                        </page>
+                    </notebook>
+                </xpath>
+                <xpath expr="//footer/button[2]" position="before">
+                    <button string="Print Excel" name="check_report" type="object" context="{'is_excel':True}" class="oe_highlight"/>
+                </xpath>
+                <xpath expr="//footer/button[1]" position="attributes">
+                    <attribute name="string">Print PDF</attribute>
+                </xpath>
             </data>
         </field>
     </record>

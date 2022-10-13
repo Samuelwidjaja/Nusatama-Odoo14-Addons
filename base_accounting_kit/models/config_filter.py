@@ -3,6 +3,7 @@ from calendar import monthrange
 from datetime import datetime,date
 from odoo import api, models, fields
 from odoo.exceptions import UserError
+
 class ConfigFilter(models.Model):
     _name = "config.filter"
     _description = "Configuration Filter"
@@ -19,7 +20,8 @@ class ConfigFilter(models.Model):
         self.months = [(5,0)]
         if self.type == 'yearly':
             for line in self.search([('type','=','monthly')]):
-                vals.append((0,0,{'month':line.id}))
+                if line.month_int in [1,12]:
+                    vals.append((0,0,{'month':line.id}))
         self.months = vals
 
     @api.constrains('type','name')
@@ -34,6 +36,16 @@ class ConfigFilter(models.Model):
         if vals.get('type') == 'yearly':
             vals.update({'year_int': int(vals.get('name'))})
         return super(ConfigFilter,self).create(vals)
+
+
+    @api.model
+    def _search(self, args, offset=0, limit=None, order=None, count=False, access_rights_uid=None):
+        ctx = self._context
+        if 'order_display' in ctx or ctx.get('filter_selection','') == 'yearly':
+            order = ctx['order_display']
+        res = super(ConfigFilter, self)._search(
+            args, offset=offset, limit=limit, order=order, count=count,access_rights_uid=access_rights_uid)
+        return res
 
     def set_filter_data(self,data,filter=False,year=False):
         result = {}
