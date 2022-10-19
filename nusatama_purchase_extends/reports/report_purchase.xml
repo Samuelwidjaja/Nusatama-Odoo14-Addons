@@ -137,11 +137,9 @@
                     </table>   
                     <div class="bottom" style="width:100%;">
                         Keterangan:
-                        <div class="first-bottom" style="width:40%; border:1px solid #000; padding:0 3px 0 6px;">
-                            Pembayaran : <br/>
-                            7 Hari Setelah Pengiriman <br/> <br/>
-
+                        <div class="first-bottom" style="width:40%; border:1px solid #000; padding:3px 3px 0 6px;">
                             Catatan: <t t-esc="doc.notes"/>
+                            <br/> <br/> <br/> 
                         </div>
 
                         <div class="second-bottom" style="border:1px solid #000; width:100%; padding-left:5px;">
