@@ -47,33 +47,6 @@ class Products(models.Model):
     
     add_component = fields.One2many('add.product', 'product_id', 'Add Component')
     
-""" class StockMove(models.Model):
-    _inherit ="stock.move"
-    
-    validate = fields.Boolean(default=True)
-    def _action_confirm(self, merge=True, merge_into=False ):
-        total_stock = 0
-        for rec in self :    
-            if rec.validate == False :
-                rec.raw_material_production_id.components_availability = _('Available')
-                rec.raw_material_production_id.components_availability_state = 'available'
-                stock_quant_obj = self.env['stock.quant'].search([('product_id' , '=' , rec.product_id.id)])
-                for stock in stock_quant_obj :
-                    if rec.raw_material_production_id.move_dest_ids.location_id.id == stock.location_id.id:
-                        total_stock += stock.available_quantity
-                if total_stock >= 0 :
-                    if rec.procure_method != 'make_to_stock'and rec.bom_line_id.id == False:
-                        rec['procure_method'] = 'make_to_stock'
-                        rec['validate'] == False
-                    if rec.procure_method == 'make_to_stock' and rec.production_id.bom_id.id == False:
-                        rec['procure_method'] = 'make_to_order'
-                if rec.forecast_expected_date  and total_stock > 0 :
-                    rec.raw_material_production_id.components_availability = _('Exp %s', format_date(self.env, rec.forecast_date))
-                    rec.raw_material_production_id.components_availability_state = 'late' if rec.forecast_date > rec.raw_material_production_id.date_planned_start else 'expected'
-                elif total_stock <= 0 :
-                    rec.raw_material_production_id.components_availability = _('Not Available')
-                    rec.raw_material_production_id.components_availability_state = 'late'
-        return super(StockMove, self)._action_confirm(merge=merge, merge_into=merge_into) """
 
                     
                 
