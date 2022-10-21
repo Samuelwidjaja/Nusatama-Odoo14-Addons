@@ -125,9 +125,9 @@ class sale_order(models.Model):
                     'credit':partner_id.credit,
                     'credit_limit_on_hold':partner_id.credit_limit_on_hold,
                     }
-                wiz_id = self.env['customer.limit.wizard'].create(vals_wiz)
-                action = imd.xmlid_to_object('dev_customer_credit_limit.action_customer_limit_wizard')
-                form_view_id = imd.xmlid_to_res_id('dev_customer_credit_limit.view_customer_limit_wizard_form')
+                wiz_id = self.env['customer.limit.wizard'].sudo().create(vals_wiz)
+                action = imd.sudo().xmlid_to_object('dev_customer_credit_limit.action_customer_limit_wizard')
+                form_view_id = imd.sudo().xmlid_to_res_id('dev_customer_credit_limit.view_customer_limit_wizard_form')
                 return {
                         'name': action.name,
                         'help': action.help,
