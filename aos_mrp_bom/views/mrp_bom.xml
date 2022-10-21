@@ -8,7 +8,9 @@
             <xpath expr="//button[@name='action_confirm']" position="before">
                     <button name="add_material" attrs="{'invisible': [('state', '=', 'cancel')]}" string="Add Component" type="object" class="oe_highlight"/>
             </xpath>
-
+            <xpath expr="//notebook/page/field/tree[1]" position="attributes">
+                <attribute name="create">0</attribute>
+            </xpath>
         </field>
     </record>
 </odoo>

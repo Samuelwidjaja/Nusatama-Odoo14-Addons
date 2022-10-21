@@ -14,7 +14,6 @@ class AddComponent(models.TransientModel):
           mrp_production_obj = self.env['mrp.production'].browse(lines_ids)
           lines_bom = []
           lines_mrp =[]
-          procure = "make_to_order"
           for rec in self.add_component : 
                    # for prod in validate.move_raw_ids:
                     if rec['box'] == True :
@@ -40,7 +39,6 @@ class AddComponent(models.TransientModel):
                                    "company_id" : mrp_production_obj.company_id.id,
                                    "procure_method" : "make_to_order",
                                    "picking_type_id" : mrp_production_obj.picking_type_id.id,
-                                   "validate" : True
                         }))
                          else :
                               lines_bom.append((0,0,{
@@ -60,7 +58,6 @@ class AddComponent(models.TransientModel):
                                    "company_id" : mrp_production_obj.company_id.id,
                                    "procure_method" : "make_to_order",
                                    "picking_type_id" : mrp_production_obj.picking_type_id.id,
-                                   "validate" : True
                         }))
                     else :      
                          lines_mrp.append((0,0,{
@@ -74,7 +71,6 @@ class AddComponent(models.TransientModel):
                              "company_id" : mrp_production_obj.company_id.id,
                              "procure_method" : "make_to_order",
                              "picking_type_id" : mrp_production_obj.picking_type_id.id,
-                             "validate" : True
                         }))
           if lines_bom:
                for item in lines_bom :
