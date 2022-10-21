@@ -147,14 +147,14 @@ class sale_order(models.Model):
         
         
     def _make_url(self,model='sale.order'):
-        base_url = self.env['ir.config_parameter'].get_param('web.base.url', default='http://localhost:8069')
+        base_url = self.env['ir.config_parameter'].sudo().get_param('web.base.url', default='http://localhost:8069')
         if base_url:
             base_url += '/web/login?db=%s&login=%s&key=%s#id=%s&model=%s' % (self._cr.dbname, '', '', self.id, model)
         return base_url
 
     def send_mail_approve_credit_limit(self): 
-        manager_group_id = self.env['ir.model.data'].get_object_reference('sales_team', 'group_sale_manager')[1]
-        browse_group = self.env['res.groups'].browse(manager_group_id) 
+        manager_group_id = self.env['ir.model.data'].sudo().get_object_reference('sales_team', 'group_sale_manager')[1]
+        browse_group = self.env['res.groups'].sudo().browse(manager_group_id) 
         partner_id = self.partner_id
         if self.partner_id.parent_id:
             partner_id = self.partner_id.parent_id
@@ -181,7 +181,7 @@ class sale_order(models.Model):
                         'state': 'outgoing',
                         'message_type': 'email',
                     }
-            mail_id =self.env['mail.mail'].create(mail_values)
-            mail_id.send(True)
+            mail_id =self.env['mail.mail'].sudo().create(mail_values)
+            mail_id.sudo().send(True)
 
 # vim:expandtab:smartindent:tabstop=4:softtabstop=4:shiftwidth=4:
