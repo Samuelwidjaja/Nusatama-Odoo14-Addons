@@ -1,7 +1,7 @@
 """
 - sale.order
 """
-from odoo import models, fields
+from odoo import models, fields,api
 from odoo.exceptions import UserError
 
 class SaleOrder(models.Model):
@@ -10,10 +10,10 @@ class SaleOrder(models.Model):
 
 
 
-    no_po = fields.Char(string="No Pesanan",required=True)
+    no_po = fields.Char(string="No Pesanan",required=False)
 
-    def action_confirm(self):
+
+    @api.constrains('no_po')
+    def constraints_no_po(self):
         if not self.no_po:
             raise UserError("No Pesanan is required and cannot empty")
-
-        return super(SaleOrder,self).action_confirm()
