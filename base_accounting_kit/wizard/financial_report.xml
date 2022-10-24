@@ -20,7 +20,7 @@
 
                             <field name="year_from" domain="[('type','=','yearly')]" attrs="{'invisible':[('filter_selection','in',['date','yearly'])],'required':[('filter_selection','not in',['date','yearly'])]}" 
                                                     options="{'no_create':True}"
-                                                    context="{'filter_selection':filter_selection}"/>
+                                                    context="{'filter_selection':'yearly'}"/>
                             <!-- <field attrs="{'invisible':[('filter_selection','!=','date')],'required':[('filter_selection','=','date')]}" name="date_from"/>
                             <field attrs="{'invisible':[('filter_selection','!=','date')],'required':[('filter_selection','=','date')]}" name="date_to"/> -->
                         </group>
@@ -37,14 +37,15 @@
                             <group>
                                 <group>
                                     <field name="multi_period" />
-                                    <field name="to_id" domain="[('type','=',filter_selection)]" 
+                                    <field name="to_id" domain="[('type','=',filter_selection)]"
+                                                    attrs="{'required':[('enable_filter','=',True)]}"
                                                     options="{'no_create':True}"
-                                                    context="{'filter_selection':filter_selection}"/>
+                                                    context="{'filter_selection':'filter_selection'}"/>
                                 </group>
                                 <group>
                                     <field name="year_to"  attrs="{'invisible':[('filter_selection','in',['date','yearly'])]}"
                                                         options="{'no_create':True}"
-                                                        context="{'filter_selection':filter_selection}"/>
+                                                        context="{'filter_selection':'yearly'}"/>
                                 </group>
                             </group>
                         </page>

@@ -7,6 +7,7 @@ from odoo.exceptions import UserError
 class ConfigFilter(models.Model):
     _name = "config.filter"
     _description = "Configuration Filter"
+    _order = "year_int,month_int,quarter_sequence asc"
     
     name = fields.Char(string="Name",required=True)
     type = fields.Selection([('monthly','Monthly'),('yearly','Yearly'),('quarter','Quarter')],string="Type Filter",default="monthly",required=True)

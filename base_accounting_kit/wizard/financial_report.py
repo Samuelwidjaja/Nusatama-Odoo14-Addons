@@ -24,7 +24,8 @@ from calendar import monthrange
 from datetime import datetime,date
 from odoo import api, models, fields
 from odoo.exceptions import UserError
-
+import base64
+import json
 class FinancialReport(models.TransientModel):
     _name = "financial.report"
     _inherit = "account.common.report"
@@ -35,7 +36,7 @@ class FinancialReport(models.TransientModel):
         ('horizontal', 'Horizontal')],
         default='vertical',
         string="Format")
-
+    
     @api.model
     def _get_account_report(self):
         reports = []
@@ -83,6 +84,9 @@ class FinancialReport(models.TransientModel):
     year_from = fields.Many2one('config.filter',domain=[('type','=','yearly')],string="From Year")
     year_to = fields.Many2one('config.filter',domain=[('type','=','yearly')],string="Compare To Year")
     multi_period = fields.Boolean(string="Multi Period")
+    
+    # set datas to field and avoid long query url
+    datas = fields.Text(string="Datas")
 
     # def view_report_pdf(self):
     #     """This function will be executed when we click the view button
@@ -161,6 +165,7 @@ class FinancialReport(models.TransientModel):
              'account_report_id', 'target_move', 'view_format',
              'company_id','filter_selection'])[0]
         used_context = self._build_contexts(data)
+        used_context.update({'strict_range':True})
         data['form']['used_context'] = dict(
             used_context,
             lang=self.env.context.get('lang') or 'en_US')
@@ -192,15 +197,27 @@ class FinancialReport(models.TransientModel):
         # currency = self._get_currency()
         # data['journal_items'] = journal_items
         data['currency'] = self._get_currency()
-        data['filter'] = result
+        data['filter'] = [result]
         data['report_lines'] = report_lines
-
+        # dictionary to string
+        # dts = str(data).replace("'",'"')
+        # self.datas = dts
         if self._context.get('pdf'):
             return self.env.ref(
                 'base_accounting_kit.financial_report_pdf').report_action(self,data)
         else:
+            data['form'].update({
+                'date_from':str(data['form']['date_from']),
+                'date_to':str(data['form']['date_to'])
+            })
+            data['form']['used_context'].update({
+                'date_from':str(data['form']['used_context']['date_from']),
+                'date_to':str(data['form']['used_context']['date_to']),
+            })
+            data.update({'form':[data['form']]})
+            self.datas = json.dumps(data)
             return self.env.ref(
-                'base_accounting_kit.financial_report_excel').report_action(self,data=data)
+                'base_accounting_kit.financial_report_excel').report_action(self)
 
     def _get_level(self,data):
         def set_report_level(rec):
