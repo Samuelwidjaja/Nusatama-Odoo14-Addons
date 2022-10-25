@@ -1,0 +1,16 @@
+<?xml version='1.0' encoding='utf-8'?>
+<odoo>
+    <record id="mrp_production_button_inherit" model="ir.ui.view">
+        <field name="name">mrp.production.button.inherit</field>
+        <field name="model">mrp.production</field>
+        <field name="inherit_id" ref="mrp.mrp_production_form_view"/>
+        <field name="arch" type="xml">
+            <xpath expr="//button[2][@name='button_mark_done']" position="attributes">
+                    <attribute name="invisible">1</attribute>
+            </xpath>
+            <xpath expr="//button[1][@name='button_mark_done']" position="attributes">
+                <attribute name="attrs">{'invisible':[('state','!=','to_close')]}</attribute> 
+            </xpath>
+        </field>
+    </record>
+</odoo>
