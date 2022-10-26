@@ -10,8 +10,8 @@
                     <field name="partner_id" attrs="{'readonly':[('state','!=','draft')]}" options="{'no_create':True,'no_open':True}"/>
             </xpath>
             <xpath expr="//button[@name='action_confirm']" position="before">
-                <button string="Confirm" name="actions_confirm" type="object" class="oe_highlight" attrs="{'invisible':[('state','!=','draft')]}"/>
-                <!-- <button string="Confirm" name="actions_confirm" type="object" groups="mrp.group_mrp_manager" class="oe_highlight" attrs="{'invisible':[('state','!=','draft')]}"/> -->
+                <!-- <button string="Confirm" name="actions_confirm" type="object" class="oe_highlight" attrs="{'invisible':[('state','!=','draft')]}"/> -->
+                <button string="Confirm" name="actions_confirm" type="object" groups="mrp.group_mrp_manager" class="oe_highlight" attrs="{'invisible':[('state','!=','draft')]}"/>
             </xpath>
             <xpath expr="//button[@name='action_confirm']" position="attributes">
                 <attribute name="attrs">{'invisible':[('state','!=','on_hold')]}</attribute>
