@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="warning_invoice_form_view" model="ir.ui.view">
+        <field name="name">warning.invoice.form.view</field>
+        <field name="model">warning.invoice</field>
+        <field name="arch" type="xml">
+            <form>
+                <group name="invoice_not_paid">
+                    <field name="invoices_text" />
+                    <field name="invoices" widget="many2many_tags" invisible="1"/>
+                    <field name="production_id" invisible="1"/>
+                </group>
+                <footer>
+                    <button string="Confirm" name="action_confirm" type="object" class="oe_highlight"/>
+                    <button string="Cancel" special="cancel" />
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_warning_invice" model="ir.actions.act_window">
+        <field name="name">action.warning.invoice</field>
+        <field name="res_model">warning.invoice</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+    </record>
+
+</odoo>
