@@ -81,15 +81,18 @@ class AccountBalanceReport(models.TransientModel):
             data['filters'] = comparison_result
         
         # get initial_balance
-        if self.enable_filter:
-            get_dates_initial_balance = self.with_context(comparison=True)._get_dates_from_filter(data)
-        else:
-            get_dates_initial_balance = self.with_context(comparison=False)._get_dates_from_filter(data)
-        dates = list(get_dates_initial_balance)[0][1]
-        list(get_dates_initial_balance)[0][1].update({'from_month':False,'to_month':dates['from_month'] - timedelta(days=1),})
+        get_dates_initial_balance = self.with_context(initial_balance=True)._get_dates_from_filter(data)
+        dates = get_dates_initial_balance[0][1]
+        get_dates_initial_balance[0][1].update({
+                'from_month':False,
+                    'to_month':dates['from_month'] - timedelta(days=1)
+                })
+        
         initial_balance_result = self.get_filter_result(data,get_dates_initial_balance,accounts)
 
-        account_res = self.with_context(comparison=False).get_filter_result(data,data['get_dates'],accounts)
+        #get current item
+        get_current_date = self.with_context(comparison=False)._get_dates_from_filter(data)
+        account_res = self.with_context(comparison=False).get_filter_result(data,get_current_date,accounts)
         # data['accounts'] = [{f"{self.from_id.name} {'- '+ self.from_year.name}":account_res}]
         data['accounts'] = account_res
         data['initial_balance'] = initial_balance_result
@@ -160,6 +163,7 @@ class AccountBalanceReport(models.TransientModel):
     def get_filter_result(self,data,filter_result,accounts):
         result = []
         data_copy = data['form'].copy()
+        filter_result.sort(key=lambda x:x[1].get('from_month') if x[1].get('from_month') != False else fields.Date.today())
         for line in filter_result:
             data_copy = self._update_date(data_copy,line[1])
             res = self.with_context(
@@ -170,15 +174,19 @@ class AccountBalanceReport(models.TransientModel):
     def _get_dates_from_filter(self,data):
         filter_method = self.env['config.filter']
         data_copy = data['form'].copy()
-        if self.enable_filter and self._context.get('comparison'):
+        result = []
+        if data_copy.get('enable_filter') and self._context.get('comparison'):
             # get amount from filter
-            if self.multi_period:
-                filter_result = filter_method.range_comparison(data_copy,self.from_year,self.to_year,self.from_id,self.to_id)
+            if data_copy.get('multi_period'):
+                result = filter_method.range_comparison(data_copy,self.from_year,self.to_year,self.from_id,self.to_id)
             else:
-                filter_result = {f"{self.to_id.name} {self.to_year.name if self.to_year else ''}":filter_method.set_filter_data(data_copy,self.to_id,self.to_year)}.items()
+                result.append((f"{self.to_id.name} {self.to_year.name if self.to_year else ''}",filter_method.set_filter_data(data_copy,self.to_id,self.to_year)))
+
+        elif data_copy.get('enable_filter') and self._context.get('initial_balance'):
+            result.append((f"{self.to_id.name} {self.to_year.name if self.to_year else ''}",filter_method.set_filter_data(data_copy,self.to_id,self.to_year)))
         else:
-            filter_result = {f"{self.from_id.name} {self.from_year.name}":filter_method.set_filter_data(data_copy,self.from_id,self.from_year)}.items()
-        return filter_result
+            result.append((f"{self.from_id.name} {self.from_year.name}",filter_method.set_filter_data(data_copy,self.from_id,self.from_year)))
+        return result
 
     def _update_date(self,data,filter_date):
         data.get('used_context').update({
@@ -199,7 +207,7 @@ class AccountBalanceReport(models.TransientModel):
         data = {}
         data['ids'] = self.env.context.get('active_ids', [])
         data['model'] = self.env.context.get('active_model', 'ir.ui.menu')
-        data['form'] = self.read(['date_from', 'date_to', 'journal_ids', 'target_move', 'company_id','filter_selection','enable_filter'])[0]
+        data['form'] = self.read(['date_from', 'date_to', 'journal_ids', 'target_move', 'company_id','filter_selection','enable_filter','multi_period'])[0]
         # get dates for date_from and date_to
         data['get_dates'] = list(self.with_context(comparison=False)._get_dates_from_filter(data))
         data['form'].update({'date_from':data['get_dates'][0][1].get('from_month'), 'date_to':data['get_dates'][0][1].get('to_month')})

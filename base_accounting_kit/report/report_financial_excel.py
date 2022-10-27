@@ -12,6 +12,7 @@ class PartnerXlsx(models.AbstractModel):
         data = json.loads(object.datas)
         sheet.set_column("B:B",34)
         formats = workbook.add_format
+        filter_obj = data.get('filter')[0][::-1] if data.get('filter') else {}
         sheet.merge_range("A1:C1",company,formats({'bold':True,'align':'center','valign':'vcenter','font_size':16}))
         sheet.merge_range("A2:C2",data['form'][0]['account_report_id'][1],formats({'bold':True,'valign':'vcenter','align':'center','font_size':14}))
         if not object.enable_filter:
@@ -38,43 +39,59 @@ class PartnerXlsx(models.AbstractModel):
             header_col += 1
         if object.enable_filter:
             sheet.write(header_row,header_col,object.from_id.name + " " +(object.year_from.name if object.year_from else '') )
+            header_col += 1
         else:
             sheet.write(header_row,header_col,"Balance")
-
+            header_col += 1
+        if filter_obj:
+            for line in filter_obj:
+                sheet.write(header_row,header_col,line[0])
+                header_col += 1
         line_row = DEFAULT_COLUMN['default_row']
         line_col = DEFAULT_COLUMN['default_col']
         last_line_col = 0
-        format_amount = formats({'align':'right','num_format':'[$Rp-421]#,###;[$Rp-421]#,##0'})
+        format_amount = formats({'align':'right','num_format':'[$Rp-421]#,##0;[$Rp-421]#,##0'})
         font_weight = formats({'bold':True})
-        for line in data['report_lines']:
+        for name in object._mapping_account_name:
 
-            if line.get('level') > 3:
+            first_filter = next(filter(lambda x: x if x.get('name') == name else {}, data['report_lines']), {})
+
+            if first_filter.get('level') > 3:
                 font_weight = formats({'bold':False})
-
-            spacing_indent = '  ' * line.get('level',0)
-            sheet.write(line_row,line_col,spacing_indent + line.get('name'),font_weight)
             line_col += 1
             
             if data['form'][0]['debit_credit'] == 1:
-                sheet.write(line_row,line_col,line.get('debit') if line.get('debit') != 0 else 'Rp0',format_amount)
+                sheet.write(line_row,line_col,first_filter.get('debit') if first_filter.get('debit') != 0 else 0,format_amount)
                 line_col += 1
 
-                sheet.write(line_row,line_col,line.get('credit') if line.get('credit') != 0 else 'Rp0',format_amount)
+                sheet.write(line_row,line_col,first_filter.get('credit') if first_filter.get('credit') != 0 else 0,format_amount)
                 line_col += 1
 
-            sheet.write(line_row,line_col,line.get('balance') if line.get('balance') != 0 else 'Rp0',format_amount)
-            line_row += 1
+            sheet.write(line_row,line_col,first_filter.get('balance') if first_filter.get('balance') != 0 else 0,format_amount)
+
+            if data.get('filter'):
+                line_col += 1
+                for index in range(0,len(filter_obj)):
+                    second_filter = next(filter(lambda x: x if x.get('name') == name else {}, filter_obj[index][1]), {})
+                    sheet.write(line_row,line_col,second_filter.get('balance') if second_filter.get('balance') != 0 else 0,format_amount)
+                    line_col += 1
+                    if second_filter.get('level') > 3:
+                        font_weight = formats({'bold':False})
+
             last_line_col = line_col
             line_col = 0
+            spacing_indent = '  ' * first_filter.get('level',0)
+            sheet.write(line_row,line_col,spacing_indent + name,font_weight)
+            line_row += 1
             # name dan balance adalah column static yang selalu ada
-        if data.get('filter'):
-            keys = data['filter'][0].keys()
-            line_col = last_line_col
-            for key in list(keys)[::-1]:
-                header_col += 1
-                sheet.write(header_row,header_col,key)
-                line_col += 1
-                line_row = DEFAULT_COLUMN['default_row']
-                for v in data['filter'][0][key]:
-                    sheet.write(line_row,line_col,v['balance'] if v.get('balance') != 0 else 'Rp0',format_amount)
-                    line_row += 1
+        # if data.get('filter'):
+        #     keys = data['filter'][0].keys()
+        #     line_col = last_line_col
+        #     for key in list(keys)[::-1]:
+        #         header_col += 1
+        #         sheet.write(header_row,header_col,key)
+        #         line_col += 1
+        #         line_row = DEFAULT_COLUMN['default_row']
+        #         for v in data['filter'][0][key]:
+        #             sheet.write(line_row,line_col,v['balance'] if v.get('balance') != 0 else 'Rp0',format_amount)
+        #             line_row += 1
