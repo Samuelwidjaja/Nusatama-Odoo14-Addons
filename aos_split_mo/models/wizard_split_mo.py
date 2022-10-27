@@ -13,6 +13,22 @@ class wizard_split_mo(models.TransientModel):
     mp_id = fields.Many2one('mrp.production', string="Manufacturing Order")
     split_mo_line_ids = fields.One2many("wizard.split.mo.line", 'wizard_split_id', string="Split Quantity Lines")
 
+    @api.model
+    def no_of_split(self, mo_qty, n, split_qty_lst=[]):
+        if (mo_qty % n == 0): 
+            for i in range(n): 
+                split_qty_lst.append(mo_qty // n)
+        else: 
+            zp = n - (mo_qty % n) 
+            pp = mo_qty // n 
+            for i in range(n): 
+                    if(i >= zp):
+                        split_qty_lst.append(pp + 1)
+                    else: 
+                        split_qty_lst.append(pp)
+
+        return split_qty_lst
+
     def btn_split_mo(self):
         split_qty_lst = []
         mo_qty = self.mp_id.product_qty
@@ -29,19 +45,7 @@ class wizard_split_mo(models.TransientModel):
         elif self.split_mo_by == 'no_of_split':
             if self.no_of_qty <= 1:
                 raise Warning(_("Please enter quantity greater than 1."))
-            def no_of_split(x, n): 
-                 if (x % n == 0): 
-                     for i in range(n): 
-                         split_qty_lst.append(x // n)
-                 else: 
-                     zp = n - (x % n) 
-                     pp = x // n 
-                     for i in range(n): 
-                             if(i >= zp):
-                                 split_qty_lst.append(pp + 1)
-                             else: 
-                                 split_qty_lst.append(pp)
-            no_of_split(mo_qty, self.no_of_qty)
+            split_qty_lst = self.no_of_split(mo_qty, self.no_of_qty, split_qty_lst)
         elif self.split_mo_by == 'no_qty':
             if self.no_of_qty <= 0:
                 raise Warning(_("Please enter quantity greater than 0."))
