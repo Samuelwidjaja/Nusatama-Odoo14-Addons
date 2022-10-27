@@ -37,7 +37,6 @@ class wizard_split_mo(models.TransientModel):
                      zp = n - (x % n) 
                      pp = x // n 
                      for i in range(n): 
-                         for i in range(n): 
                              if(i >= zp):
                                  split_qty_lst.append(pp + 1)
                              else: 
@@ -54,15 +53,12 @@ class wizard_split_mo(models.TransientModel):
 
         ProdObj = self.env['mrp.production']
         for each_qty in split_qty_lst:
-            self.mp_id.copy({'product_qty': each_qty,
-                             'origin': self.mp_id.name})
-
+            #self.mp_id.copy({'product_qty': each_qty,
+            #                 'origin': self.mp_id.name})
             prod = self.mp_id
-            dataprod = prod.copy_data(default={'move_raw_ids':[],'move_finished_ids':[],'workorder_ids':[],'product_qty':each_qty}) # {}
-            print(dataprod)
-            newprod = ProdObj.new(dataprod[0])
+            dataprod = prod.copy_data(default={'origin':self.mp_id.name,'move_raw_ids':[],'move_finished_ids':[],'workorder_ids':[],'product_qty':each_qty}) # {}
+            newprod = ProdObj.create(dataprod[0])
             newprod._onchange_move_raw()
-            print(newprod)
         self.mp_id.action_cancel()
 
 
