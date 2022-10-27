@@ -51,9 +51,18 @@ class wizard_split_mo(models.TransientModel):
                 mo_qty -= n
                 split_qty_lst.append(n)
             split_qty_lst.append(mo_qty)
+
+        ProdObj = self.env['mrp.production']
         for each_qty in split_qty_lst:
             self.mp_id.copy({'product_qty': each_qty,
                              'origin': self.mp_id.name})
+
+            prod = self.mp_id
+            dataprod = prod.copy_data(default={'move_raw_ids':[],'move_finished_ids':[],'workorder_ids':[],'product_qty':each_qty}) # {}
+            print(dataprod)
+            newprod = ProdObj.new(dataprod[0])
+            newprod._onchange_move_raw()
+            print(newprod)
         self.mp_id.action_cancel()
 
 
