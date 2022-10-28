@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>    
+    <record id="stock_valuation_layer_reservation_form" model="ir.ui.view">
+        <field name="name">stock.valuation.layer.reservation.form</field>
+        <field name="model">stock.valuation.layer.reservation</field>
+        <field name="arch" type="xml">
+            <form edit="0" create="0">
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="stock_move_id" />
+                            <field name="valuation_layer_id" />
+                            <field name="qty" />
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Move Line" name="move_line">
+                            <field name="stock_move_line_id" />
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="stock_valuation_layer_reservation_tree" model="ir.ui.view">
+        <field name="name">stock.valuation.layer.reservation.tree</field>
+        <field name="model">stock.valuation.layer.reservation</field>
+        <field name="arch" type="xml">
+            <tree create="0" delete="0" >
+                <field name="stock_move_id" />
+                <field name="valuation_layer_id" />
+                <field name="qty" />
+            </tree>
+        </field>
+    </record>
+</odoo>
