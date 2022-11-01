@@ -56,22 +56,22 @@ class MrpWorkorder(models.Model):
             for workorders in workorders_by_bom.values():
                 if not workorders:
                     continue
-                # if workorders[0].state == 'pending':
-                #     workorders[0].state = 'ready'
+                if workorders[0].state == 'pending':
+                     workorders[0].state = 'ready'
                 for workorder in workorders:
                     workorder._start_nextworkorder()
 
     def validate_to_start(self):
-        if not all(move.state in {'partially_available','assigned','done'} for move in self.production_id.move_raw_ids):
-            raise UserError(_('All components must be reserved !'))
+            if self.move_raw_ids.state not in {'partially_available','assigned','done'}:
+                raise UserError(_('Components must be reserved !'))
+            else:
+                operation_not_done = []
+                for workorder in self.production_id.workorder_ids:
+                    if workorder.operation_level < self.operation_level and workorder.state != 'done':
+                        operation_not_done.append(workorder)
 
-        operation_not_done = []
-        for workorder in self.production_id.workorder_ids:
-            if workorder.operation_level < self.operation_level and workorder.state != 'done':
-                operation_not_done.append(workorder)
-
-        if operation_not_done:
-            raise UserError(_('Operation not completed yet!'))
+                if operation_not_done:
+                    raise UserError(_('Operation not completed yet!'))
 
     def button_start(self):
         self.validate_to_start()
@@ -94,16 +94,35 @@ class MrpWorkorder(models.Model):
     @api.depends('production_id.workorder_ids','production_id.move_raw_ids')
     def _compute_button_show(self):
         show = True
-        if not all(move.state in {'partially_available','assigned','done'} for move in self.mapped('production_id').move_raw_ids):
-            self.button_start_show = False
-        else:
+        value = 0
+        for move in self.mapped('production_id').move_raw_ids:
+            if move.state not in {'partially_available','assigned','done'} :
+                self.button_start_show = False
+            else :
+                value +=1
+        if value >= 1 :
             for rec in self:
                 operation_not_done = []
                 for workorder in self.production_id.workorder_ids:
                     if workorder.operation_level < rec.operation_level and workorder.state != 'done':
-                        operation_not_done.append(workorder)
-
+                                operation_not_done.append(workorder)
                 if operation_not_done:
                     show = False
-
                 rec.button_start_show = show
+                
+    #@api.depends('production_id.workorder_ids','production_id.move_raw_ids')
+    #def _compute_button_show(self):
+    #    show = True
+    #    if not all(move.state in {'partially_available','assigned','done'} for move in self.mapped('production_id').move_raw_ids):
+    #        self.button_start_show = False
+    #    else:
+    #        for rec in self:
+    #            operation_not_done = []
+    #            for workorder in self.production_id.workorder_ids:
+    #                if workorder.operation_level < rec.operation_level and workorder.state != 'done':
+    #                    operation_not_done.append(workorder)
+
+    #            if operation_not_done:
+    #                show = False
+
+    #            rec.button_start_show = show
