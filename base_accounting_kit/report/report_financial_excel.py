@@ -56,7 +56,7 @@ class PartnerXlsx(models.AbstractModel):
 
             first_filter = next(filter(lambda x: x if x.get('name') == name else {}, data['report_lines']), {})
 
-            if first_filter.get('level') > 3:
+            if first_filter.get('level',0) > 3:
                 font_weight = formats({'bold':False})
             line_col += 1
             
@@ -75,7 +75,7 @@ class PartnerXlsx(models.AbstractModel):
                     second_filter = next(filter(lambda x: x if x.get('name') == name else {}, filter_obj[index][1]), {})
                     sheet.write(line_row,line_col,second_filter.get('balance') if second_filter.get('balance') != 0 else 0,format_amount)
                     line_col += 1
-                    if second_filter.get('level') > 3:
+                    if second_filter.get('level',0) > 3:
                         font_weight = formats({'bold':False})
 
             last_line_col = line_col
