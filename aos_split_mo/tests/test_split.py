@@ -115,7 +115,7 @@ class TestSplitMo(SavepointCase):
 
         #move_Raw_ids Testing
         Wiz = Form(self.env['wizard.split.mo'].with_context(action.get('context')))
-        Wiz.split_mo_by = 'no_of_qty'
+        Wiz.split_mo_by = 'no_qty'
         Wiz.no_of_qty = 3
         WizData = Wiz.save()
         res = WizData.btn_split_mo()
