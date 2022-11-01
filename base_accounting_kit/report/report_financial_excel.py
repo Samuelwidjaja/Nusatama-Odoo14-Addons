@@ -50,7 +50,7 @@ class PartnerXlsx(models.AbstractModel):
         line_row = DEFAULT_COLUMN['default_row']
         line_col = DEFAULT_COLUMN['default_col']
         last_line_col = 0
-        format_amount = formats({'align':'right','num_format':'[$Rp-421]#,##0;[$Rp-421]#,##0'})
+        format_amount = formats({'align':'right','num_format':'[$Rp-421] #,##0;[$Rp-421] -#,##0'})
         font_weight = formats({'bold':True})
         for name in object._mapping_account_name:
 
