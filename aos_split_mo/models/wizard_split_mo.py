@@ -8,8 +8,8 @@ class wizard_split_mo(models.TransientModel):
 
     split_mo_by = fields.Selection([('no_of_split', 'Number of Split'),
                                     ('no_qty', 'Number of Quantity'),
-                                    ('custom', 'Manual Split')], string="Split Mo By", default="no_of_split")
-    no_of_qty = fields.Integer(string="No.of Split / Qty")
+                                    ('custom', 'Manual Split')], string="Split Mo By", default="no_of_split", readonly=True)
+    no_of_qty = fields.Integer(string="No.of Split / Qty" , readonly=True)
     mp_id = fields.Many2one('mrp.production', string="Manufacturing Order")
     split_mo_line_ids = fields.One2many("wizard.split.mo.line", 'wizard_split_id', string="Split Quantity Lines")
 
@@ -58,6 +58,8 @@ class wizard_split_mo(models.TransientModel):
         ProdObj = self.env['mrp.production']
         newprods = []
         number = 1
+        move_dest = 0
+        sale_id = 0
         for each_qty in split_qty_lst:
             #self.mp_id.copy({'product_qty': each_qty,
             #                 'origin': self.mp_id.name})
@@ -65,6 +67,14 @@ class wizard_split_mo(models.TransientModel):
             name = self.mp_id.name
             dataprod = prod.copy_data(default={'name':name+'-'+str(number),'origin':self.mp_id.name,'move_raw_ids':[],'move_finished_ids':[],'workorder_ids':[],'product_qty':each_qty}) # {}
             newprod = ProdObj.create(dataprod[0])
+            if move_dest == 0 :
+                sale_id += prod.procurement_group_id.mrp_production_ids.move_dest_ids.group_id.sale_id.id
+                move_dest += prod.procurement_group_id.mrp_production_ids.move_dest_ids.id
+                newprod.procurement_group_id.mrp_production_ids.move_dest_ids = self.env['stock.move'].browse(move_dest)    
+            else :
+                move_dest += 1
+                newprod.procurement_group_id.mrp_production_ids.move_dest_ids = self.env['stock.move'].browse(move_dest)    
+                newprod.procurement_group_id.mrp_production_ids.move_dest_ids.group_id.sale_id = self.env['sale.order'].browse(sale_id)
             newprod._onchange_move_raw()
             newprods.append(newprod)
             number += 1            
@@ -93,5 +103,5 @@ class mrp_production(models.Model):
                 'view_mode': 'form',
                 'view_type': 'form',
                 'target': 'new',
-                'context': {'default_mp_id': self.id}
+                'context': {'default_mp_id': self.id ,'default_no_of_qty':self.product_qty}
                  }
