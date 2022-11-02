@@ -76,6 +76,7 @@ class wizard_split_mo(models.TransientModel):
                 newprod.procurement_group_id.mrp_production_ids.move_dest_ids = self.env['stock.move'].browse(move_dest)    
                 newprod.procurement_group_id.mrp_production_ids.move_dest_ids.group_id.sale_id = self.env['sale.order'].browse(sale_id)
             newprod._onchange_move_raw()
+            newprod._onchange_workorder_ids()
             newprods.append(newprod)
             number += 1            
         self.mp_id.action_cancel()
