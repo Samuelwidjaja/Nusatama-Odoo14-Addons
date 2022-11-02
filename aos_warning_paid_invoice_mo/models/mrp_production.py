@@ -26,6 +26,8 @@ class MRPProduction(models.Model):
              " * Cancelled: The MO has been cancelled, can't be confirmed anymore.")
 
     def actions_confirm(self):
+        if self.product_qty > 1:
+            raise UserError("Quantity is greater than 1 you must split to several MO")
         #get all invoices posted and state payment is not paid
         invoices = self.env['account.move'].search([
             ('partner_id','=',self.partner_id.id),
