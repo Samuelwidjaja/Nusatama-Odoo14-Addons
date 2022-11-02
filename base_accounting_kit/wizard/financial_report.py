@@ -26,6 +26,9 @@ from odoo import api, models, fields
 from odoo.exceptions import UserError
 import base64
 import json
+import logging
+logger = logging.getLogger(__name__)
+
 class FinancialReport(models.TransientModel):
     _name = "financial.report"
     _inherit = "account.common.report"
@@ -176,7 +179,7 @@ class FinancialReport(models.TransientModel):
             if self.multi_period:
                 filter_result = filter_method.range_comparison(data['form'],self.year_from,self.year_to,self.from_id,self.to_id)
             else:
-                filter_result = [(f"{self.to_id.name} {self.year_to.name}",filter_method.set_filter_data(data['form'],self.to_id,self.year_to))]
+                filter_result = [(f"{self.to_id.name} {self.year_to.name if self.year_to.name else ''}",filter_method.set_filter_data(data['form'],self.to_id,self.year_to))]
             
             filter_result.sort(key=lambda x:x[1].get('from_month'))
             for line in filter_result:
