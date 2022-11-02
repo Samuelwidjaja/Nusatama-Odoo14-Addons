@@ -62,16 +62,29 @@ class MrpWorkorder(models.Model):
                     workorder._start_nextworkorder()
 
     def validate_to_start(self):
-            if self.move_raw_ids.state not in {'partially_available','assigned','done'}:
-                raise UserError(_('Components must be reserved !'))
-            else:
-                operation_not_done = []
-                for workorder in self.production_id.workorder_ids:
-                    if workorder.operation_level < self.operation_level and workorder.state != 'done':
-                        operation_not_done.append(workorder)
+            if len(self.move_raw_ids) >= 2 :
+                for rec in self.move_raw_ids :
+                    if rec.state not in {'partially_available','assigned','done'}:
+                        raise UserError(_('All Components in WorkCenter must be reserved, This %s Component not Reserved!')% rec.product_id.name) 
+                    else:
+                        operation_not_done = []
+                        for workorder in self.production_id.workorder_ids:
+                            if workorder.operation_level < self.operation_level and workorder.state != 'done':
+                                operation_not_done.append(workorder)
 
-                if operation_not_done:
-                    raise UserError(_('Operation not completed yet!'))
+                        if operation_not_done:
+                            raise UserError(_('Operation not completed yet!'))
+            else:
+                if self.move_raw_ids.state not in {'partially_available','assigned','done'}:
+                    raise UserError(_('Components must be reserved !'))
+                else:
+                    operation_not_done = []
+                    for workorder in self.production_id.workorder_ids:
+                        if workorder.operation_level < self.operation_level and workorder.state != 'done':
+                            operation_not_done.append(workorder)
+
+                    if operation_not_done:
+                        raise UserError(_('Operation not completed yet!'))
 
     def button_start(self):
         self.validate_to_start()
