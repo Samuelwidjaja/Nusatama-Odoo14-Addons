@@ -23,11 +23,12 @@ class MrpBomLines(models.Model):
      
     def write(self, params):
         res = super(MrpBomLines, self).write(params)
-        if params:
+        bom_line_ids = 'bom_line_ids'
+        if bom_line_ids in params:
             log = " " 
             body_log = ""
             time = datetime.now() 
-            product_qty = "product_qty"
+            product_qty = "product_qty"       
             for rec in params['bom_line_ids'] :
                 if rec[2] != False :
                     if rec[0] == 0 :

@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+	<record id="view_split_manufacturing_orde_form" model="ir.ui.view">
+		<field name="name">wizard.split.mo.form</field>
+		<field name="model">wizard.split.mo</field>
+		<field name="arch" type="xml">
+			<form>
+				<group col="4">
+					<field name="split_mo_by" required="1" />
+					<field name="mp_id" readonly="1" />
+					<field name="no_of_qty" required="1"
+						attrs="{'invisible':[('split_mo_by','=','custom')]}" />
+				</group>
+				<group>
+					<field name="split_mo_line_ids" attrs="{'invisible':[('split_mo_by','!=','custom')]}"
+						style="width:70%">
+						<tree editable="bottom">
+							<field name="qty" required="1" />
+						</tree>
+					</field>
+				</group>
+				<footer>
+					<button name="btn_split_mo" string="Split Mo" type="object"
+						class="btn-primary" />
+					<button string="Cancel" class="oe_link" special="cancel" />
+				</footer>
+			</form>
+		</field>
+	</record>
+
+	<record id="inherit_mrp_mrp_production_form_view" model="ir.ui.view">
+		<field name="name">mrp.production</field>
+		<field name="model">mrp.production</field>
+		<field name="inherit_id" ref="mrp.mrp_production_form_view" />
+		<field name="arch" type="xml">
+			<xpath expr="//header//button[@name='action_cancel']" position="before">
+				<button name="split_manufacturing_orders" string="Split Mo"
+					type="object" class="btn-primary"
+					groups="aos_split_mo.res_group_can_split_mo"
+					attrs="{'invisible':[('state', 'in', ['progress', 'done', 'cancel', 'to_close'])]}" />
+			</xpath>
+		</field>
+	</record>
+
+</odoo>

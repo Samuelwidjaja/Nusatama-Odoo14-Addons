@@ -26,6 +26,9 @@ from odoo import api, models, fields
 from odoo.exceptions import UserError
 import base64
 import json
+import logging
+logger = logging.getLogger(__name__)
+
 class FinancialReport(models.TransientModel):
     _name = "financial.report"
     _inherit = "account.common.report"
@@ -87,7 +90,7 @@ class FinancialReport(models.TransientModel):
     
     # set datas to field and avoid long query url
     datas = fields.Text(string="Datas")
-
+    _mapping_account_name = []
     # def view_report_pdf(self):
     #     """This function will be executed when we click the view button
     #     from the wizard. Based on the values provided in the wizard, this
@@ -156,7 +159,7 @@ class FinancialReport(models.TransientModel):
         self.ensure_one()
         self.clean_filter()
         data = dict()
-        result = dict()
+        result = []
         # get method from model config.filter
         filter_method = self.env['config.filter']
 
@@ -176,14 +179,15 @@ class FinancialReport(models.TransientModel):
             if self.multi_period:
                 filter_result = filter_method.range_comparison(data['form'],self.year_from,self.year_to,self.from_id,self.to_id)
             else:
-                filter_result = {f"{self.to_id.name} {self.year_to.name}":filter_method.set_filter_data(data['form'],self.to_id,self.year_to)}.items()
-                
+                filter_result = [(f"{self.to_id.name} {self.year_to.name if self.year_to.name else ''}",filter_method.set_filter_data(data['form'],self.to_id,self.year_to))]
+            
+            filter_result.sort(key=lambda x:x[1].get('from_month'))
             for line in filter_result:
                 data_copy['used_context'].update({'date_from':line[1].get('from_month'),'date_to':line[1].get('to_month')})
                 data_copy.update({'date_from':line[1].get('from_month'),'date_to':line[1].get('to_month')})
                 res = self.get_account_lines(data_copy)
                 res = self._get_level(res)
-                result.update({line[0]:res})
+                result.append((line[0],res))
 
         filter_result = filter_method.set_filter_data(data['form'],self.from_id,self.year_from)
         data['form']['used_context'].update({'date_from':filter_result.get('from_month'),'date_to':filter_result.get('to_month')})
@@ -374,6 +378,9 @@ class FinancialReport(models.TransientModel):
                 'account_type': report.type or False,
                 # used to underline the financial report balances
             }
+            if report.name not in getattr(self,'_mapping_account_name'):
+                getattr(self,'_mapping_account_name').append(report.name)
+
             if data['debit_credit']:
                 vals['debit'] = res[report.id]['debit']
                 vals['credit'] = res[report.id]['credit']
@@ -435,6 +442,8 @@ class FinancialReport(models.TransientModel):
                                 vals['balance_cmp']):
                             flag = True
                     if flag:
+                        if vals['name'] not in getattr(self,'_mapping_account_name'):
+                            getattr(self,'_mapping_account_name').append(vals['name'])
                         sub_lines.append(vals)
                 lines += sorted(sub_lines,
                                 key=lambda sub_line: sub_line['name'])
