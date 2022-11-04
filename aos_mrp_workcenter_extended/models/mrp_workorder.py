@@ -62,16 +62,16 @@ class MrpWorkorder(models.Model):
                     workorder._start_nextworkorder()
 
     def validate_to_start(self):
-            if self.move_raw_ids.state not in {'partially_available','assigned','done'}:
-                raise UserError(_('Components must be reserved !'))
-            else:
-                operation_not_done = []
-                for workorder in self.production_id.workorder_ids:
-                    if workorder.operation_level < self.operation_level and workorder.state != 'done':
-                        operation_not_done.append(workorder)
+                if self.move_raw_ids and self.move_raw_ids.filtered(lambda r:r.state not in {'partially_available','assigned','done'}):
+                    raise UserError(_('Components must be reserved !'))
+                else:
+                    operation_not_done = []
+                    for workorder in self.production_id.workorder_ids:
+                        if workorder.operation_level < self.operation_level and workorder.state != 'done':
+                            operation_not_done.append(workorder)
 
-                if operation_not_done:
-                    raise UserError(_('Operation not completed yet!'))
+                    if operation_not_done:
+                        raise UserError(_('Operation not completed yet!'))
 
     def button_start(self):
         self.validate_to_start()
