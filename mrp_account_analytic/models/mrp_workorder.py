@@ -16,7 +16,7 @@ class MrpWorkcenterProductivity(models.Model):
         self.ensure_one()
         return {
             "name": "{} / {}".format(self.production_id.name, self.workorder_id.name),
-            "account_id": self.production_id.analytic_account_id.id,
+            "account_id": self.production_id.analytic_account_id.id or self.workcenter_id.costs_hour_account_id.id,
             "date": fields.Date.today(),
             "company_id": self.company_id.id,
             "manufacturing_order_id": self.production_id.id,
