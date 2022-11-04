@@ -69,7 +69,7 @@ class wizard_split_mo(models.TransientModel):
             if move_dest == 0 :
                 move_dest += prod.procurement_group_id.mrp_production_ids.move_dest_ids.id
                 newprod.procurement_group_id.mrp_production_ids.move_dest_ids = self.env['stock.move'].browse(move_dest)
-                newprod.procurement_group_id.mrp_production_ids.move_dest_ids.product_uom_qty/len(split_qty_lst)
+                newprod.procurement_group_id.mrp_production_ids.move_dest_ids.product_uom_qty = 1
             else :
                 #newprod.procurement_group_id = newprods[0].procurement_group_id
                 newprod.move_dest_ids = newprods[0].move_dest_ids.copy()
