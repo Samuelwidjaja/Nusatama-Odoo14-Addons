@@ -85,6 +85,12 @@ class MrpWorkorder(models.Model):
 
                     if operation_not_done:
                         raise UserError(_('Operation not completed yet!'))
+    
+    def button_unblock(self):
+        if not self.workcenter_id.costs_hour_account_id :
+            self.workcenter_id.costs_hour_account_id = self.production_id.analytic_account_id
+        res = super(MrpWorkorder, self).button_unblock()
+        return res
 
     def button_start(self):
         self.validate_to_start()
@@ -122,7 +128,8 @@ class MrpWorkorder(models.Model):
                 if operation_not_done:
                     show = False
                 rec.button_start_show = show
-                
+        else :
+            self.button_start_show = False
     #@api.depends('production_id.workorder_ids','production_id.move_raw_ids')
     #def _compute_button_show(self):
     #    show = True
