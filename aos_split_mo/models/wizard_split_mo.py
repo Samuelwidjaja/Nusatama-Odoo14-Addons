@@ -59,7 +59,6 @@ class wizard_split_mo(models.TransientModel):
         newprods = []
         number = 1
         move_dest = 0
-        sale_id = 0
         for each_qty in split_qty_lst:
             #self.mp_id.copy({'product_qty': each_qty,
             #                 'origin': self.mp_id.name})
@@ -68,17 +67,23 @@ class wizard_split_mo(models.TransientModel):
             dataprod = prod.copy_data(default={'name':name+'-'+str(number),'origin':self.mp_id.name,'move_raw_ids':[],'move_finished_ids':[],'workorder_ids':[],'product_qty':each_qty}) # {}
             newprod = ProdObj.create(dataprod[0])
             if move_dest == 0 :
-                sale_id += prod.procurement_group_id.mrp_production_ids.move_dest_ids.group_id.sale_id.id
                 move_dest += prod.procurement_group_id.mrp_production_ids.move_dest_ids.id
-                newprod.procurement_group_id.mrp_production_ids.move_dest_ids = self.env['stock.move'].browse(move_dest)    
+                newprod.procurement_group_id.mrp_production_ids.move_dest_ids = self.env['stock.move'].browse(move_dest)
+                newprod.procurement_group_id.mrp_production_ids.move_dest_ids.product_uom_qty/len(split_qty_lst)
             else :
-                move_dest += 1
-                newprod.procurement_group_id.mrp_production_ids.move_dest_ids = self.env['stock.move'].browse(move_dest)    
-                newprod.procurement_group_id.mrp_production_ids.move_dest_ids.group_id.sale_id = self.env['sale.order'].browse(sale_id)
+                #newprod.procurement_group_id = newprods[0].procurement_group_id
+                newprod.move_dest_ids = newprods[0].move_dest_ids.copy()
             newprod._onchange_move_raw()
             newprod._onchange_move_finished()
             newprod._onchange_workorder_ids()
-            #newprod._onchange_bom_id()
+            #if newprods :
+            #    if newprod.move_dest_ids.move_orig_ids != newprods[0].move_dest_ids.move_orig_ids :
+            #        newprod.move_dest_ids.move_orig_ids = newprods[0].move_dest_ids.move_orig_ids.ids  
+            #newprod._onchange_location_dest()
+            #newprod.onchange_picking_type()
+            #newprod._compute_components_availability()
+            #newprod._compute_lines()
+            #newprod._get_moves_finished_values()
             #newprod._onchange_product_qty()
             newprods.append(newprod)
             number += 1            
@@ -96,7 +101,7 @@ class wizard_split_mo(models.TransientModel):
 
 class mrp_production(models.Model):
     _inherit = 'mrp.production'
-
+    
     def split_manufacturing_orders(self):
         if self.state in ['progress', 'done', 'cancel', 'to_close']:
             raise Warning(_('You cannot split manufacturing order which is in already in-progress / to close / done / cancel.'))
@@ -109,3 +114,4 @@ class mrp_production(models.Model):
                 'target': 'new',
                 'context': {'default_mp_id': self.id ,'default_no_of_qty':self.product_qty}
                  }
+ 
