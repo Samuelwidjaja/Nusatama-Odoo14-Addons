@@ -5,7 +5,7 @@ class AccountingVendor(models.Model):
     _inherit = "account.move"
     
     def action_post(self):
-        if self.ref == False or self.ref == '':
+        if (self.ref == False or self.ref == '') and self.move_type == 'in_invoice':
             raise UserError("Field Bill Reference Harus Diisi, Mohon Isi Dengan No Tagihan Supplier")
-        super(AccountingVendor, self).action_post()
+        return super(AccountingVendor, self).action_post()
         
