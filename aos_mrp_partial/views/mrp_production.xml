@@ -1,0 +1,29 @@
+<odoo>
+
+    <record model="ir.ui.view" id="mrp_production_form_view">
+        <field name="name">Mrp Production Form View: Partial</field>
+        <field name="model">mrp.production</field>
+        <field name="inherit_id" ref="mrp.mrp_production_form_view" />
+        <field name="arch" type="xml">
+            
+            <xpath expr="//page[last()]" position="before">
+                <page string="Post History" id="page_post_histories">
+                    <button string="Post Inventory" 
+                        type="object" 
+                        name="post_inventory" 
+                        confirm="Post Inventory?" 
+                        states="progress,to_close" 
+                        class="oe_highlight" 
+                        groups="mrp.group_mrp_user"/>
+                    <field name="post_history_ids" readonly="1">
+                        <tree string="Histories" editable="bottom">
+                            <field name="create_date"/>
+                            <field name="lot_id"/>
+                            <field name="done_qty"/>
+                        </tree>
+                    </field>
+                </page>
+            </xpath>
+        </field>
+    </record>
+</odoo>
