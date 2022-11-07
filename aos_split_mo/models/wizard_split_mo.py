@@ -73,18 +73,10 @@ class wizard_split_mo(models.TransientModel):
             else :
                 #newprod.procurement_group_id = newprods[0].procurement_group_id
                 newprod.move_dest_ids = newprods[0].move_dest_ids.copy()
+                newprod.move_dest_ids.state = 'waiting'
             newprod._onchange_move_raw()
             newprod._onchange_move_finished()
             newprod._onchange_workorder_ids()
-            #if newprods :
-            #    if newprod.move_dest_ids.move_orig_ids != newprods[0].move_dest_ids.move_orig_ids :
-            #        newprod.move_dest_ids.move_orig_ids = newprods[0].move_dest_ids.move_orig_ids.ids  
-            #newprod._onchange_location_dest()
-            #newprod.onchange_picking_type()
-            #newprod._compute_components_availability()
-            #newprod._compute_lines()
-            #newprod._get_moves_finished_values()
-            #newprod._onchange_product_qty()
             newprods.append(newprod)
             number += 1            
         self.mp_id.action_cancel()
