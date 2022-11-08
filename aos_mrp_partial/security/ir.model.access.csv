@@ -1,3 +1,0 @@
-id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
-access_mrp_production_post_history_manufacture_user,access_mrp_production_post_history_manufacture_user,aos_mrp_partial.model_mrp_production_post_history,mrp.group_mrp_user,1,1,1,1
-access_mrp_production_post_history_inv_user,access_mrp_production_post_history_inv_user,aos_mrp_partial.model_mrp_production_post_history,stock.group_stock_user,1,0,0,0
