@@ -78,8 +78,13 @@ class StockMove(models.Model):
             # valuation porduction is calculated from consumed unit price valuation
             # print(res)
             order_moves = moves_todo.get(self.production_id.id)
-            totalvalues = abs(sum(order_moves.move_raw_origin_ids.filtered(lambda r:r.state=='done').stock_valuation_layer_ids.mapped('value')))
-            res = float_round((totalvalues / self.quantity_done), precision_digits=precision) # price per unit
+            res = 0
+            for move in order_moves:
+                totalvalues = 0
+                for valuation in move.move_raw_origin_ids.filtered(lambda r:r.state=='done'):
+                    totalvalues = abs(valuation.stock_valuation_layer_ids.unit_cost * move.quantity_done)
+
+                res += float_round((totalvalues), precision_digits=precision) # price per unit
             # print(order_moves)
 
 
