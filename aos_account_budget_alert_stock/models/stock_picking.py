@@ -44,13 +44,13 @@ class StockPicking(models.Model):
                     elif line.analytic_account_id and budget_ilines[-1][line.analytic_account_id.id]['planned_amount'] == planned_amount and \
                         budget_ilines[-1][line.analytic_account_id.id]['alert_type'] == 'stop':
                         budget_alert_info_stop += '* %s - %s exceed budget %s\n'%(line.analytic_account_id.name,line.name,str(formatLang(self.env, (committed_amount + practical_amount) - planned_amount, currency_obj=self.company_id.currency_id)))
-                #self.budget_alert_info = budget_alert_info
-                if budget_ilines[-1][line.analytic_account_id.id]['alert_type'] == 'warn':
-                    order.has_budget_alert_warn = True
-                    order.budget_alert_info = budget_alert_info_warn
-                if budget_ilines[-1][line.analytic_account_id.id]['alert_type'] == 'stop':
-                    order.has_budget_alert_stop = True
-                    order.budget_alert_info = budget_alert_info_stop
+                    #self.budget_alert_info = budget_alert_info
+                    if line.analytic_account_id and budget_ilines[-1][line.analytic_account_id.id]['alert_type'] == 'warn':
+                        order.has_budget_alert_warn = True
+                        order.budget_alert_info = budget_alert_info_warn
+                    if line.analytic_account_id and budget_ilines[-1][line.analytic_account_id.id]['alert_type'] == 'stop':
+                        order.has_budget_alert_stop = True
+                        order.budget_alert_info = budget_alert_info_stop
             #print ('===_get_budget_alert_info===',order.has_budget_alert_warn,order.has_budget_alert_stop,order.budget_alert_info)
  
     has_budget_alert_warn = fields.Boolean(compute='_get_budget_alert_info', store=False)
