@@ -46,7 +46,7 @@ class MrpProduction(models.Model):
     def write(self, vals):
         res = super(MrpProduction, self).write(vals)
         for rec in self.move_raw_ids:
-            if self.state not in  ['done','draft','progress']:
+            if self.state not in  ['done','draft','progress','on_hold']:
                 if rec.reserved_availability != rec.product_uom_qty:
                     raise UserError(_("To Consume Harus Sama Dengan Reserved Qty Pada Product %s") % rec.product_id.name)
             
