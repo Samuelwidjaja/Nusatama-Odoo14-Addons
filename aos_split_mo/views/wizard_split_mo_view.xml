@@ -38,7 +38,7 @@
 				<button name="split_manufacturing_orders" string="Split Mo"
 					type="object" class="btn-primary"
 					groups="aos_split_mo.res_group_can_split_mo"
-					attrs="{'invisible':[('state', 'in', ['progress', 'done', 'cancel', 'to_close'])]}" />
+					attrs="{'invisible':[('state', 'in', ['progress','confirmed','done', 'cancel', 'to_close'])]}" />
 			</xpath>
 		</field>
 	</record>
