@@ -11,7 +11,7 @@
         WIP entries as inventory post
     """,
     'depends': [
-        'mrp','aos_bypass_reservation',
+        'sale','purchase','mrp','aos_bypass_reservation',
     ],
     'external_dependencies': {'python': [], 'bin': []},
     'data': [

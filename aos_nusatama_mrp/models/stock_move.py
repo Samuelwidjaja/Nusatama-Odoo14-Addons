@@ -30,13 +30,6 @@ class StockMove(models.Model):
                 'to_consume_raw_qty':to_consume,
             })
 
-
-    # get origin
-    # def _calc_move_raw_origin_ids(self):
-    #     for rec in self:
-    #         origs = rec.move_orig_ids.filtered(lambda r:not r.move_raw_dest_ids)
-    #         rec.write({'move_raw_origin_ids':[(6,0,origs.filtered(lambda r:r.state=='done').ids)]})
-
     def _assign_to_destination_as_raw_origin(self):
         self.ensure_one()
         # self = internal
@@ -87,7 +80,17 @@ class StockMove(models.Model):
             for move in order_moves:
                 totalvalues = 0
                 for valuation in move.move_raw_origin_ids.filtered(lambda r:r.state=='done'):
-                    totalvalues = abs(valuation.stock_valuation_layer_ids.unit_cost * move.quantity_done)
+                    diffqty = move.quantity_done-valuation.quantity_done
+                    qty_done = move.quantity_done
+                    if diffqty<0:
+                        qty_done = move.quantity_done
+                    elif diffqty>0:
+                        qty_done = move.quantity_done-diffqty
+                    totalvalues = abs(valuation.stock_valuation_layer_ids.unit_cost * qty_done)
+                    alreadytransferbefore = valuation.move_dest_ids.move_orig_ids.filtered(lambda r:r.to_consume_raw_qty<0)
+                    if alreadytransferbefore:
+                        val = (alreadytransferbefore.move_dest_ids - alreadytransferbefore.move_raw_dest_ids).move_raw_origin_ids.stock_valuation_layer_ids
+                        totalvalues += abs(val.unit_cost * sum(alreadytransferbefore.mapped('to_consume_raw_qty'))) # FIXME: how if many transfers
 
                 res += float_round((totalvalues), precision_digits=precision) # price per unit
             # print(order_moves)
