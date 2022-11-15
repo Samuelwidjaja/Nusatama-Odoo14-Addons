@@ -6,7 +6,7 @@
         <field name="inherit_id" ref="mrp.mrp_production_form_view"/>
         <field name="arch" type="xml">
             <xpath expr="//button[@name='action_confirm']" position="before">
-                    <button name="add_material" attrs="{'invisible': [('state', 'in', ('done', 'cancel','to_close'))]}" string="Add Component" type="object" class="oe_highlight"/>
+                    <button name="add_material" attrs="{'invisible': ['|', ('state', 'in', ('done', 'cancel','to_close')),('product_qty', '!=', 1)]}" string="Add Component" type="object" class="oe_highlight"/>
             </xpath>
             <xpath expr="//notebook/page/field/tree[1]" position="attributes">
                 <attribute name="create">0</attribute>
