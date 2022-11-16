@@ -1,0 +1,13 @@
+<odoo>
+
+    <record model="ir.ui.view" id="view_move_form">
+        <field name="name">Stock Move Form Move Raw Origin</field>
+        <field name="model">stock.move</field>
+        <field name="inherit_id" ref="stock.view_move_form" />
+        <field name="arch" type="xml">
+            <field name="move_dest_ids" position="after">
+                <field name="move_raw_origin_ids"/>
+            </field>
+        </field>
+    </record>
+</odoo>

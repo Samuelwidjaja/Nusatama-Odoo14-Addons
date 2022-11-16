@@ -38,6 +38,7 @@ class AddComponent(models.TransientModel):
                                    "group_id" : mrp_production_obj.procurement_group_id.id,
                                    "company_id" : mrp_production_obj.company_id.id,
                                    "procure_method" : "make_to_order",
+                                   "warehouse_id": mrp_production_obj.move_raw_ids[0].warehouse_id.id,
                                    "picking_type_id" : mrp_production_obj.picking_type_id.id,
                         }))
                          else :
@@ -57,6 +58,7 @@ class AddComponent(models.TransientModel):
                                    "group_id" : mrp_production_obj.procurement_group_id.id,
                                    "company_id" : mrp_production_obj.company_id.id,
                                    "procure_method" : "make_to_order",
+                                   "warehouse_id": mrp_production_obj.move_raw_ids[0].warehouse_id.id,
                                    "picking_type_id" : mrp_production_obj.picking_type_id.id,
                         }))
                     else :      
@@ -69,6 +71,7 @@ class AddComponent(models.TransientModel):
                              "product_uom_qty" : rec.product_qty,
                              "group_id" : mrp_production_obj.procurement_group_id.id,
                              "company_id" : mrp_production_obj.company_id.id,
+                             "warehouse_id": mrp_production_obj.move_raw_ids[0].warehouse_id.id,
                              "procure_method" : "make_to_order",
                              "picking_type_id" : mrp_production_obj.picking_type_id.id,
                         }))
