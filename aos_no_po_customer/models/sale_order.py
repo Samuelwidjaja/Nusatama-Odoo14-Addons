@@ -13,7 +13,8 @@ class SaleOrder(models.Model):
     no_po = fields.Char(string="No Pesanan",required=False)
 
 
-    @api.constrains('no_po')
-    def constraints_no_po(self):
+    def action_confirm(self):
         if not self.no_po:
             raise UserError("No Pesanan is required and cannot empty")
+
+        return super(SaleOrder,self).action_confirm()
