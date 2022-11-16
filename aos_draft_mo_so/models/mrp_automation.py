@@ -12,9 +12,9 @@ class MrpAutomation(models.Model):
                     production['state'] = 'draft'
                     production['confirm'] = True
                 else :
-                    super(MrpAutomation,self).action_confirm()
+                  return super(MrpAutomation,self).action_confirm()
             else :
-                    super(MrpAutomation,self).action_confirm()
+                    return super(MrpAutomation,self).action_confirm()
 
                     
 
