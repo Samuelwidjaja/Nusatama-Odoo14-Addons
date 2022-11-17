@@ -13,6 +13,17 @@ class wizard_split_mo(models.TransientModel):
     mp_id = fields.Many2one('mrp.production', string="Manufacturing Order")
     split_mo_line_ids = fields.One2many("wizard.split.mo.line", 'wizard_split_id', string="Split Quantity Lines")
 
+    def action_back(self):
+        return {
+                    'type': 'ir.actions.act_window',
+                    'res_model': 'mrp.production',
+                    'name':'Manufacturing Orders',
+                    'views': [[self.env.ref('mrp.mrp_production_tree_view').id, 'tree'],[self.env.ref('mrp.mrp_production_form_view').id, 'form']],
+                    'res_id': self.mp_id.id,
+                    'context':{'search_default_todo': True},
+                    'target': 'main',
+                }
+
     @api.model
     def no_of_split(self, mo_qty, n, split_qty_lst=[]):
         if (mo_qty % n == 0): 
@@ -80,7 +91,8 @@ class wizard_split_mo(models.TransientModel):
             newprods.append(newprod)
             number += 1            
         self.mp_id.action_cancel()
-        return newprods
+    #   return newprods
+        return self.action_back()
 
 
 class wizard_split_mo(models.TransientModel):
