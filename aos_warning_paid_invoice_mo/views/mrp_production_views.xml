@@ -11,11 +11,13 @@
             </xpath>
             <xpath expr="//button[@name='action_confirm']" position="before">
                 <!-- <button string="Confirm" name="actions_confirm" type="object" class="oe_highlight" attrs="{'invisible':[('state','!=','draft')]}"/> -->
-                <button string="Confirm" name="actions_confirm" type="object" groups="mrp.group_mrp_manager" class="oe_highlight" attrs="{'invisible':[('state','!=','draft')]}"/>
+                <button string="Confirm" name="action_confirm" type="object" groups="mrp.group_mrp_manager" class="oe_highlight" attrs="{'invisible':[('state','!=','draft')]}"/>
             </xpath>
             <xpath expr="//button[@name='action_confirm']" position="attributes">
                 <attribute name="attrs">{'invisible':[('state','!=','on_hold')]}</attribute>
                 <attribute name="groups">aos_warning_paid_invoice_mo.approve_confirm_mrp</attribute>
+                <attribute name="context">{'force_approval':True}</attribute>
+                <attribute name="string">Approve</attribute>
             </xpath>
             <xpath expr="//field[@name='move_raw_ids']/tree/field[@name='forecast_availability']" position="attributes">
                 <attribute name="attrs">{'column_invisible': [('parent.state', 'in', ['draft','on_hold' ,'done'])]}</attribute>

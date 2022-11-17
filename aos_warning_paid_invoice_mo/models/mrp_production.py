@@ -25,7 +25,7 @@ class MRPProduction(models.Model):
              " * Done: The MO is closed, the stock moves are posted. \n"
              " * Cancelled: The MO has been cancelled, can't be confirmed anymore.")
 
-    def actions_confirm(self):
+    def action_confirm(self):
         if self.product_qty > 1:
             raise UserError("Quantity is greater than 1 you must split to several MO")
         #get all invoices posted and state payment is not paid
@@ -35,7 +35,7 @@ class MRPProduction(models.Model):
             ('payment_state','!=','paid'),
             ('move_type', '=', 'out_invoice'), #'in_invoice'
         ])
-        if invoices:
+        if invoices and not self._context.get('force_approval'):
             context = {
                 'default_production_id':self.id,
                 'default_invoices':invoices.ids,
@@ -43,7 +43,7 @@ class MRPProduction(models.Model):
             }
             return self.open_warning_wizard(context)
         else:
-            self.action_confirm()
+            return super(MRPProduction,self).action_confirm()
 
     def open_warning_wizard(self,context):
         return {
