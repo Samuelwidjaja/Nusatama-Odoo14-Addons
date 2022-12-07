@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="l10n_id_nb_chart" model="account.chart.template">
+        <field name="property_account_receivable_id" ref="a_1_112000"/>
+        <field name="property_account_payable_id" ref="a_2_211000"/>
+        <field name="property_account_expense_categ_id" ref="a_5_510000"/>
+        <field name="property_account_income_categ_id" ref="a_4_400000"/>
+        <field name="property_stock_account_input_categ_id" ref="a_2_230000"/>
+        <field name="property_stock_account_output_categ_id" ref="a_2_230000"/>
+        <field name="property_stock_valuation_account_id" ref="a_1_114000"/>
+        <field name="income_currency_exchange_account_id" ref="a_7_760000"/>
+        <field name="use_anglo_saxon" eval="1"/>
+    </record>
+</odoo>
