@@ -37,19 +37,19 @@ class MrpProduction(models.Model):
                 
     def button_mark_done(self):
         res = super(MrpProduction, self).button_mark_done()
-        for rec in self.move_raw_ids :
-            if self.state != 'done':
-                if rec.reserved_availability != rec.product_uom_qty :
-                    raise UserError(_("To Consume Harus Sama Dengan Reserved Qty Pada Product %s") % rec.product_id.name)
+        # for rec in self.move_raw_ids :
+        #     if self.state != 'done':
+        #         if rec.reserved_availability != rec.product_uom_qty :
+        #             raise UserError(_("To Consume Harus Sama Dengan Reserved Qty Pada Product %s") % rec.product_id.name)
         return res
     
     def write(self, vals):
         res = super(MrpProduction, self).write(vals)
-        for rec in self:
-            if rec.state == 'to_close':
-                for move in self.move_raw_ids :
-                    if move.reserved_availability != move.product_uom_qty:
-                        raise UserError(_("To Consume Harus Sama Dengan Reserved Qty Pada Product %s") % move.product_id.name)
+        # for rec in self:
+        #     if rec.state == 'to_close':
+        #         for move in self.move_raw_ids :
+        #             if move.reserved_availability != move.product_uom_qty:
+        #                 raise UserError(_("To Consume Harus Sama Dengan Reserved Qty Pada Product %s") % move.product_id.name)
         return res 
                 #if rec[0] == 1 :
                 #    print('xx')
