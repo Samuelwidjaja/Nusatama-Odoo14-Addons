@@ -21,7 +21,7 @@
                             </tr>
                             <tr>
                                 <td style="padding:3px;">Purchase Order</td>
-                                <td style="padding:3px;">: <span t-field="o.ref"/></td>
+                                <td style="padding:3px;">: <span t-field="o.no_po"/></td>
                             </tr>
                             <tr>
                                 <td style="padding:3px;"><u>Tanggal Pembayaran</u> <br/> (Due Date)</td>
