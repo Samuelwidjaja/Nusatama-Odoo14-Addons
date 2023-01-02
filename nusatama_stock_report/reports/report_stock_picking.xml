@@ -43,6 +43,7 @@
                     border: 1px solid black; 
                 }
             </style>
+	    <br/>
             <h2 class="text-center">SURAT JALAN</h2>
             <table class="table table-sm table-borderless" style="width:100%;">
                 <tr>
