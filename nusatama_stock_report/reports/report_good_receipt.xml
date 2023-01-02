@@ -9,7 +9,11 @@
 
         <div class="page" style="width:100%;">
             <table class="table table-sm table-borderless" style="width:60%;">
-                <tr style="border-bottom:1px solid #000;">
+               <tr style="border-bottom:1px solid #000;">
+		    <td style="width:18%">No Receipt</td>
+		    <td>: <span t-field="o.name"/></td>
+		</tr>
+	        <tr style="border-bottom:1px solid #000;">
                     <td style="width:18%;">NO. PO</td>
                     <td>: <span t-field="o.origin"/></td>
                 </tr>
@@ -45,8 +49,8 @@
                 <tr>
                     <td colspan="5" class="text-right" style="border-top:1px solid #000; border-left:1px solid #000; border-right:1px solid #000; padding-top:5px;">Bekasi,.....................................................20..........</td>
                 </tr>
-                <tr>
-                    <td colspan="2" style="border-left:1px solid #000; padding-left:10px;">Diterima Oleh: <span t-field="o.write_uid.name"/></td>
+                <tr style="height:135px">
+                    <td colspan="2" style="border-left:1px solid #000; padding-left:10px;">Diterima Oleh: Warehouse</td>
                     <td colspan="3" style="border-right:1px solid #000; padding-left:14px;">Dikirim Oleh: <span/></td>
                 </tr>
                 <tr>
