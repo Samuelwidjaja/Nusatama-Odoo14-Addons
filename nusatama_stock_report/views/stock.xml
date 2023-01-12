@@ -9,7 +9,7 @@
             <xpath expr="//header" position="inside">
                 <button string="Print DO" name="%(nusatama_stock_report.report_stock_delivery_order)d" type="action" class="oe_highlight print_do" attrs="{'invisible':['|',('picking_type_code','!=','outgoing'),('state','not in',['assigned','done'])]}"/>
                 <button string="Print BAST" name="%(nusatama_stock_report.report_stock_picking_bast)d" type="action" class="oe_highlight print_bast" attrs="{'invisible':['|',('picking_type_code','!=','outgoing'),('state','not in',['assigned','done'])]}"/>
-                <button string="Print Delivery Slip" type="action" name="%(stock.action_report_delivery)d" class="oe_highlight print_delivery_slip" attrs="{'invisible':['|',('picking_type_code','!=','outgoing'),('state','not in',['assigned','done'])]}"/>
+            	<!-- <button string="Print Delivery Slip" type="action" name="%(stock.action_report_delivery)d" class="oe_highlight print_delivery_slip" attrs="{'invisible':['|',('picking_type_code','!=','outgoing'),('state','not in',['assigned','done'])]}"/> -->
                 <!-- <button string="Print Receipt Good" type="action" name="%(nusatama_stock_report.report_good_receipt)d" class="oe_highlight print_receipt_good" attrs="{'invisible':['|',('picking_type_code','!=','incoming'),('state','not in',['assigned','done'])]}"/> -->
                 <!-- <button string="Print Picking Operation" type="action" name="%(stock.action_report_picking)d" class="oe_highlight print_picking_operation" attrs="{'invisible':[('state','not in',['assigned','done'])]}"/> -->
             </xpath>
