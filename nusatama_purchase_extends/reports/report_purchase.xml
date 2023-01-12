@@ -23,8 +23,8 @@
                                     </td>
                                 </tr>
                                 <tr>
-                                    <td style="padding:3px; width:19%;">Telp/Fax</td>
-                                    <td style="padding:3px;">: <span t-field="contact.phone"/> /</td>
+                                    <td style="padding:3px; width:19%;">Telp/Mobile</td>
+                                    <td style="padding:3px;">: <span t-field="contact.phone"/> /<span t-field="contact.mobile"/> </td>
                                 </tr>
                                 <tr>
                                     <td style="padding:3px; width:19%;"><u>UP</u> <br/>Attn</td>
@@ -48,6 +48,8 @@
                     </div>
                     <span style="clear:both;"></span>
                 </div>
+		<br/>
+		<br/>
                 <div class="page">
                     <table width="100%">
                         <tr align="center">
@@ -75,7 +77,7 @@
                                             <t t-set="number" t-value="number + 1"/>
                                     </td>
                                     <td style="padding:5px; border-right:1px solid #000; border-left:1px solid #000;">
-                                            <span t-esc="product.product_id.display_name"/>
+                                            <span t-esc="product.name"/>
                                     </td>
                                     <td style="padding:5px; border-right:1px solid #000; border-left:1px solid #000;" align="center">
                                             <span t-esc="'{0:,.2f}'.format(product.product_qty)"/>
@@ -138,7 +140,8 @@
                     <div class="bottom" style="width:100%;">
                         Keterangan:
                         <div class="first-bottom" style="width:40%; border:1px solid #000; padding:3px 3px 0 6px;">
-                            Catatan: <t t-esc="doc.notes"/>
+                            Payment: <t t-esc="doc.payment_term_id.name"/>
+				<br/> <t t-esc="doc.notes"/>
                             <br/> <br/> <br/> 
                         </div>
 
@@ -170,7 +173,8 @@
                         <div class="third-bottom" style="border:1px solid #000; padding:0 0 0 10px;">
                             <b>
                                 CATATAN: <br/>
-                                - Mohon pada saat tagihan dilampirkan Invoice, Faktur Pajak,Tanda terima barang dan copy PO
+                                - Mohon pada saat tagihan dilampirkan Invoice, Faktur Pajak,No Tanda Terima Barang dari pihak Nusatama, dan
+				Copy PO yang telah ditandatangani Pihak Vendor + cap perusahaan
                             </b>
                         </div>
                     </div> 
