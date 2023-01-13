@@ -11,14 +11,15 @@ class MrpAutomation(models.Model):
                 if production['state'] == 'draft' and production['confirm'] == False :
                     production['state'] = 'draft'
                     production['confirm'] = True
-                else :
-                    if self.product_qty > 1:
-                        raise UserError("Quantity is greater than 1 you must split to several MO")
-                    return super(MrpAutomation,self).action_confirm()
-            else :
-                    if self.product_qty > 1:
-                        raise UserError("Quantity is greater than 1 you must split to several MO")
-                    return super(MrpAutomation,self).action_confirm()
+            return super(MrpAutomation, self).action_confirm()
+            #     else :
+            #         if self.product_qty > 1:
+            #             raise UserError("Quantity is greater than 1 you must split to several MO")
+            #         return super(MrpAutomation,self).action_confirm()
+            # else :
+            #         if self.product_qty > 1:
+            #             raise UserError("Quantity is greater than 1 you must split to several MO")
+            #         return super(MrpAutomation,self).action_confirm()
 
                     
 
