@@ -34,7 +34,7 @@ class MRPProduction(models.Model):
         ])
         if invoices and not self._context.get('force_approval'):
             context = {
-                'default_production_id':self.id,
+                'default_production_id':self[-1].id if len(self) >= 1 else False ,
                 'default_invoices':invoices.ids,
                 'default_invoices_text':', '.join(invoices.mapped('name'))
             }
