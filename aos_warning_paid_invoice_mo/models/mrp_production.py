@@ -25,6 +25,10 @@ class MRPProduction(models.Model):
              " * Done: The MO is closed, the stock moves are posted. \n"
              " * Cancelled: The MO has been cancelled, can't be confirmed anymore.")
     def action_confirm(self):
+
+        if self.confirm == False:
+            self.confirm = True
+            return 
         #get all invoices posted and state payment is not paid
         invoices = self.env['account.move'].search([
             ('partner_id','=',self.partner_id.id),
