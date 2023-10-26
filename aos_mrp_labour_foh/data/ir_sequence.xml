@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <data>
+    
+        <record id="mrp_labour_foh_seq" model="ir.sequence">
+            <field name="name">Labour Cost &amp; FOH Sequence</field>
+            <field name="code">mrp.labour.foh</field>
+            <field name="prefix"></field>
+            <field name="padding">5</field>
+        </record>
+    
+    </data>
+    
+
+</odoo>

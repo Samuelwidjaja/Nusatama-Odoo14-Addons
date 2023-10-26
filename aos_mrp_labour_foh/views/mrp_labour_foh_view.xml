@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="mrp_labour_foh_cost_tree_view" model="ir.ui.view">
+        <field name="name">mrp_labour_foh_cost_tree_view</field>
+        <field name="model">mrp.labour.foh</field>
+        <field name="arch" type="xml">
+            <tree>
+                <field name="name" />
+                <field name="start_date" />
+                <field name="end_date" />
+                <field name="total_duration" />
+                <field name="state" />
+            </tree>
+        </field>
+    </record>
+
+    <record id="mrp_labour_foh_cost_form_view" model="ir.ui.view">
+        <field name="name">mrp_labour_foh_cost_form_view</field>
+        <field name="model">mrp.labour.foh</field>
+        <field name="arch" type="xml">
+            <form>
+                <header>
+                    <field name="state" widget="statusbar" statusbar_visible="draft,done"/>
+                </header>
+                <sheet>
+                    <label for="name"/>
+                    <h1><field name="name" /></h1>
+                    <group>
+                        <group>
+                            <field name="start_date" />
+                            <field name="end_date" />
+                        </group>
+                        <group>
+                            <field name="total_duration" />
+                            <field name="company_id" options="{'no_create':True}" groups="base.group_multi_company"/>
+                            <field name="currency_id" options="{'no_create':True}" groups="base.group_multi_currency" invisible="1"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page name="summary" string="Summary">
+                            <field name="line_ids">
+                                <tree editable="bottom">
+                                    <field name="mrp_production_id" options="{'no_create':True}"/>
+                                    <field name="total_duration_wo" />
+                                    <field name="total_timesheet" />
+                                    <field name="total_duration" />
+                                    <field name="labour_cost" />
+                                    <field name="foh_cost" />
+                                    <field name="state" optional="hide"/>
+                                    <field name="currency_id" invisible="1"/>
+                                </tree>
+                            </field>
+                        </page>
+                        <page name="account_setting" string="Settings">
+                            <group>
+                                <field name="account_labour_ids" widget="many2many_tags" options="{'no_create':True,'no_quick_create':True}"/>
+                                <field name="account_foh_ids" widget="many2many_tags" options="{'no_create':True,'no_quick_create':True}"/>
+                            </group>
+                            <group>
+                                <group>
+                                    <field name="account_labour_id" options="{'no_create':True}"/>
+                                    <field name="account_foh_id" options="{'no_create':True}"/>
+                                    <field name="account_cogs_id" options="{'no_create':True}"/>
+                                    <field name="account_wip_id" options="{'no_create':True}"/>
+                                </group>
+                                <group>
+                                    <field name="salary_journal_id" options="{'no_create':True}"/>
+                                    <field name="foh_journal_id" options="{'no_create':True}"/>
+                                </group>
+                            </group>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+</odoo>
