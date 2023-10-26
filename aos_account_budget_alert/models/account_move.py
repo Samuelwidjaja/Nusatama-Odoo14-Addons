@@ -270,6 +270,7 @@ class AccountMoveLine(models.Model):
         if self.mapped('move_id').mapped('line_ids').mapped('committed_analytic_line_ids'):
             for obj_line in self.mapped('move_id').mapped('line_ids').mapped('committed_analytic_line_ids'):
                 move_line = self.filtered(lambda x: x.product_id == obj_line.product_id and x.analytic_account_id == obj_line.account_id and x.account_id == obj_line.committed_account_id)
+                print ('=move_line==',move_line)
                 if ((not move_line.move_id.has_budget_alert_warn and not move_line.move_id.has_budget_alert_stop) or self._context.get('action_budget')) and obj_line.account_id == move_line.analytic_account_id:# and obj_line.unit_amount == move_line.quantity:
                     vals_line = move_line._auth_update_analytic_line(obj_line)
                     obj_line.write(vals_line)

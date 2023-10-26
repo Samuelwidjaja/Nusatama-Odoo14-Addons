@@ -101,11 +101,14 @@
                                     <td style="padding-right:10px;"><span t-field="o.company_id.city"/>, <span t-field="o.invoice_date" t-options='{"format":"dd-MM-yyyy"}'/></td>
                                 </tr>
                                 <tr align="center">
-                                    <td style="height:60px;"></td>
+                                    <td style="height:130px;"></td>
                                 </tr>
                                 <tr align="center">
-                                    <td style="padding:5px;">Ismu Prasetyo</td>
+                                    <td style="text-decoration: underline; font-weight: bold;">Ismu Prasetyo</td>	
                                 </tr>
+				<tr align="center">
+					<td style="font-weight: bold;">Direktur</td>
+				</tr>
                             </table>
                         </div>
                         <div class="clear" style="clear:left;"></div>

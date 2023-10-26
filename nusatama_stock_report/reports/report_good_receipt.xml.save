@@ -1,8 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
     <template id="stock_picking_good_receipt_document">
-        <div class="header" style="width:65%; height:20%;">
+        <div class="header" style="width:75%; height:20%;">
             <div class="logo">
+		<table class="table">
+		<tr><td>
                 <img t-attf-src="nusatama_stock_report/static/src/image/Header.png" width="100%"/>
             </div>
 	    
