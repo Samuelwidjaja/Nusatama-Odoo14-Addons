@@ -41,5 +41,5 @@ class MRPLabourFOHLine(models.Model):
     total_timesheet = fields.Float(string="Total Duration Timesheet")
     total_duration = fields.Float(string="Total")
     labour_cost = fields.Monetary(string="Labour Cost",currency_field="currency_id",digits="Product Price")
-    foh_cost = fields.Monetary(string="FPH Cost",currency_field="currency_id",digits="Product Price")
+    foh_cost = fields.Monetary(string="FOH Cost",currency_field="currency_id",digits="Product Price")
     state = fields.Selection(related="mrp_production_id.state",string="State")
