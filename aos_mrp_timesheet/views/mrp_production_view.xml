@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="mrp_production_timesheet_form_view" model="ir.ui.view">
+        <field name="name">mrp_production_timesheet_form_view</field>
+        <field name="model">mrp.production</field>
+        <field name="inherit_id" ref="mrp.mrp_production_form_view"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='company_id']" position="after">
+                <field name="use_timesheet" attrs="{'invisible':[('state','in',('draft','cancel'))]}"/>
+            </xpath>
+            <xpath expr="//field[@name='is_planned']" position="after">
+                <field name="analytic_account_id" />
+            </xpath>
+            <xpath expr="//page[@name='operations']" position="after">
+                <page name="mrp_timesheet" string="Timesheet" attrs="{'invisible':[('use_timesheet','=',False)]}">
+                    <field name="timesheet_ids" context="{'default_mrp_production_id':active_id, 'timesheet_mrp':True}">
+                        <tree editable="bottom" string="Timesheet Activities" default_order="date">
+                            <field name="date"/>
+                            <field name="user_id" invisible="1"/>
+                            <field name="employee_id" required="1" widget="many2one_avatar_employee" context="{'active_test': True}"/>
+                            <field name="mrp_production_id" invisible="1"/>
+                            <field name="mrp_workorder_id" options="{'no_create':True}"/>
+                            <field name="name" required="0"/>
+                            <field name="unit_amount" string="Duration" widget="timesheet_uom" decoration-danger="unit_amount &gt; 24"/>
+                            <field name="company_id" invisible="1"/>
+                        </tree>
+                        <form string="Timesheet Activities">
+                            <sheet>
+                                 <group>
+                                    <field name="date"/>
+                                    <field name="user_id" invisible="1"/>
+                                    <field name="employee_id" required="1" widget="many2one_avatar_employee" context="{'active_test': True}"/>
+                                    <field name="mrp_production_id" invisible="1"/>
+                                    <field name="mrp_workorder_id" options="{'no_create':True}"/>
+                                    <field name="name" required="0"/>
+                                    <field name="unit_amount" string="Duration" widget="float_time" decoration-danger="unit_amount &gt; 24"/>
+                                    <field name="company_id" invisible="1"/>
+                                </group>
+                            </sheet>
+                        </form>
+                    </field>
+                </page>
+            </xpath>
+        </field>
+    </record>
+
+</odoo>
