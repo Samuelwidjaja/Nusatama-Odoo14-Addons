@@ -4,6 +4,13 @@ from datetime import datetime,date
 from odoo import api, models, fields
 from odoo.exceptions import UserError
 
+QUARTER = {
+            1:['2023-01-01','2023-03-31'],
+            2:['2023-04-01','2023-06-30'],
+            3:['2023-07-01','2023-09-30'],
+            4:['2023-10-01','2023-12-31'],
+}
+
 class ConfigFilter(models.Model):
     _name = "config.filter"
     _description = "Configuration Filter"
