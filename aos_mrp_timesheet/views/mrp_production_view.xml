@@ -7,10 +7,10 @@
         <field name="inherit_id" ref="mrp.mrp_production_form_view"/>
         <field name="arch" type="xml">
             <xpath expr="//field[@name='company_id']" position="after">
-                <field name="use_timesheet" attrs="{'invisible':[('state','in',('draft','cancel'))]}"/>
+                <field name="use_timesheet" attrs="{'invisible':[('state','in',('draft','cancel'))]}" groups="aos_mrp_timesheet.allow_manage_mrp_timesheet"/>
             </xpath>
             <xpath expr="//field[@name='is_planned']" position="after">
-                <field name="analytic_account_id" />
+                <field name="analytic_account_id" invisible="1"/>
             </xpath>
             <xpath expr="//page[@name='operations']" position="after">
                 <page name="mrp_timesheet" string="Timesheet" attrs="{'invisible':[('use_timesheet','=',False)]}">
@@ -19,8 +19,10 @@
                             <field name="date"/>
                             <field name="user_id" invisible="1"/>
                             <field name="employee_id" required="1" widget="many2one_avatar_employee" context="{'active_test': True}"/>
+                            <field name="project_id" required="1" options="{'no_create_edit': True}" context="{'form_view_ref': 'project.project_project_view_form_simplified',}"/>
+                            <field name="task_id" optional="show" options="{'no_create_edit': True, 'no_open': True}" widget="task_with_hours" context="{'default_project_id': project_id}" domain="[('project_id', '=', project_id)]"/>
                             <field name="mrp_production_id" invisible="1"/>
-                            <field name="mrp_workorder_id" options="{'no_create':True}"/>
+                            <field name="mrp_workorder_id" required="1" options="{'no_create':True}"/>
                             <field name="name" required="0"/>
                             <field name="unit_amount" string="Duration" widget="timesheet_uom" decoration-danger="unit_amount &gt; 24"/>
                             <field name="company_id" invisible="1"/>

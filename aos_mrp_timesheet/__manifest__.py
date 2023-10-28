@@ -15,10 +15,10 @@
     'images':  [],
     'depends' : ['mrp',
                  'analytic',
-                 'project',
-                 'hr',
+                 'hr_timesheet',
     ],
     'data': [
+        'security/mrp_timesheet_security.xml',
         'views/mrp_production_view.xml',
         'views/mrp_timesheet_view.xml',
     ],
