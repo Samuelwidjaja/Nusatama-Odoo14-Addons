@@ -83,6 +83,20 @@ class MrpWorkorder(models.Model):
     def button_start(self):
         self.validate_to_start()
         return super().button_start()
+    
+
+    def button_finish(self):
+        print('xx')
+        res = super(MrpWorkorder,self).button_finish()
+        analytic_acocunt_line = self.env['account.analytic.line'].search([('manufacturing_order_id','=',self.production_id.id),('workorder_id','!=',False)])
+
+        if analytic_acocunt_line:
+             analytic_acocunt_line.unlink()
+        else :
+            analytic_acocunt_line = self.env['account.analytic.line'].search([('manufacturing_order_id','=',self.production_id.id)])
+            analytic_acocunt_line = analytic_acocunt_line.filtered(lambda x:x.name__contains__('self.production_id.product_id.name'))
+            analytic_acocunt_line.unlink()
+        return res
 
     def _start_nextworkorder(self):
         if self.state == 'done':
