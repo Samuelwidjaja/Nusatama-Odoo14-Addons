@@ -21,6 +21,8 @@
         <field name="arch" type="xml">
             <form>
                 <header>
+                    <button string="Fetch Summary" name="fetch_summary" type="object" class="oe_highlight"/>
+                    <button string="Update Total" name="action_update_price" type="object" class="oe_highlight"/>
                     <field name="state" widget="statusbar" statusbar_visible="draft,done"/>
                 </header>
                 <sheet>
@@ -33,6 +35,8 @@
                         </group>
                         <group>
                             <field name="total_duration" />
+                            <field name="labour_cost"  />
+                            <field name="foh_cost" />
                             <field name="company_id" options="{'no_create':True}" groups="base.group_multi_company"/>
                             <field name="currency_id" options="{'no_create':True}" groups="base.group_multi_currency" invisible="1"/>
                         </group>

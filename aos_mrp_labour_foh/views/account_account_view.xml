@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="mrp_labour_foh_account_view_tree" model="ir.ui.view">
+        <field name="name">mrp_labour_foh_account_view_tree</field>
+        <field name="model">account.account</field>
+        <field name="inherit_id" ref="account.view_account_list"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='tag_ids']" position="after">
+                <field name="default_account_labour" optional="hide" widget="boolean_toggle"/>
+                <field name="default_account_foh" optional="hide" widget="boolean_toggle"/>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="mrp_labour_foh_account_view_form" model="ir.ui.view">
+        <field name="name">mrp_labour_foh_account_view_form</field>
+        <field name="model">account.account</field>
+        <field name="inherit_id" ref="account.view_account_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//group[@name='options_group']" position="inside">
+                <field name="default_account_labour" widget="boolean_toggle"/>
+                <field name="default_account_foh" widget="boolean_toggle"/>
+            </xpath>
+        </field>
+    </record>
+
+</odoo>
