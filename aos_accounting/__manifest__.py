@@ -14,8 +14,9 @@ Account Voucher
     'category' : 'Tools',
     'website': 'https://www.alphasoft.co.id/',
     'images':  ['images/main_screenshot.png'],
-    'depends' : ['account'],
+    'depends' : ['account','stock_account'],
     'data': [
+        'views/account_entry.xml'
     ],
     'demo': [],
     'test': [],

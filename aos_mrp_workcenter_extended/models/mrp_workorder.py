@@ -10,6 +10,7 @@ class MrpWorkorder(models.Model):
 
     operation_level = fields.Integer(states={'done': [('readonly', True)], 'cancel': [('readonly', True)]})
     button_start_show = fields.Boolean(compute='_compute_button_show')
+    button_finish_show = fields.Boolean(compute='_compute_button_show')
 
 
     def _action_confirm(self):
@@ -82,6 +83,20 @@ class MrpWorkorder(models.Model):
     def button_start(self):
         self.validate_to_start()
         return super().button_start()
+    
+
+    def button_finish(self):
+        print('xx')
+        res = super(MrpWorkorder,self).button_finish()
+        analytic_acocunt_line = self.env['account.analytic.line'].search([('manufacturing_order_id','=',self.production_id.id),('workorder_id','!=',False)])
+
+        if analytic_acocunt_line:
+             analytic_acocunt_line.unlink()
+        else :
+            analytic_acocunt_line = self.env['account.analytic.line'].search([('manufacturing_order_id','=',self.production_id.id)])
+            analytic_acocunt_line = analytic_acocunt_line.filtered(lambda x:x.name__contains__('self.production_id.product_id.name'))
+            analytic_acocunt_line.unlink()
+        return res
 
     def _start_nextworkorder(self):
         if self.state == 'done':
@@ -95,6 +110,34 @@ class MrpWorkorder(models.Model):
             #     next_order = self.next_work_order_id
             #     if next_order.state == 'pending':
             #         next_order.state = 'ready'
+
+    # @api.depends('production_id.workorder_ids','production_id.move_raw_ids')
+    # def _compute_button_finish_show(self):
+    #     show = True
+    #     # value = 0
+    #     level = min(self.mapped('operation_level'))
+    #     # for rec in self :
+    #     #     if rec.operation_level > level :
+    #     #         self.button_start_show = False
+    #     #     else :
+    #     #         value += 1 
+    #     # for move in self.mapped('production_id').move_raw_ids:
+    #     #     if move.state not in {'partially_available','assigned','done'} :
+    #     #         self.button_start_show = False
+    #     #     else :
+    #     #         value +=1
+    #     # if value >= 1 :
+    #     for rec in self:
+    #         operation_not_done = []
+    #         for workorder in self.production_id.workorder_ids:
+    #             if workorder.operation_level < rec.operation_level and workorder.state != 'done':
+    #                         operation_not_done.append(workorder)
+    #         if operation_not_done and rec.operation_level != level:
+    #             show = False
+    #         if rec.operation_level == level and 0 in rec.production_id.move_raw_ids.mapped('forecast_availability') :
+                
+    #         rec.button_finish_show = show
+
 
     
     @api.depends('production_id.workorder_ids','production_id.move_raw_ids')
@@ -120,7 +163,18 @@ class MrpWorkorder(models.Model):
                             operation_not_done.append(workorder)
             if operation_not_done and rec.operation_level != level:
                 show = False
+            if rec.operation_level == level and sum(rec.production_id.move_raw_ids.mapped('forecast_availability')) == 0:
+                show = False
+            if rec.operation_level == level:
+                move_done = []
+                finish = True
+                for move in self.production_id.move_raw_ids:
+                    if move.reserved_availability != move.should_consume_qty:
+                        move_done.append(False)
+                if False in move_done:
+                    finish = False
             rec.button_start_show = show
+            rec.button_finish_show = finish
         # else :
         #     self.button_start_show = False
     #@api.depends('production_id.workorder_ids','production_id.move_raw_ids')

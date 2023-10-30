@@ -8,12 +8,16 @@
             <xpath expr="//field[@name='name']" position="after">
                 <field name="operation_level" />
                 <field name="button_start_show" invisible="1"/>
+                <field name="button_finish_show" invisible="1"/>
             </xpath>
             <xpath expr="//button[@name='button_start']" position="attributes">
                 <attribute name="attrs">
                     {'invisible': ['|', '|', '|', '|', ('production_state','in', ('draft', 'done', 'cancel')), 
                     ('working_state', '=', 'blocked'), ('state', '=', 'done'), ('is_user_working', '!=', False), ('button_start_show','=',False)]}
                 </attribute>
+            </xpath>
+            <xpath expr="//button[@name='button_finish']" position="attributes">
+                <attribute name="attrs">{'invisible': ['|', '|', '|',('production_state', 'in', ('draft', 'on_hold','done', 'cancel')), ('working_state', '=', 'blocked'), ('is_user_working', '=', False),('button_finish_show','=',False)]}</attribute>
             </xpath>
         </field>
     </record>
