@@ -9,7 +9,7 @@ class MRPProduction(models.Model):
     
     def _prepare_mo_analytic_account(self):
         for mo in self:
-            analytic_account = self.env['account.analytic.account'].create({
+            analytic_account = self.sudo().env['account.analytic.account'].create({
                 'name': mo.name,
                 'company_id': mo.company_id.id,
                 'partner_id': False,

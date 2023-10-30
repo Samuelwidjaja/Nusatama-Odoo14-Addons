@@ -13,13 +13,13 @@
                 <field name="analytic_account_id" invisible="1"/>
             </xpath>
             <xpath expr="//page[@name='operations']" position="after">
-                <page name="mrp_timesheet" string="Timesheet" attrs="{'invisible':[('use_timesheet','=',False)]}">
+                <page name="mrp_timesheet" string="Timesheet" attrs="{'invisible':[('use_timesheet','=',False)]}" context="{'default_mrp_production_id':active_id, 'timesheet_mrp':True}">
                     <field name="timesheet_ids" context="{'default_mrp_production_id':active_id, 'timesheet_mrp':True}">
-                        <tree editable="bottom" string="Timesheet Activities" default_order="date">
+                        <tree editable="bottom" string="Timesheet Activities" default_order="date" context="{'timesheet_mrp':True}">
                             <field name="date"/>
                             <field name="user_id" invisible="1"/>
                             <field name="employee_id" required="1" widget="many2one_avatar_employee" context="{'active_test': True}"/>
-                            <field name="project_id" required="1" options="{'no_create_edit': True}" context="{'form_view_ref': 'project.project_project_view_form_simplified',}"/>
+                            <field name="project_id" options="{'no_create_edit': True}" context="{'form_view_ref': 'project.project_project_view_form_simplified',}"/>
                             <field name="task_id" optional="show" options="{'no_create_edit': True, 'no_open': True}" widget="task_with_hours" context="{'default_project_id': project_id}" domain="[('project_id', '=', project_id)]"/>
                             <field name="mrp_production_id" invisible="1"/>
                             <field name="mrp_workorder_id" required="1" options="{'no_create':True}"/>
@@ -27,7 +27,7 @@
                             <field name="unit_amount" string="Duration" widget="timesheet_uom" decoration-danger="unit_amount &gt; 24"/>
                             <field name="company_id" invisible="1"/>
                         </tree>
-                        <form string="Timesheet Activities">
+                        <form string="Timesheet Activities" context="{'default_mrp_production_id':active_id, 'timesheet_mrp':True}">
                             <sheet>
                                  <group>
                                     <field name="date"/>
