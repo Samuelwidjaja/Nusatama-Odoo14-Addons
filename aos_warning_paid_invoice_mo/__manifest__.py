@@ -16,7 +16,7 @@
     'data': [
         # 'security/ir.model.access.csv',
         # 'security/res_groups.xml',
-        # 'views/mrp_production_views.xml',
+        'views/mrp_production_views.xml',
         # 'wizard/warning_invoice_views.xml',
     ],
     'installable': True,
