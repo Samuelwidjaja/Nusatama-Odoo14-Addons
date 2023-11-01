@@ -20,12 +20,19 @@
         <field name="model">mrp.labour.foh</field>
         <field name="arch" type="xml">
             <form>
+                <field name="moves_ids" invisible="1"/>
                 <header>
                     <button string="Fetch Summary" name="fetch_summary" type="object" class="oe_highlight"/>
                     <button string="Update Total" name="action_update_price" type="object" class="oe_highlight"/>
+                    <button string="Done" name="action_done" type="object" class="oe_highlight" attrs=""/>
                     <field name="state" widget="statusbar" statusbar_visible="draft,done"/>
                 </header>
                 <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button name="action_view_moves" string="Entries" type="object" class="oe_stat_button" icon="fa-dollar" attrs="{'invisible':[('moves_ids','=',False)]}">
+                            <span></span>
+                        </button>
+                    </div>
                     <label for="name"/>
                     <h1><field name="name" /></h1>
                     <group>
@@ -43,7 +50,7 @@
                     </group>
                     <notebook>
                         <page name="summary" string="Summary">
-                            <field name="line_ids">
+                            <field name="line_ids" readonly="1">
                                 <tree editable="bottom">
                                     <field name="mrp_production_id" options="{'no_create':True}"/>
                                     <field name="total_duration_wo" />
