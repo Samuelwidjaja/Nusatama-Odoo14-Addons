@@ -94,7 +94,7 @@ class MrpWorkorder(models.Model):
              analytic_acocunt_line.unlink()
         else :
             analytic_acocunt_line = self.env['account.analytic.line'].search([('manufacturing_order_id','=',self.production_id.id)])
-            analytic_acocunt_line = analytic_acocunt_line.filtered(lambda x:x.name__contains__('self.production_id.product_id.name'))
+            analytic_acocunt_line = analytic_acocunt_line.filtered(lambda x:x.name.__contains__('self.production_id.product_id.name'))
             analytic_acocunt_line.unlink()
         return res
 
