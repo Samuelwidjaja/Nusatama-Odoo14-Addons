@@ -25,6 +25,7 @@ class MRPProduction(models.Model):
     #          " * Done: The MO is closed, the stock moves are posted. \n"
     #          " * Cancelled: The MO has been cancelled, can't be confirmed anymore.")
     # def action_confirm(self):
+    
 
     #     if self.confirm == False:
     #         self.confirm = True
