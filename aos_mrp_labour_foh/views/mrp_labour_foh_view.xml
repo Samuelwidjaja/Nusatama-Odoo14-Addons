@@ -24,7 +24,7 @@
                 <header>
                     <button string="Fetch Summary" name="fetch_summary" type="object" class="oe_highlight"/>
                     <button string="Update Total" name="action_update_price" type="object" class="oe_highlight"/>
-                    <button string="Done" name="action_done" type="object" class="oe_highlight" attrs=""/>
+                    <button string="Done" name="action_done" type="object" class="oe_highlight" attrs="{'invisible':[('state','=','done')]}"/>
                     <field name="state" widget="statusbar" statusbar_visible="draft,done"/>
                 </header>
                 <sheet>
