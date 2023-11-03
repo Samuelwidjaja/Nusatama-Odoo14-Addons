@@ -37,6 +37,12 @@ class MrpProduction(models.Model):
                 
     def button_mark_done(self):
         res = super(MrpProduction, self).button_mark_done()
+        account_move = self.env['account.move'].search([('mrp_id','=',self.name)])
+        if account_move:
+            account_move = account_move.filtered(lambda x:x.ref.__contains__(self.product_id.name))
+            account_move.button_draft()
+            account_move.line_ids.analytic_account_id = False
+            account_move.action_post()
         # for rec in self.move_raw_ids :
         #     if self.state != 'done':
         #         if rec.reserved_availability != rec.product_uom_qty :
