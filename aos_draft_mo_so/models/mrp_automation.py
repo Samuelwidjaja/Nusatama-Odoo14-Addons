@@ -10,6 +10,8 @@ class MrpAutomation(models.Model):
         res = super(MrpAutomation, self).action_confirm()
         for production in self :
             if production['origin'] != False:
+                if production['state'] == 'draft' and production['confirm'] == True:
+                    production['state'] = 'confirmed'
                 if production['state'] != 'draft' and production['confirm'] == False :
                     production['state'] = 'draft'
                     production['confirm'] = True
