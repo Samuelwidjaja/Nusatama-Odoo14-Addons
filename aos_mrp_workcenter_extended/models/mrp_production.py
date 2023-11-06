@@ -39,7 +39,7 @@ class MrpProduction(models.Model):
         res = super(MrpProduction, self).button_mark_done()
         account_move = self.env['account.move'].search([('mrp_id','=',self.name)])
         if account_move:
-            account_move = account_move.filtered(lambda x:x.ref.__contains__(self.product_id.name))
+            account_move = account_move.filtered(lambda x:x.ref.__contains__(str(self.product_id.name)))
             account_move.button_draft()
             account_move.line_ids.analytic_account_id = False
             account_move.action_post()
