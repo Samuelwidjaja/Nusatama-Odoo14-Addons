@@ -4,7 +4,7 @@ from odoo.exceptions import UserError
 class AccountingVendor(models.Model):
     _inherit = "account.move"
 
-    mrp_id = fields.Char(string="MO ID " ,related="stock_move_id.reference")
+    mrp_id = fields.Char(string="MO ID " ,related="stock_move_id.origin")
     
     def action_post(self):
         if (self.ref == False or self.ref == '') and self.move_type == 'in_invoice':
@@ -14,6 +14,5 @@ class AccountingVendor(models.Model):
 
 class AccountMoveLine(models.Model):
     _inherit = "account.move.line"
-
     mrp_id = fields.Char(string="MO ID " ,related="move_id.mrp_id")
     

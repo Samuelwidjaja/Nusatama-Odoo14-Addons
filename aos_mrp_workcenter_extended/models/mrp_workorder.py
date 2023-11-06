@@ -10,7 +10,6 @@ class MrpWorkorder(models.Model):
 
     operation_level = fields.Integer(states={'done': [('readonly', True)], 'cancel': [('readonly', True)]})
     button_start_show = fields.Boolean(compute='_compute_button_show')
-    button_finish_show = fields.Boolean(compute='_compute_button_show')
 
 
     def _action_confirm(self):
@@ -85,18 +84,17 @@ class MrpWorkorder(models.Model):
         return super().button_start()
     
 
-    def button_finish(self):
-        print('xx')
-        res = super(MrpWorkorder,self).button_finish()
-        analytic_acocunt_line = self.env['account.analytic.line'].search([('manufacturing_order_id','=',self.production_id.id),('workorder_id','!=',False)])
-
-        if analytic_acocunt_line:
-             analytic_acocunt_line.unlink()
-        else :
-            analytic_acocunt_line = self.env['account.analytic.line'].search([('manufacturing_order_id','=',self.production_id.id)])
-            analytic_acocunt_line = analytic_acocunt_line.filtered(lambda x:x.name__contains__('self.production_id.product_id.name'))
-            analytic_acocunt_line.unlink()
-        return res
+    # def button_finish(self):
+    #     print('xx')
+    #     res = super(MrpWorkorder,self).button_finish()
+    #     account_move = self.env['account.move'].search([('mrp_id','=',self.production_id.name)])
+    #     if account_move:
+    #          account_move
+    #     # else :
+    #     #     analytic_acocunt_line = self.env['account.move'].search([('manufacturing_order_id','=',self.production_id.id)])
+    #     #     analytic_acocunt_line = analytic_acocunt_line.filtered(lambda x:x.name.__contains__('self.production_id.product_id.name'))
+    #     #     analytic_acocunt_line.unlink()
+    #     return res
 
     def _start_nextworkorder(self):
         if self.state == 'done':
@@ -163,18 +161,9 @@ class MrpWorkorder(models.Model):
                             operation_not_done.append(workorder)
             if operation_not_done and rec.operation_level != level:
                 show = False
-            if rec.operation_level == level and sum(rec.production_id.move_raw_ids.mapped('forecast_availability')) == 0:
+            if 'done' not in  self.production_id.picking_ids.mapped('state'):
                 show = False
-            if rec.operation_level == level:
-                move_done = []
-                finish = True
-                for move in self.production_id.move_raw_ids:
-                    if move.reserved_availability != move.should_consume_qty:
-                        move_done.append(False)
-                if False in move_done:
-                    finish = False
             rec.button_start_show = show
-            rec.button_finish_show = finish
         # else :
         #     self.button_start_show = False
     #@api.depends('production_id.workorder_ids','production_id.move_raw_ids')
