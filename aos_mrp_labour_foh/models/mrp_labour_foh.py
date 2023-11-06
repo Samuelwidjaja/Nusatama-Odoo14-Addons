@@ -161,12 +161,12 @@ class MRPLabourFOH(models.Model):
         salary_move_vals = self.with_context({},is_salary=True)._prepare_move()
         foh_move_vals = self.with_context({},is_foh=True)._prepare_move()
         for salary_line in self.line_ids:
-            salary_move_vals['line_ids'] += self.with_context({}, is_salary=True)._prepare_move_line(salary_line,self.account_labour_id,salary_line.labour_cost)
+            salary_move_vals['line_ids'] += self.with_context({}, is_salary=True)._prepare_move_line(salary_line,self.account_labour_id if salary_line.mrp_production_id.state == 'done' else self.account_wip_id,salary_line.labour_cost)
         moves_vals_list.append(salary_move_vals)
         # salary_moves = AccMoves.with_context(default_move_type="entry").create([salary_move_vals,])
         
         for foh_line in self.line_ids:
-            foh_move_vals['line_ids'] += self.with_context({}, is_foh=True)._prepare_move_line(foh_line,self.account_foh_id,salary_line.foh_cost)
+            foh_move_vals['line_ids'] += self.with_context({}, is_foh=True)._prepare_move_line(foh_line,self.account_foh_id if foh_line.mrp_production_id.state == 'done' else self.account_wip_id,salary_line.foh_cost)
         moves_vals_list.append(foh_move_vals)
         # foh_moves = AccMoves.with_context(default_move="entry").create([foh_move_vals,])
         self.moves_ids = AccMoves.with_context(default_move_type="entry").create(moves_vals_list)
