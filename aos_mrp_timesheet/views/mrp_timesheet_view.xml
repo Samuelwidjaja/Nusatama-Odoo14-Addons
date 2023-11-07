@@ -14,8 +14,8 @@
                 <attribute name="attrs">{'required':[('is_mrp_timesheet','=',False)]}</attribute>
             </xpath>
             <xpath expr="//field[@name='task_id']" position="after">
-                <field name="mrp_production_id" optional="hide" options="{'no_create':True}" attrs="{'required':[('is_mrp_timesheet','=',True)]}"/>
-                <field name="mrp_workorder_id" optional="hide" options="{'no_create':True}"/>
+                <field name="mrp_production_id" optional="hide" options="{'no_create':True}" groups="mrp.group_mrp_user" attrs="{'required':[('is_mrp_timesheet','=',True)]}"/>
+                <field name="mrp_workorder_id" optional="hide" options="{'no_create':True}" groups="mrp.group_mrp_user"/>
             </xpath>
         </field>
     </record>
@@ -31,8 +31,8 @@
                 <attribute name="required">0</attribute>
             </xpath>
             <xpath expr="//field[@name='task_id']" position="after">
-                <field name="mrp_production_id" options="{'no_create':True}" attrs="{'invisible':[('is_mrp_timesheet','=',False)],'required':[('is_mrp_timesheet','=',True)]}"/>
-                <field name="mrp_workorder_id" context="{'default_production_id': mrp_production_id}" domain="[('production_id', '=', mrp_production_id)]"  attrs="{'invisible':[('is_mrp_timesheet','=',False)]}" options="{'no_create':True}"/>
+                <field name="mrp_production_id" options="{'no_create':True}" groups="mrp.group_mrp_user" attrs="{'invisible':[('is_mrp_timesheet','=',False)],'required':[('is_mrp_timesheet','=',True)]}"/>
+                <field name="mrp_workorder_id" context="{'default_production_id': mrp_production_id}" groups="mrp.group_mrp_user" domain="[('production_id', '=', mrp_production_id)]"  attrs="{'invisible':[('is_mrp_timesheet','=',False)]}" options="{'no_create':True}"/>
             </xpath>
         </field>
     </record>
@@ -43,8 +43,8 @@
         <field name="inherit_id" ref="hr_timesheet.hr_timesheet_line_search"/>
         <field name="arch" type="xml">
             <xpath expr="//field[@name='task_id']" position="after">
-                <field name="mrp_production_id" />
-                <field name="mrp_workorder_id"/>
+                <field name="mrp_production_id" groups="mrp.group_mrp_user"/>
+                <field name="mrp_workorder_id" groups="mrp.group_mrp_user"/>
             </xpath>
         </field>
     </record>
