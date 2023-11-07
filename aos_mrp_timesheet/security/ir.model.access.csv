@@ -1,0 +1,2 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_mrp_timesheet_analytic_line,access_mrp_timesheet_analytic_line,model_account_analytic_line,aos_mrp_timesheet.allow_manage_mrp_timesheet,1,1,1,1

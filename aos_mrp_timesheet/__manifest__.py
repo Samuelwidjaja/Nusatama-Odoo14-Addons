@@ -19,6 +19,7 @@
     ],
     'data': [
         'security/mrp_timesheet_security.xml',
+        'security/ir.model.access.csv',
         'views/mrp_production_view.xml',
         'views/mrp_timesheet_view.xml',
     ],
