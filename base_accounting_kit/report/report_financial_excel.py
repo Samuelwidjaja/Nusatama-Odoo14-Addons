@@ -52,7 +52,7 @@ class PartnerXlsx(models.AbstractModel):
         last_line_col = 0
         format_amount = formats({'align':'right','num_format':'[$Rp-421] #,##0;[$Rp-421] -#,##0'})
         font_weight = formats({'bold':True})
-        for name in object._mapping_account_name:
+        for name in json.loads(object.account_name_json):
 
             first_filter = next(filter(lambda x: x if x.get('name') == name else {}, data['report_lines']), {})
 

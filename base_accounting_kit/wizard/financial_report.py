@@ -90,6 +90,7 @@ class FinancialReport(models.TransientModel):
     
     # set datas to field and avoid long query url
     datas = fields.Text(string="Datas")
+    account_name_json = fields.Text()
     _mapping_account_name = []
     # def view_report_pdf(self):
     #     """This function will be executed when we click the view button
@@ -142,6 +143,14 @@ class FinancialReport(models.TransientModel):
         # checking view type
         # return self.env.ref(
         #         'base_accounting_kit.financial_report_pdf').report_action(self,data)
+    
+    @api.onchange('filter_selection')
+    def onchange_filter_selection(self):
+        self.from_id = False
+        self.to_id = False
+        self.year_from = False
+        self.year_to = False
+        
     def clean_filter(self):
         if not self.enable_filter:
             self.multi_period = False
@@ -220,6 +229,8 @@ class FinancialReport(models.TransientModel):
             })
             data.update({'form':[data['form']]})
             self.datas = json.dumps(data)
+            self.account_name_json = json.dumps(getattr(self,'_mapping_account_name'))
+            getattr(self,'_mapping_account_name').clear()
             return self.env.ref(
                 'base_accounting_kit.financial_report_excel').report_action(self)
 
