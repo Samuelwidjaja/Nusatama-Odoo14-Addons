@@ -53,7 +53,8 @@
                             <field name="line_ids" readonly="1">
                                 <tree editable="bottom">
                                     <field name="mrp_production_id" options="{'no_create':True}"/>
-                                    <field name="total_duration_wo" />
+                                    <field name="product_id" options="{'no_create':True}" optional="hide"/>
+                                    <field name="total_duration_wo" widget="mrp_time_counter"/>
                                     <field name="total_timesheet" />
                                     <field name="total_duration" />
                                     <field name="labour_cost" />
@@ -72,7 +73,7 @@
                                 <group>
                                     <field name="account_labour_id" options="{'no_create':True}"/>
                                     <field name="account_foh_id" options="{'no_create':True}"/>
-                                    <field name="account_cogs_id" options="{'no_create':True}"/>
+                                    <!-- <field name="account_cogs_id" options="{'no_create':True}"/> -->
                                     <field name="account_wip_id" options="{'no_create':True}"/>
                                 </group>
                                 <group>

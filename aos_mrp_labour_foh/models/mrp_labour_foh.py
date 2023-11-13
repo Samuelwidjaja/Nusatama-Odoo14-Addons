@@ -22,7 +22,7 @@ class MRPLabourFOH(models.Model):
     start_date = fields.Date(string="Start Date",required=True)
     end_date = fields.Date(string="End Date",required=True)
     state = fields.Selection([('draft','Draft'),('confirm','Confirm'),('done','Done'),('cancel','Cancel')],string="Status",default="draft")
-    total_duration = fields.Float(string="Total Duration")
+    total_duration = fields.Float(string="Total Duration",readonly=True)
     company_id = fields.Many2one('res.company',string="Company",default=lambda self:self.env.company)
     line_ids = fields.One2many('mrp.labour.foh.line','mrp_labour_foh_id',string="Line")
     
@@ -35,7 +35,7 @@ class MRPLabourFOH(models.Model):
     account_foh_id = fields.Many2one('account.account',string="Account FOH", help="Account FOH for journal purpose",required=True)
     account_wip_id = fields.Many2one('account.account',string="Account WIP",required=True)
     account_labour_id = fields.Many2one('account.account',string="Account Labour", help="Account Labour for journal purpose",required=True)
-    account_cogs_id = fields.Many2one('account.account',string="Account COGS",required=True)
+    # account_cogs_id = fields.Many2one('account.account',string="Account COGS",required=True)
     labour_cost = fields.Monetary(string="Labour Cost",currency_field="currency_id",digits="Product Price", readonly=True,store=True)
     foh_cost = fields.Monetary(string="FOH Cost",currency_field="currency_id",digits="Product Price",readonly=True,store=True)
     moves_ids = fields.Many2many('account.move',string="Moves",relation="foh_labour_cost_moves_rel")
@@ -76,6 +76,8 @@ class MRPLabourFOH(models.Model):
                 'domain':[('id','in',self.moves_ids.ids)],
             }
         return {'type':'ir.actions.act_window_close'}
+    
+    
     ##################
     # CRUD METHOD
     ##################
@@ -140,17 +142,27 @@ class MRPLabourFOH(models.Model):
         }
     
     def _prepare_move_line(self,line,account=False,amount=0.0):
+        def get_cogs_account_id(line):
+            account_cogs = line.product_id.categ_id.property_account_expense_categ_id.id or line.product_id.property_account_expense_id.id
+            if not account_cogs:
+                raise UserError(_("Account COGS from product %s not found" % line.product_id.display_name))
+            
+            return account_cogs
+        
         credit_description = line._get_description_line(is_salary=self._context.get('is_salary',False), is_foh=self._context.get('is_foh',False))
-        account_cogs = self._context.get('force_account_cogs', self.account_cogs_id)
         account = self._context.get('force_account') or account or self.account_labour_id
+        # Line For COGS
+        # Line for Labour Cost or FOH
+        # Account COGS DIAMBIL DARI PRODUCT CATEGORY
         line_vals = [
-            (0,0,{'account_id':account_cogs.id,'name':line._get_description_line(is_cogs=True),'debit':abs(amount), 'credit':0.0,'labour_cost_foh_id':line.id}),
+            (0,0,{'account_id':get_cogs_account_id(line),'name':line._get_description_line(is_cogs=True),'debit':abs(amount), 'credit':0.0,'labour_cost_foh_id':line.id}),
             (0,0,{'account_id':account.id,'name':credit_description, 'debit':0.0, 'credit':abs(amount),'labour_cost_foh_id':line.id})
         ]
         return line_vals
     
     def create_move(self):
         try:
+            #Try To access Accounting if current user doesnt have access to accounting
             self.env['account.move'].check_access_right('read')
             self.env['account.account'].check_access_right('read')
             AccMoves = self.env['account.move']
@@ -179,6 +191,7 @@ class MRPLabourFOHLine(models.Model):
     mrp_labour_foh_id = fields.Many2one('mrp.labour.foh',string="MRP Labour FOH",ondelete="cascade")
     currency_id = fields.Many2one('res.currency',string="Currencies",related="mrp_labour_foh_id.currency_id")
     mrp_production_id = fields.Many2one('mrp.production',string="MO Number",ondelete="cascade")
+    product_id = fields.Many2one('product.product',string="Product", related='mrp_production_id.product_id',store=True)
     total_duration_wo = fields.Float(string="Total Duration Work Order",readonly=True)
     total_timesheet = fields.Float(string="Total Duration Timesheet",readonly=True)
     total_duration = fields.Float(string="Total",readonly=True)
