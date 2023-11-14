@@ -1,6 +1,8 @@
 from odoo import models,fields, api,_
 from odoo.exceptions import UserError
-from datetime import datetime
+from datetime import datetime,timedelta,time
+from odoo.tools.float_utils import float_round
+import math
 
 class MRPLabourFOH(models.Model):
     _name = "mrp.labour.foh"
@@ -21,10 +23,10 @@ class MRPLabourFOH(models.Model):
     name = fields.Char(string="Name",default="New",readonly=True,copy=False,index=True)
     start_date = fields.Date(string="Start Date",required=True)
     end_date = fields.Date(string="End Date",required=True)
-    state = fields.Selection([('draft','Draft'),('confirm','Confirm'),('done','Done'),('cancel','Cancel')],string="Status",default="draft")
-    total_duration = fields.Float(string="Total Duration",readonly=True)
+    state = fields.Selection([('draft','Draft'),('done','Posted'),('cancel','Cancel')],string="Status",default="draft",copy=False)
+    total_duration = fields.Float(string="Total Duration",readonly=True,copy=False)
     company_id = fields.Many2one('res.company',string="Company",default=lambda self:self.env.company)
-    line_ids = fields.One2many('mrp.labour.foh.line','mrp_labour_foh_id',string="Line")
+    line_ids = fields.One2many('mrp.labour.foh.line','mrp_labour_foh_id',string="Line",copy=False)
     
     # Accounting Fields
     currency_id = fields.Many2one('res.currency',string="Currencies",default=lambda self:self.env.company.currency_id)
@@ -36,9 +38,9 @@ class MRPLabourFOH(models.Model):
     account_wip_id = fields.Many2one('account.account',string="Account WIP",required=True)
     account_labour_id = fields.Many2one('account.account',string="Account Labour", help="Account Labour for journal purpose",required=True)
     # account_cogs_id = fields.Many2one('account.account',string="Account COGS",required=True)
-    labour_cost = fields.Monetary(string="Labour Cost",currency_field="currency_id",digits="Product Price", readonly=True,store=True)
-    foh_cost = fields.Monetary(string="FOH Cost",currency_field="currency_id",digits="Product Price",readonly=True,store=True)
-    moves_ids = fields.Many2many('account.move',string="Moves",relation="foh_labour_cost_moves_rel")
+    labour_cost = fields.Monetary(string="Labour Cost",currency_field="currency_id",digits="Product Price", readonly=True,store=True,copy=False)
+    foh_cost = fields.Monetary(string="FOH Cost",currency_field="currency_id",digits="Product Price",readonly=True,store=True,copy=False)
+    move_count = fields.Integer(compute="_compute_move_count")
     
     def action_update_price(self):
         #Total Debit Labour Cost
@@ -67,17 +69,27 @@ class MRPLabourFOH(models.Model):
         self.state = 'done'
         
     def action_view_moves(self):
-        if self.moves_ids:
+        if self.line_ids.move_line_ids:
             return {
                 'type':'ir.actions.act_window',
                 'name':'Journal Entries',
                 'res_model':'account.move',
                 'view_mode':'tree,form',
-                'domain':[('id','in',self.moves_ids.ids)],
+                'domain':[('id','in',self.line_ids.move_line_ids.mapped('move_id').ids)],
             }
         return {'type':'ir.actions.act_window_close'}
     
+    def float_to_time(self,duration):
+        """ Convert a number of hours into a time object. """
+        hours = duration // 60
+        minutes = (duration / 60) % 60 
+        return hours + minutes
     
+    @api.depends('line_ids.move_line_ids')
+    def _compute_move_count(self):
+        for rec in self:
+            rec.move_count = len(rec.line_ids.move_line_ids.mapped('move_id'))
+            
     ##################
     # CRUD METHOD
     ##################
@@ -105,12 +117,13 @@ class MRPLabourFOH(models.Model):
                 #Use Record Work Order
                 mo_id = res.get('production_id')[0]
                 timesheet_mrp = self.env['account.analytic.line'].read_group(['&',('date','>=',self.start_date),('date','<=',self.end_date),('mrp_production_id','=',mo_id)],['unit_amount'],['mrp_production_id'],lazy=True) 
-                total_duration += (res.get('duration') + (timesheet_mrp[0].get('unit_amount') if timesheet_mrp else 0.0))
+                wo_duration = self.float_to_time(res.get('duration'))
+                total_duration += (wo_duration + (timesheet_mrp[0].get('unit_amount') if timesheet_mrp else 0.0))
                 lines_vals = self._prepare_labour_foh_cost_line(
                                 mrp_production_id=mo_id,
-                                total_duration_wo=res.get('duration'),
+                                total_duration_wo= wo_duration,
                                 total_timesheet=timesheet_mrp[0].get('unit_amount') if timesheet_mrp else 0.0,
-                                total_duration=(res.get('duration') + (timesheet_mrp[0].get('unit_amount') if timesheet_mrp else 0.0)),
+                                total_duration=(wo_duration + (timesheet_mrp[0].get('unit_amount') if timesheet_mrp else 0.0)),
                                 mrp_labour_foh_id=self.id
                             )
             else:
@@ -181,7 +194,7 @@ class MRPLabourFOH(models.Model):
             foh_move_vals['line_ids'] += self.with_context({}, is_foh=True)._prepare_move_line(foh_line,self.account_foh_id if foh_line.mrp_production_id.state == 'done' else self.account_wip_id,salary_line.foh_cost)
         moves_vals_list.append(foh_move_vals)
         # foh_moves = AccMoves.with_context(default_move="entry").create([foh_move_vals,])
-        self.moves_ids = AccMoves.with_context(default_move_type="entry").create(moves_vals_list)
+        AccMoves.with_context(default_move_type="entry").create(moves_vals_list)
         
     @api.model
     def create(self,vals):

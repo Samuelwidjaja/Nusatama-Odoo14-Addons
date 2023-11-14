@@ -20,7 +20,7 @@
         <field name="model">mrp.labour.foh</field>
         <field name="arch" type="xml">
             <form>
-                <field name="moves_ids" invisible="1"/>
+                <field name="move_count" invisible="1"/>
                 <header>
                     <button string="Fetch Summary" name="fetch_summary" type="object" class="oe_highlight"/>
                     <button string="Update Total" name="action_update_price" type="object" class="oe_highlight"/>
@@ -29,7 +29,7 @@
                 </header>
                 <sheet>
                     <div class="oe_button_box" name="button_box">
-                        <button name="action_view_moves" string="Entries" type="object" class="oe_stat_button" icon="fa-dollar" attrs="{'invisible':[('moves_ids','=',False)]}">
+                        <button name="action_view_moves" string="Entries" type="object" class="oe_stat_button" icon="fa-dollar" attrs="{'invisible':[('move_count','=',0)]}">
                             <span></span>
                         </button>
                     </div>
@@ -41,7 +41,7 @@
                             <field name="end_date" />
                         </group>
                         <group>
-                            <field name="total_duration" />
+                            <field name="total_duration" widget="float_time"/>
                             <field name="labour_cost"  />
                             <field name="foh_cost" />
                             <field name="company_id" options="{'no_create':True}" groups="base.group_multi_company"/>
@@ -54,9 +54,9 @@
                                 <tree editable="bottom">
                                     <field name="mrp_production_id" options="{'no_create':True}"/>
                                     <field name="product_id" options="{'no_create':True}" optional="hide"/>
-                                    <field name="total_duration_wo" widget="mrp_time_counter"/>
-                                    <field name="total_timesheet" />
-                                    <field name="total_duration" />
+                                    <field name="total_duration_wo" widget="float_time"/>
+                                    <field name="total_timesheet" widget="timesheet_uom"/>
+                                    <field name="total_duration" widget="float_time"/>
                                     <field name="labour_cost" />
                                     <field name="foh_cost" />
                                     <field name="state" optional="hide"/>

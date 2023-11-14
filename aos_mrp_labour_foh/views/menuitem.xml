@@ -13,6 +13,7 @@
         id="mrp_labour_foh_root_menu"
         name="Labour Cost &amp; FOH"
         groups="aos_mrp_labour_foh.group_mrp_labour_foh_user"
+        web_icon="aos_mrp_labour_foh,static/src/img/alphasoft_odoo_manufacture.png"
         sequence="30"/>
 
     <menuitem
