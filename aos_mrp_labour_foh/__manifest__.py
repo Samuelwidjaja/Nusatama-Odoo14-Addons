@@ -21,6 +21,7 @@
         'views/mrp_labour_foh_view.xml',
         'views/account_account_view.xml',
         'views/menuitem.xml',
+        'reports/labour_cost_foh_report.xml',
     ],
     'installable': True,
     'application': True,
