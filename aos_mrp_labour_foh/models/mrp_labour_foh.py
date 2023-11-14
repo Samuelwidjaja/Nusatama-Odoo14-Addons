@@ -6,6 +6,7 @@ import math
 
 class MRPLabourFOH(models.Model):
     _name = "mrp.labour.foh"
+    _inherit = ["mail.thread","mail.activity.mixin"]
     _description = "MRP Labour & FOH"
     _order = "id desc"
     
@@ -21,22 +22,22 @@ class MRPLabourFOH(models.Model):
         return result
     
     name = fields.Char(string="Name",default="New",readonly=True,copy=False,index=True)
-    start_date = fields.Date(string="Start Date",required=True)
-    end_date = fields.Date(string="End Date",required=True)
-    state = fields.Selection([('draft','Draft'),('done','Posted'),('cancel','Cancel')],string="Status",default="draft",copy=False)
+    start_date = fields.Date(string="Start Date",required=True,tracking=1)
+    end_date = fields.Date(string="End Date",required=True,tracking=2)
+    state = fields.Selection([('draft','Draft'),('done','Posted'),('cancel','Cancel')],string="Status",default="draft",copy=False,tracking=True)
     total_duration = fields.Float(string="Total Duration",readonly=True,copy=False)
-    company_id = fields.Many2one('res.company',string="Company",default=lambda self:self.env.company)
-    line_ids = fields.One2many('mrp.labour.foh.line','mrp_labour_foh_id',string="Line",copy=False)
+    company_id = fields.Many2one('res.company',string="Company",default=lambda self:self.env.company,tracking=True)
+    line_ids = fields.One2many('mrp.labour.foh.line','mrp_labour_foh_id',string="Line",copy=False,tracking=True)
     
     # Accounting Fields
     currency_id = fields.Many2one('res.currency',string="Currencies",default=lambda self:self.env.company.currency_id)
-    salary_journal_id = fields.Many2one('account.journal',string="Journal Salary",required=True,domain="[('company_id','=?',company_id),('type','=','general')]")
-    foh_journal_id = fields.Many2one('account.journal',string="Journal FOH",required=True,domain="[('company_id','=?',company_id),('type','=','general')]")
+    salary_journal_id = fields.Many2one('account.journal',string="Journal Salary",required=True,domain="[('company_id','=?',company_id),('type','=','general')]",tracking=True)
+    foh_journal_id = fields.Many2one('account.journal',string="Journal FOH",required=True,domain="[('company_id','=?',company_id),('type','=','general')]",tracking=True)
     account_labour_ids = fields.Many2many('account.account','mrp_labour_cost_account_account',string="Accounts Labour",required=True)
-    account_foh_ids = fields.Many2many('account.account','mrp_foh_account_account',string="Accounts FOH",required=True)
-    account_foh_id = fields.Many2one('account.account',string="Account FOH", help="Account FOH for journal purpose",required=True)
-    account_wip_id = fields.Many2one('account.account',string="Account WIP",required=True)
-    account_labour_id = fields.Many2one('account.account',string="Account Labour", help="Account Labour for journal purpose",required=True)
+    account_foh_ids = fields.Many2many('account.account','mrp_foh_account_account',string="Accounts FOH",required=True,tracking=True)
+    account_foh_id = fields.Many2one('account.account',string="Account FOH", help="Account FOH for journal purpose",required=True,tracking=True)
+    account_wip_id = fields.Many2one('account.account',string="Account WIP",required=True,tracking=True)
+    account_labour_id = fields.Many2one('account.account',string="Account Labour", help="Account Labour for journal purpose",required=True,tracking=True)
     # account_cogs_id = fields.Many2one('account.account',string="Account COGS",required=True)
     labour_cost = fields.Monetary(string="Labour Cost",currency_field="currency_id",digits="Product Price", readonly=True,store=True,copy=False)
     foh_cost = fields.Monetary(string="FOH Cost",currency_field="currency_id",digits="Product Price",readonly=True,store=True,copy=False)
