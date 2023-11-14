@@ -18,7 +18,7 @@ class MRPLabourFOH(models.Model):
             result['account_foh_ids'] = [(6,0,foh_account.ids)]
         return result
     
-    name = fields.Char(string="Name",default="New",readonly=True,copy="False")
+    name = fields.Char(string="Name",default="New",readonly=True,copy=False,index=True)
     start_date = fields.Date(string="Start Date",required=True)
     end_date = fields.Date(string="End Date",required=True)
     state = fields.Selection([('draft','Draft'),('confirm','Confirm'),('done','Done'),('cancel','Cancel')],string="Status",default="draft")
@@ -105,12 +105,12 @@ class MRPLabourFOH(models.Model):
                 #Use Record Work Order
                 mo_id = res.get('production_id')[0]
                 timesheet_mrp = self.env['account.analytic.line'].read_group(['&',('date','>=',self.start_date),('date','<=',self.end_date),('mrp_production_id','=',mo_id)],['unit_amount'],['mrp_production_id'],lazy=True) 
-                total_duration += (res.get('duration') + timesheet_mrp[0].get('unit_amount') if timesheet_mrp else 0.0)
+                total_duration += (res.get('duration') + (timesheet_mrp[0].get('unit_amount') if timesheet_mrp else 0.0))
                 lines_vals = self._prepare_labour_foh_cost_line(
                                 mrp_production_id=mo_id,
                                 total_duration_wo=res.get('duration'),
                                 total_timesheet=timesheet_mrp[0].get('unit_amount') if timesheet_mrp else 0.0,
-                                total_duration=(res.get('duration') + timesheet_mrp[0].get('unit_amount') if timesheet_mrp else 0.0),
+                                total_duration=(res.get('duration') + (timesheet_mrp[0].get('unit_amount') if timesheet_mrp else 0.0)),
                                 mrp_labour_foh_id=self.id
                             )
             else:
@@ -183,6 +183,13 @@ class MRPLabourFOH(models.Model):
         # foh_moves = AccMoves.with_context(default_move="entry").create([foh_move_vals,])
         self.moves_ids = AccMoves.with_context(default_move_type="entry").create(moves_vals_list)
         
+    @api.model
+    def create(self,vals):
+        if vals.get('name','New') == 'New':
+            vals['name'] = self.env['ir.sequence'].next_by_code('mrp.labour.foh')
+        return super().create(vals)
+    
+    
 class MRPLabourFOHLine(models.Model):
     _name = "mrp.labour.foh.line"
     _description = "MRP Labour & FOH Line"
@@ -198,6 +205,7 @@ class MRPLabourFOHLine(models.Model):
     labour_cost = fields.Monetary(string="Labour Cost",currency_field="currency_id",digits="Product Price",compute="_compute_labour_and_foh_cost",store=True)
     foh_cost = fields.Monetary(string="FOH",currency_field="currency_id",digits="Product Price",compute="_compute_labour_and_foh_cost",store=True)
     state = fields.Selection(related="mrp_production_id.state",string="State")
+    move_line_ids = fields.One2many('account.move.line','labour_cost_foh_id',string="Account Lines")
     
     @api.depends('mrp_labour_foh_id.total_duration',
                  'mrp_labour_foh_id.labour_cost',
