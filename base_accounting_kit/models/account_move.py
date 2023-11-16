@@ -57,8 +57,8 @@ class AccountMove(models.Model):
                     break
         return result
 
-    def action_cancel(self):
-        res = super(AccountMove, self).action_cancel()
+    def button_cancel(self):
+        res = super(AccountMove, self).button_cancel()
         self.env['account.asset.asset'].sudo().search(
             [('invoice_id', 'in', self.ids)]).write({'active': False})
         return res
