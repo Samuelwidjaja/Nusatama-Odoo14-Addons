@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="mrp_labour_foh_approval_form_view" model="ir.ui.view">
+        <field name="name">mrp.labour.foh.approval.form.view</field>
+        <field name="model">mrp.labour.foh</field>
+        <field name="inherit_id" ref="aos_mrp_labour_foh.mrp_labour_foh_cost_form_view"/>
+        <field name="arch" type="xml">
+            <xpath expr="//button[@name='action_done']" position="before">
+                <button string="Confirm" name="action_approval" type="object" class="oe_highlight" states="draft"/>
+                <button string="Approve" type="object" name="action_approve" class="oe_highlight" attrs="{'invisible':['|',('user_can_approve','=',False),('state','!=','waiting_approval')]}" />
+                <button string="Reject" type="object" name="open_reject_message_wizard" attrs="{'invisible':['|',('user_can_approve','=',False),('state','!=','waiting_approval')]}" />
+            </xpath>
+            <xpath expr="//button[@name='action_done']" position="attributes">
+                <attribute name="attrs">{'invisible':[('state','not in',['approved'])]}</attribute>
+            </xpath>
+            <xpath expr="//button[@name='action_draft']" position="attributes">
+                <attribute name="attrs">{'invisible':[('state','not in',['cancel','reject'])]}</attribute>
+            </xpath>
+            <xpath expr="//button[@name='fetch_summary']" position="attributes">
+                <attribute name="attrs">{'invisible':[('state','in',['done','cancel','reject','waiting_approval'])]}</attribute>
+            </xpath>
+            <xpath expr="//button[@name='action_update_price']" position="attributes">
+                <attribute name="attrs">{'invisible':[('state','in',['done','cancel','reject','waiting_approval'])]}</attribute>
+            </xpath>
+            <xpath expr="//page[last()]" position="after">
+                <page id="page_approval" string="Approvals">
+                	<field name="user_can_approve" invisible="1" />
+                    <field name="approval_ids" readonly="1"/>
+                    <group><field name="approved"/></group>
+                    <button string="Fetch Matrix" type="object" name="checking_approval_matrix" class="oe_highlight" groups="base.group_system" />
+                </page>
+            </xpath>
+        </field>
+    </record>
+
+</odoo>

@@ -65,6 +65,13 @@ class MRPLabourFOH(models.Model):
             name = name + " - " + str(self.start_date) + "/" + str(self.end_date) 
         return name
     
+    def action_cancel(self):
+        self.line_ids.move_line_ids.move_id.filtered(lambda move: move.state != 'posted').button_cancel()
+        self.write({'state':'cancel'})
+        
+    def action_draft(self):
+        self.write({'state':'draft'})
+    
     def action_done(self):
         self.create_move()
         self.state = 'done'
