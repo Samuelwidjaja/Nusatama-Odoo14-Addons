@@ -3,7 +3,7 @@ from odoo.exceptions import UserError
 from datetime import datetime,timedelta,time
 from odoo.tools.float_utils import float_round
 import math
-
+from . import float_to_hour
 class MRPLabourFOH(models.Model):
     _name = "mrp.labour.foh"
     _inherit = ["mail.thread","mail.activity.mixin"]
@@ -87,12 +87,6 @@ class MRPLabourFOH(models.Model):
             }
         return {'type':'ir.actions.act_window_close'}
     
-    def float_to_time(self,duration):
-        """ Convert a number of hours into a time object. """
-        hours = duration // 60
-        minutes = (duration / 60) % 60 
-        return hours + minutes
-    
     @api.depends('line_ids.move_line_ids')
     def _compute_move_count(self):
         for rec in self:
@@ -125,7 +119,7 @@ class MRPLabourFOH(models.Model):
                 #Use Record Work Order
                 mo_id = res.get('production_id')[0]
                 timesheet_mrp = self.env['account.analytic.line'].read_group(['&',('date','>=',self.start_date),('date','<=',self.end_date),('mrp_production_id','=',mo_id)],['unit_amount'],['mrp_production_id'],lazy=True) 
-                wo_duration = self.float_to_time(res.get('duration'))
+                wo_duration = float_to_hour(res.get('duration'))
                 total_duration += (wo_duration + (timesheet_mrp[0].get('unit_amount') if timesheet_mrp else 0.0))
                 lines_vals = self._prepare_labour_foh_cost_line(
                                 mrp_production_id=mo_id,
