@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="mrp_production_form_view_inherited_gantt" model="ir.ui.view">
+        <field name="name">mrp.production.view.inherited</field>
+        <field name="model">mrp.production</field>
+        <field name="inherit_id" ref="mrp.mrp_production_form_view" />
+        <field name="arch" type="xml">
+            <xpath expr="//page[@name='operations']" position="after">
+                <page string="Gantt Details" name="gantt_details" groups="mrp.group_mrp_user">
+                    <group>
+                        <group>
+                            <field name="date_planned_start"/>
+                            <field name="date_planned_finished"/>
+                            <field name="date_deadline"/>                           
+                        </group>
+                        <group>
+                            <field name="task_priority"/>
+                            <field name="task_type"/>
+                            <field name="progress"/>
+                            <field name="color" widget="color_picker"/>
+                        </group>
+                    </group>
+                </page>
+                <page name="link_production" string="Link Orders" groups="mrp.group_mrp_manager">
+                    <field name="production_link_ids" widget="one2many" context="{'show_attribute': False}">
+                        <tree string="Link Type" editable="bottom">
+                            <field name="target_production_id"/>
+                            <field name="link_type"/>
+                        </tree>
+                    </field>
+                </page>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="mrp_production_view_gantt" model="ir.ui.view">
+        <field name="name">mrp.production.view.gantt</field>
+        <field name="model">mrp.production</field>
+        <field name="arch" type="xml">
+            <ganttview                
+                date_start = "date_planned_start"
+                date_stop = "date_planned_finished"                 
+                color ="color"
+                round_dnd_dates = "false"
+                default_group_by = "workcenter_id"
+                default_scale = "month"
+                task_type = "task_type"
+                show_links = "true"
+                progress = "progress"
+                deadline = "date_deadline"
+                link_model = "mrp.production.link"
+                priority = 'task_priority'
+            />
+        </field>
+    </record>
+
+    <record id="mrp.mrp_production_action" model="ir.actions.act_window">
+        <field name="view_mode">tree,kanban,form,calendar,pivot,graph,ganttview</field>
+    </record>
+
+</odoo>
