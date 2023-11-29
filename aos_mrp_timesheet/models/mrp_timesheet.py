@@ -16,15 +16,16 @@ class AccountAnalyticLine(models.Model):
 
     # user_id = fields.Many2one(compute='_compute_user_id', store=True, readonly=False)
     # employee_id = fields.Many2one('hr.employee', "Employee", domain=_domain_employee_id, context={'active_test': False})
-    mrp_production_id = fields.Many2one('mrp.production',string="Manufacturing Order",compute="_compute_mrp_production",domain="[('use_timesheet','=',True)]",store=True,readonly=False)
+    mrp_production_id = fields.Many2one('mrp.production',string="Manufacturing Order",compute="_compute_mrp_production",domain="[('use_timesheet','=',True)]",store=True)
     mrp_workorder_id = fields.Many2one('mrp.workorder',string="MO Work Order", domain="[('production_id','=',mrp_production_id)]",compute="_compute_mrp_workorder",store=True,readonly=False)
     is_mrp_timesheet = fields.Boolean(compute="_compute_is_mrp_timesheet",readonly=False)
 
-    @api.depends_context('timesheet_mrp')
+    @api.depends_context('timesheet_mrp','default_mrp_production_id')
     # @api.depends('project_id')
     def _compute_is_mrp_timesheet(self):
         for line in self:
             line.is_mrp_timesheet = line._context.get('timesheet_mrp',False)
+            line.mrp_production_id = line._context.get('default_mrp_production_id', False)
             
     @api.depends('mrp_workorder_id', 'mrp_workorder_id.production_id')
     def _compute_mrp_production(self):
