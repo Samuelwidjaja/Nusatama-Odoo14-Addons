@@ -10,6 +10,8 @@ class AccountAnalyticLine(models.Model):
         res = super(AccountAnalyticLine, self).default_get(fields)
         if not res.get('employee_id'):
             res['employee_id'] = self.env.user.employee_id.id
+        if self.env.context.get('default_mrp_production_id'):
+            res['mrp_production_id'] = self.env.context.get('default_mrp_production_id')
         return res
 
     # user_id = fields.Many2one(compute='_compute_user_id', store=True, readonly=False)
