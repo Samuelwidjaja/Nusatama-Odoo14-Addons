@@ -14,7 +14,7 @@
             </xpath>
             <xpath expr="//page[@name='operations']" position="after">
                 <page name="mrp_timesheet" string="Timesheet" attrs="{'invisible':[('use_timesheet','=',False)]}" context="{'default_mrp_production_id':active_id, 'timesheet_mrp':True}">
-                    <field name="timesheet_ids" context="{'default_mrp_production_id':active_id, 'timesheet_mrp':True}">
+                    <field name="timesheet_ids" context="{'default_mrp_production_id':active_id, 'mrp_production_id':active_id,'timesheet_mrp':True}">
                         <tree editable="bottom" string="Timesheet Activities" default_order="date" context="{'timesheet_mrp':True}">
                             <field name="mrp_production_id" invisible="1" readonly="1" force_save="1"/>
                             <field name="date"/>
@@ -26,6 +26,7 @@
                             <field name="name" required="0"/>
                             <field name="unit_amount" string="Duration" widget="timesheet_uom" decoration-danger="unit_amount &gt; 24"/>
                             <field name="company_id" invisible="1"/>
+                            <field name="is_mrp_timesheet" optional="show"/>
                         </tree>
                         <form string="Timesheet Activities" context="{'default_mrp_production_id':active_id, 'timesheet_mrp':True}">
                             <sheet>
