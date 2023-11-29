@@ -6,8 +6,8 @@ class AccountAnalyticLine(models.Model):
     _inherit = "account.analytic.line"
 
     @api.model
-    def default_get(self,fields):
-        res = super(AccountAnalyticLine, self).default_get(fields)
+    def default_get(self,field_list):
+        res = super(AccountAnalyticLine, self).default_get(field_list)
         if not res.get('employee_id'):
             res['employee_id'] = self.env.user.employee_id.id
         if self.env.context.get('default_mrp_production_id'):
