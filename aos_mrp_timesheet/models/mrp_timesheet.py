@@ -5,14 +5,14 @@ from odoo.exceptions import UserError
 class AccountAnalyticLine(models.Model):
     _inherit = "account.analytic.line"
 
-    @api.model
-    def default_get(self,field_list):
-        res = super(AccountAnalyticLine, self).default_get(field_list)
-        if not res.get('employee_id'):
-            res['employee_id'] = self.env.user.employee_id.id
-        if self.env.context.get('default_mrp_production_id'):
-            res['mrp_production_id'] = self.env.context.get('default_mrp_production_id')
-        return res
+    # @api.model
+    # def default_get(self,field_list):
+    #     res = super(AccountAnalyticLine, self).default_get(field_list)
+    #     if not res.get('employee_id'):
+    #         res['employee_id'] = self.env.user.employee_id.id
+    #     if self.env.context.get('default_mrp_production_id'):
+    #         res['mrp_production_id'] = self.env.context.get('default_mrp_production_id')
+    #     return res
 
     # user_id = fields.Many2one(compute='_compute_user_id', store=True, readonly=False)
     # employee_id = fields.Many2one('hr.employee', "Employee", domain=_domain_employee_id, context={'active_test': False})
