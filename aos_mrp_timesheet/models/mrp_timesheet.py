@@ -59,6 +59,8 @@ class AccountAnalyticLine(models.Model):
         if vals.get('employee_id') and not vals.get('user_id'):
             employee = self.env['hr.employee'].browse(vals['employee_id'])
             vals['user_id'] = employee.user_id.id
+        if not vals.get('name'):
+            vals['name'] = '/'
         return vals
             
     def _check_account_mrp(self):        

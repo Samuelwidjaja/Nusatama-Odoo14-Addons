@@ -23,7 +23,7 @@
                             <field name="project_id" options="{'no_create_edit': True}" context="{'form_view_ref': 'project.project_project_view_form_simplified',}" optional="hide"/>
                             <field name="task_id" optional="hide" options="{'no_create_edit': True, 'no_open': True}" widget="task_with_hours" context="{'default_project_id': project_id}" domain="[('project_id', '=', project_id)]" />
                             <field name="mrp_workorder_id" required="1" options="{'no_create':True}"/>
-                            <field name="name" required="0"/>
+                            <field name="name" required="1"/>
                             <field name="unit_amount" string="Duration" widget="timesheet_uom" decoration-danger="unit_amount &gt; 24"/>
                             <field name="company_id" invisible="1"/>
                             <field name="is_mrp_timesheet" optional="show"/>
