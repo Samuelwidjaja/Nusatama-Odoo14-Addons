@@ -9,5 +9,6 @@ class MRPWorkder(models.Model):
     
     def button_finish(self):
         res = super(MRPWorkder, self).button_finish()
-        self.duration_hour = float_to_hour(sum(self.mapped('duration')))
+        for wo in self:
+            wo.duration_hour = float_to_hour(wo.duration)
         return res
