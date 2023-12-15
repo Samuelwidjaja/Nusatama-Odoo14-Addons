@@ -1,5 +1,5 @@
 from odoo import models,fields,api,_
-
+from odoo.exceptions import UserError
 class MRPLabourFOH(models.Model):
     _name = "mrp.labour.foh"
     _inherit = ["mrp.labour.foh", "approval.matrix.mixin"]
@@ -72,6 +72,8 @@ class MRPLabourFOH(models.Model):
             })
             
     def action_approval(self):
+        if any(self.line_ids.filtered(lambda x:x.state == 'to_close')):
+            raise UserError(_("Some manufacturing orders are in status to be closed, you have to close them first"))
         self.sudo().checking_approval_matrix(require_approver=False)
         if not self.approval_ids:
             return self.action_approved()
