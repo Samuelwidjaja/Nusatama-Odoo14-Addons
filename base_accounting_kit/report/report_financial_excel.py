@@ -1,6 +1,25 @@
 from odoo import models
 import json
 DEFAULT_COLUMN = {'default_header_row':6,'default_header_col':0,'default_row':7,'default_col':0}
+DEFAULT_COLUMN_ALPHABET = [
+    'A','B','C','D','E','F','G','H','I','J','K','L',
+    'M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z',
+
+    'AA','AB','AC','AD','AE','AF','AG','AH','AI','AJ','AK','AL',
+    'AM','AN','AO','AP','AQ','AR','AS','AT','AU','AV','AW','AX','AY','AZ',
+
+    'BA','BB','BC','BD','BE','BF','BG','BH','BI','BJ','BK','BL',
+    'BM','BN','BO','BP','BQ','BR','BS','BT','BU','BV','BW','BX','BY','BZ',
+
+    'CA','CB','CC','CD','CE','CF','CG','CH','CI','CJ','CK','CL',
+    'CM','CN','CO','CP','CQ','CR','CS','CT','CU','CV','CW','CX','CY','CZ',
+
+    'DA','DB','DC','DD','DE','DF','DG','DH','DI','DJ','DK','DL',
+    'DM','DN','DO','DP','DQ','DR','DS','DT','DU','DV','DW','DX','DY','DZ',
+
+    'EA','EB','EC','ED','EE','EF','EG','EH','EI','EJ','EK','EL',
+    'EM','EN','EO','EP','EQ','ER','ES','ET','EU','EV','EW','EX','EY','EZ',
+]
 class PartnerXlsx(models.AbstractModel):
     _name = 'report.base_accounting_kit.report_financial_xlsx'
     _inherit = 'report.report_xlsx.abstract'
@@ -29,6 +48,7 @@ class PartnerXlsx(models.AbstractModel):
         # set variabel untuk header column dan row dimulai setelah column balance yaitu 0
         header_row = DEFAULT_COLUMN['default_header_row']
         header_col = DEFAULT_COLUMN['default_header_col']
+        column = DEFAULT_COLUMN_ALPHABET
         sheet.write(header_row,header_col,"Name")
         header_col += 1
         if data['form'][0]['debit_credit']:
@@ -43,15 +63,17 @@ class PartnerXlsx(models.AbstractModel):
         else:
             sheet.write(header_row,header_col,"Balance")
             header_col += 1
-        if filter_obj:
+        if filter_obj: 
             for line in filter_obj:
                 sheet.write(header_row,header_col,line[0])
                 header_col += 1
+        sheet.write(header_row, header_col, 'SUM')
         line_row = DEFAULT_COLUMN['default_row']
         line_col = DEFAULT_COLUMN['default_col']
         last_line_col = 0
         format_amount = formats({'align':'right','num_format':'[$Rp-421] #,##0;[$Rp-421] -#,##0'})
         font_weight = formats({'bold':True})
+        col_amount = 0
         for name in json.loads(object.account_name_json):
 
             first_filter = next(filter(lambda x: x if x.get('name') == name else {}, data['report_lines']), {})
@@ -59,6 +81,7 @@ class PartnerXlsx(models.AbstractModel):
             if first_filter.get('level',0) > 3:
                 font_weight = formats({'bold':False})
             line_col += 1
+            col_amount = line_col
             
             if data['form'][0]['debit_credit'] == 1:
                 sheet.write(line_row,line_col,first_filter.get('debit') if first_filter.get('debit') != 0 else 0,format_amount)
@@ -77,7 +100,7 @@ class PartnerXlsx(models.AbstractModel):
                     line_col += 1
                     if second_filter.get('level',0) > 3:
                         font_weight = formats({'bold':False})
-
+            sheet.write_formula(line_row, line_col,"=SUM(%(first_col)s%(line_row)s:%(last_col)s%(line_row)s)" % {'first_col': column[col_amount], 'last_col':column[line_col - 1], 'line_row':line_row + 1}, format_amount)
             last_line_col = line_col
             line_col = 0
             spacing_indent = '  ' * first_filter.get('level',0)
