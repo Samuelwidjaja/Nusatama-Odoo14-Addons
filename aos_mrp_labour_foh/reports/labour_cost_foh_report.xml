@@ -27,7 +27,7 @@
                             <th>Date</th>
                             <th>Account</th>
                             <th>Label</th>
-                            <th>Analytic Account</th>
+                            <th>Product</th>
                             <th>Debit</th>
                             <th>Credit</th>
                         </tr>
@@ -38,7 +38,7 @@
                                 <td><t t-esc="line.date.strftime('%m/%d/%Y')"/></td>
                                 <td><t t-esc="line.account_id.display_name"/></td>
                                 <td><t t-esc="line.name"/></td>
-                                <td><t t-esc="line.analytic_account_id.name"/></td>
+                                <td><t t-esc="line.labour_cost_foh_id.product_id.name"/></td>
                                 <td><t t-esc="line.debit or ''" t-if="line.debit" t-options="{'widget':'monetary','display_currency':doc.currency_id}"/></td>
                                 <td><t t-esc="line.credit or ''" t-if="line.credit" t-options="{'widget':'monetary','display_currency':doc.currency_id}"/></td>
                             </tr>
