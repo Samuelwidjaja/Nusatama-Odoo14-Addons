@@ -1,4 +1,4 @@
-from odoo import models
+from odoo import models,fields
 import json
 DEFAULT_COLUMN = {'default_header_row':6,'default_header_col':0,'default_row':7,'default_col':0}
 DEFAULT_COLUMN_ALPHABET = [
@@ -31,7 +31,7 @@ class PartnerXlsx(models.AbstractModel):
         data = json.loads(object.datas)
         sheet.set_column("B:B",34)
         formats = workbook.add_format
-        filter_obj = data.get('filter')[0][::-1] if data.get('filter') else {}
+        filter_obj = data.get('filter')[0] if data.get('filter') else {}
         sheet.merge_range("A1:C1",company,formats({'bold':True,'align':'center','valign':'vcenter','font_size':16}))
         sheet.merge_range("A2:C2",data['form'][0]['account_report_id'][1],formats({'bold':True,'valign':'vcenter','align':'center','font_size':14}))
         if not object.enable_filter:
@@ -64,6 +64,7 @@ class PartnerXlsx(models.AbstractModel):
             sheet.write(header_row,header_col,"Balance")
             header_col += 1
         if filter_obj: 
+            filter_obj.sort(key = lambda r: fields.Date.from_string(r[-1]), reverse = data['reverse_sort'])
             for line in filter_obj:
                 sheet.write(header_row,header_col,line[0])
                 header_col += 1
