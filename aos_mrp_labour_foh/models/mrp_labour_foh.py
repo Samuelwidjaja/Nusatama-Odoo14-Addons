@@ -2,6 +2,7 @@ from odoo import models,fields, api,_
 from odoo.exceptions import UserError
 from datetime import datetime,timedelta,time
 from odoo.tools.float_utils import float_round
+from odoo.tools import float_compare
 import math
 from . import float_to_hour
 class MRPLabourFOH(models.Model):
@@ -39,8 +40,8 @@ class MRPLabourFOH(models.Model):
     account_wip_id = fields.Many2one('account.account',string="Account WIP",required=True,tracking=True)
     account_labour_id = fields.Many2one('account.account',string="Account Labour", help="Account Labour for journal purpose",required=True,tracking=True)
     # account_cogs_id = fields.Many2one('account.account',string="Account COGS",required=True)
-    labour_cost = fields.Monetary(string="Labour Cost",currency_field="currency_id",digits="Product Price", readonly=True,store=True,copy=False)
-    foh_cost = fields.Monetary(string="FOH Cost",currency_field="currency_id",digits="Product Price",readonly=True,store=True,copy=False)
+    labour_cost = fields.Float(string="Labour Cost",digits="Product Price", readonly=True,store=True,copy=False)
+    foh_cost = fields.Float(string="FOH Cost",digits="Product Price",readonly=True,store=True,copy=False)
     move_count = fields.Integer(compute="_compute_move_count")
     
     def action_update_price(self):
@@ -52,6 +53,10 @@ class MRPLabourFOH(models.Model):
         #Total Debit FOH Cost
         foh_cost = self.env['account.move.line'].search(domain + [('account_id','in',self.account_foh_ids.ids)])
         self.foh_cost = sum(foh_cost.mapped('debit'))
+        
+        # Compute Cost in line
+        self.line_ids._compute_labour_and_foh_cost()
+        self.recompute_different_cost()
     
     def _get_description(self,is_salary=False,is_cogs=False,is_foh=False,prefix_date=True):
         name =  self.name
@@ -91,7 +96,34 @@ class MRPLabourFOH(models.Model):
     def _compute_move_count(self):
         for rec in self:
             rec.move_count = len(rec.line_ids.move_line_ids.mapped('move_id'))
-            
+    
+    def recompute_different_cost(self):
+        def _different_cost(amount, amount2, digits=2):
+            """
+                Check jika amount itu tidak sama dengan amount2 berdasarkan digits
+                :return: bool, different_cost
+                :rtype: bool, float
+            """
+            is_diff, diff_amount = False, 0
+            if float_compare(amount, amount2, precision_digits=digits) > 0:
+                is_diff = True
+                diff_amount = amount - amount2
+                
+            return is_diff, diff_amount
+        
+        precision_digit = self.env['decimal.precision'].precision_get('Product Price')
+        for rec in self.filtered(lambda r:r.line_ids):
+            line_labour_cost = sum(rec.line_ids.mapped('labour_cost'))
+            labour_cost = rec.labour_cost
+            labour_diff, labour_cost_diff = _different_cost(labour_cost, line_labour_cost, precision_digit)
+            if labour_diff:
+                rec.line_ids[-1].labour_cost += labour_cost_diff
+                
+            line_foh_cost = sum(rec.line_ids.mapped('foh_cost'))
+            foh_cost = rec.foh_cost
+            foh_diff, foh_cost_diff = _different_cost(foh_cost, line_foh_cost, precision_digit)
+            if foh_diff:
+                rec.line_ids[-1].foh_cost += foh_cost_diff
     ##################
     # CRUD METHOD
     ##################
@@ -139,8 +171,10 @@ class MRPLabourFOH(models.Model):
                                 mrp_labour_foh_id=self.id
                             )
             lines.append((0,0,lines_vals))
-        self.line_ids = lines
         self.total_duration = total_duration
+        self.line_ids = lines
+        self.line_ids._compute_labour_and_foh_cost()
+        self.recompute_different_cost()
     
     def _prepare_move(self,):
         date = self._context.get('force_date', fields.Date.today())
@@ -217,14 +251,14 @@ class MRPLabourFOHLine(models.Model):
     total_duration_wo = fields.Float(string="Total Duration Work Order",readonly=True)
     total_timesheet = fields.Float(string="Total Duration Timesheet",readonly=True)
     total_duration = fields.Float(string="Total",readonly=True)
-    labour_cost = fields.Monetary(string="Labour Cost",currency_field="currency_id",digits="Product Price",compute="_compute_labour_and_foh_cost",store=True)
-    foh_cost = fields.Monetary(string="FOH",currency_field="currency_id",digits="Product Price",compute="_compute_labour_and_foh_cost",store=True)
+    labour_cost = fields.Float(string="Labour Cost",currency_field="currency_id",digits="Product Price",store=True)
+    foh_cost = fields.Float(string="FOH",currency_field="currency_id",digits="Product Price",store=True)
     state = fields.Selection(related="mrp_production_id.state",string="State")
     move_line_ids = fields.One2many('account.move.line','labour_cost_foh_id',string="Account Lines")
     
-    @api.depends('mrp_labour_foh_id.total_duration',
-                 'mrp_labour_foh_id.labour_cost',
-                 'mrp_labour_foh_id.foh_cost')
+    # @api.depends('mrp_labour_foh_id.total_duration',
+    #              'mrp_labour_foh_id.labour_cost',
+    #              'mrp_labour_foh_id.foh_cost')
     def _compute_labour_and_foh_cost(self):
         for rec in self:
             rec.labour_cost = (rec.total_duration / (rec.mrp_labour_foh_id.total_duration or 1.0)) * rec.mrp_labour_foh_id.labour_cost

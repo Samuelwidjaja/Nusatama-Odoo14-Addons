@@ -17,6 +17,7 @@
     'depends' : ['mrp','account'],
     'data': [
         'data/ir_sequence.xml',
+        'data/ir_actions.xml',
         'security/security.xml',
         'security/ir.model.access.csv',
         'views/mrp_labour_foh_view.xml',
