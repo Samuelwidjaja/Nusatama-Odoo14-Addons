@@ -16,10 +16,10 @@ class MRPLabourFOH(models.Model):
         result = super(MRPLabourFOH,self).default_get(fields)
         if 'account_labour_ids' not in result:
             labour_account = self.env['account.account'].search([('default_account_labour','=',True),('deprecated','=',False)])
-            result['account_labour_ids'] = [(6,0,labour_account.ids)]
+            result['account_labour_ids'] = labour_account[:1].id
         if 'account_foh_ids' not in result:
             foh_account = self.env['account.account'].search([('default_account_foh','=',True),('deprecated','=',False)])
-            result['account_foh_ids'] = [(6,0,foh_account.ids)]
+            result['account_foh_ids'] = foh_account[:1].id
         return result
     
     name = fields.Char(string="Name",default="New",readonly=True,copy=False,index=True)
@@ -34,8 +34,8 @@ class MRPLabourFOH(models.Model):
     currency_id = fields.Many2one('res.currency',string="Currencies",default=lambda self:self.env.company.currency_id)
     salary_journal_id = fields.Many2one('account.journal',string="Journal Salary",required=True,domain="[('company_id','=?',company_id),('type','=','general')]",tracking=True)
     foh_journal_id = fields.Many2one('account.journal',string="Journal FOH",required=True,domain="[('company_id','=?',company_id),('type','=','general')]",tracking=True)
-    account_labour_ids = fields.Many2many('account.account','mrp_labour_cost_account_account',string="Accounts Labour",required=True)
-    account_foh_ids = fields.Many2many('account.account','mrp_foh_account_account',string="Accounts FOH",required=True,tracking=True)
+    account_labour_ids = fields.Many2one('account.account',string="Accounts Labour",required=True)
+    account_foh_ids = fields.Many2one('account.account',string="Accounts FOH",required=True,tracking=True)
     account_foh_id = fields.Many2one('account.account',string="Account FOH", help="Account FOH for journal purpose",required=True,tracking=True)
     account_wip_id = fields.Many2one('account.account',string="Account WIP",required=True,tracking=True)
     account_labour_id = fields.Many2one('account.account',string="Account Labour", help="Account Labour for journal purpose",required=True,tracking=True)
