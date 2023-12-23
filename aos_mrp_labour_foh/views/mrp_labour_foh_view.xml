@@ -63,6 +63,8 @@
                                     <field name="total_duration" widget="float_time" sum="Total"/>
                                     <field name="labour_cost" sum="Total"/>
                                     <field name="foh_cost" sum="Total"/>
+                                    <field name="amount_labour_cost" string="Amount Labour Cost Currency" groups="base.group_no_one" optional="hide" sum="Amount Labour Cost Currency"/>
+                                    <field name="amount_foh_cost" string="Amount FOH Cost Currency" groups="base.group_no_one" optional="hide" sum="Amount FOH Cost Currency"/>
                                     <field name="state" optional="hide"/>
                                     <field name="currency_id" invisible="1"/>
                                 </tree>

@@ -118,12 +118,24 @@ class MRPLabourFOH(models.Model):
             labour_diff, labour_cost_diff = _different_cost(labour_cost, line_labour_cost, precision_digit)
             if labour_diff:
                 rec.line_ids[-1].labour_cost += labour_cost_diff
+            
+            # Amount Currency
+            line_labour_cost = sum(rec.line_ids.mapped('amount_labour_cost'))
+            labour_diff, labour_cost_diff = _different_cost(labour_cost, line_labour_cost, precision_digit)
+            if labour_diff:
+                rec.line_ids[-1].amount_labour_cost += labour_cost_diff
                 
             line_foh_cost = sum(rec.line_ids.mapped('foh_cost'))
             foh_cost = rec.foh_cost
             foh_diff, foh_cost_diff = _different_cost(foh_cost, line_foh_cost, precision_digit)
             if foh_diff:
                 rec.line_ids[-1].foh_cost += foh_cost_diff
+            # Amount Currency
+            line_foh_cost = sum(rec.line_ids.mapped('amount_foh_cost'))
+            foh_diff, foh_cost_diff = _different_cost(foh_cost, line_foh_cost, precision_digit)
+            if foh_diff:
+                rec.line_ids[-1].amount_foh_cost += foh_cost_diff
+                
     ##################
     # CRUD METHOD
     ##################
@@ -181,11 +193,15 @@ class MRPLabourFOH(models.Model):
         currency = self._context.get('force_currency',self.currency_id) or self.env.company.currency_id
         company = self._context.get('force_company') or self.company_id or self.env.company
         ref = self._get_description(is_salary=self._context.get('is_salary',False), is_foh=self._context.get('is_foh',False))
+        journal_id = self._context.get('journal_id')
+        if not journal_id:
+            raise UserError("Account Journal Doesnt Exist")
         return {
             'ref':ref,
             'date':date,
             'currency_id':currency.id,
             'company_id':company.id,
+            'journal_id':journal_id,
             'move_type':'entry',
             'line_ids':[],
         }
@@ -209,6 +225,14 @@ class MRPLabourFOH(models.Model):
         ]
         return line_vals
     
+    def different_cost_currency(self, amount_cost, amount_to_check, digits=2):
+        is_diff, diff_amount = False, 0
+        if float_compare(amount_cost, amount_to_check, precision_digits=digits) > 0:
+            is_diff = True
+            diff_amount = amount_cost - amount_to_check
+            
+        return is_diff, diff_amount
+    
     def create_move(self):
         try:
             #Try To access Accounting if current user doesnt have access to accounting
@@ -219,19 +243,30 @@ class MRPLabourFOH(models.Model):
             AccMoves = self.env['account.move'].sudo()
             self = self.sudo()
         moves_vals_list = []
-        salary_move_vals = self.with_context({},is_salary=True)._prepare_move()
-        foh_move_vals = self.with_context({},is_foh=True)._prepare_move()
+        salary_move_vals = self.with_context({},is_salary=True, journal_id=self.salary_journal_id.id)._prepare_move()
+        foh_move_vals = self.with_context({},is_foh=True, journal_id=self.foh_journal_id.id)._prepare_move()
         for salary_line in self.line_ids:
-            salary_move_vals['line_ids'] += self.with_context({}, is_salary=True)._prepare_move_line(salary_line,self.account_labour_id if salary_line.mrp_production_id.state == 'done' else self.account_wip_id,salary_line.labour_cost)
+            salary_move_vals['line_ids'] += self.with_context({}, is_salary=True)._prepare_move_line(salary_line,self.account_labour_id if salary_line.mrp_production_id.state == 'done' else self.account_wip_id,salary_line.amount_labour_cost)
         moves_vals_list.append(salary_move_vals)
-        # salary_moves = AccMoves.with_context(default_move_type="entry").create([salary_move_vals,])
         
         for foh_line in self.line_ids:
-            foh_move_vals['line_ids'] += self.with_context({}, is_foh=True)._prepare_move_line(foh_line,self.account_foh_id if foh_line.mrp_production_id.state == 'done' else self.account_wip_id,salary_line.foh_cost)
+            foh_move_vals['line_ids'] += self.with_context({}, is_foh=True)._prepare_move_line(foh_line,self.account_foh_id if foh_line.mrp_production_id.state == 'done' else self.account_wip_id,foh_line.amount_foh_cost)
         moves_vals_list.append(foh_move_vals)
         # foh_moves = AccMoves.with_context(default_move="entry").create([foh_move_vals,])
-        AccMoves.with_context(default_move_type="entry").create(moves_vals_list)
-        
+        AccMoves += AccMoves.with_context(default_move_type="entry").create(moves_vals_list)
+        # Rounding Currencies Issue 
+        for move in AccMoves:
+            if move.journal_id.id == self.salary_journal_id.id:
+                amount = self.labour_cost
+                amount2 = sum( move.line_ids.mapped('debit') )
+            if float_compare(amount, amount2, precision_digits=2) > 0:
+                diff_amount = amount - amount2 # different amount
+                # add debit and credit 
+                debit_line = move.line_ids.filtered(lambda x:x.debit)[:1]
+                credit_line = move.line_ids.filtered(lambda x:x.credit)[:1]
+                debit_line.update({'debit': debit_line.debit + diff_amount})
+                credit_line.update({'credit': credit_line.credit + diff_amount})
+                
     @api.model
     def create(self,vals):
         if vals.get('name','New') == 'New':
@@ -251,8 +286,10 @@ class MRPLabourFOHLine(models.Model):
     total_duration_wo = fields.Float(string="Total Duration Work Order",readonly=True)
     total_timesheet = fields.Float(string="Total Duration Timesheet",readonly=True)
     total_duration = fields.Float(string="Total",readonly=True)
-    labour_cost = fields.Float(string="Labour Cost",currency_field="currency_id",digits="Product Price",store=True)
-    foh_cost = fields.Float(string="FOH",currency_field="currency_id",digits="Product Price",store=True)
+    labour_cost = fields.Float(string="Labour Cost",digits="Product Price",store=True)
+    foh_cost = fields.Float(string="FOH",digits="Product Price",store=True)
+    amount_labour_cost = fields.Monetary(string="Amount Labour Cost",currency_field="currency_id",digits="Product Price", compute="_compute_amount",store=True)
+    amount_foh_cost = fields.Monetary(string="Amount FOH Cost",currency_field="currency_id",digits="Product Price", compute="_compute_amount",store=True)
     state = fields.Selection(related="mrp_production_id.state",string="State")
     move_line_ids = fields.One2many('account.move.line','labour_cost_foh_id',string="Account Lines")
     
@@ -263,7 +300,9 @@ class MRPLabourFOHLine(models.Model):
         for rec in self:
             rec.labour_cost = (rec.total_duration / (rec.mrp_labour_foh_id.total_duration or 1.0)) * rec.mrp_labour_foh_id.labour_cost
             rec.foh_cost = (rec.total_duration / (rec.mrp_labour_foh_id.total_duration or 1.0)) * rec.mrp_labour_foh_id.foh_cost
-    
+            rec.amount_labour_cost = rec.labour_cost
+            rec.amount_foh_cost = rec.foh_cost
+            
     @api.onchange('mrp_production_id','mrp_labour_foh_id')
     def _onchange_name(self):
         for rec in self:
