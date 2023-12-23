@@ -288,8 +288,8 @@ class MRPLabourFOHLine(models.Model):
     total_duration = fields.Float(string="Total",readonly=True)
     labour_cost = fields.Float(string="Labour Cost",digits="Product Price",store=True)
     foh_cost = fields.Float(string="FOH",digits="Product Price",store=True)
-    amount_labour_cost = fields.Monetary(string="Amount Labour Cost",currency_field="currency_id",digits="Product Price", compute="_compute_amount",store=True)
-    amount_foh_cost = fields.Monetary(string="Amount FOH Cost",currency_field="currency_id",digits="Product Price", compute="_compute_amount",store=True)
+    amount_labour_cost = fields.Monetary(string="Amount Labour Cost",currency_field="currency_id",digits="Product Price", store=True)
+    amount_foh_cost = fields.Monetary(string="Amount FOH Cost",currency_field="currency_id",digits="Product Price", store=True)
     state = fields.Selection(related="mrp_production_id.state",string="State")
     move_line_ids = fields.One2many('account.move.line','labour_cost_foh_id',string="Account Lines")
     
