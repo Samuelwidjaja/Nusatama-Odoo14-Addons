@@ -77,8 +77,8 @@
                             </group>
                             <group>
                                 <group>
-                                    <field name="account_labour_id" string="Bank/Cash Labour" domain="[('user_type_id', '=', %(account.data_account_type_liquidity)d)]" options="{'no_create':True}" attrs="{'readonly':[('state','!=','draft')]}"/>
-                                    <field name="account_foh_id" string="Bank/Cash FOH" domain="[('user_type_id', '=', %(account.data_account_type_liquidity)d)]" options="{'no_create':True}" attrs="{'readonly':[('state','!=','draft')]}"/>
+                                    <field name="account_labour_id" string="Accounts Labour" options="{'no_create':True}" attrs="{'readonly':[('state','!=','draft')]}"/>
+                                    <field name="account_foh_id" string="Accounts FOH" options="{'no_create':True}" attrs="{'readonly':[('state','!=','draft')]}"/>
                                     <!-- <field name="account_cogs_id" options="{'no_create':True}" attrs="{'readonly':[('state','!=','draft')]}"/> -->
                                     <field name="account_wip_id" options="{'no_create':True}" attrs="{'readonly':[('state','!=','draft')]}"/>
                                 </group>
