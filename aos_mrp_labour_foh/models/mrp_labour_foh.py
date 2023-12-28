@@ -154,35 +154,28 @@ class MRPLabourFOH(models.Model):
         total_duration = 0.0
         self.line_ids = [(5,0)]
         result = self.env['mrp.workorder'].read_group(['&',('date_finished','>=',self.start_date),('date_finished','<=',self.end_date)],['duration'],['production_id'],lazy=True)
-        timesheet = not result
-        if timesheet:
-            result = self.env['account.analytic.line'].read_group(['&',('date','>=',self.start_date),('date','<=',self.end_date),('mrp_production_id','!=',False)],['unit_amount'],['mrp_production_id'],lazy=True)
+        
+        # Append Timesheet
+        result += self.env['account.analytic.line'].read_group(['&',('date','>=',self.start_date),('date','<=',self.end_date),('mrp_production_id','!=',False)],['unit_amount'],['mrp_production_id'],lazy=True)
         lines = []
         for res in result:
-            if not timesheet:
-                #Use Record Work Order
-                mo_id = res.get('production_id')[0]
-                timesheet_mrp = self.env['account.analytic.line'].read_group(['&',('date','>=',self.start_date),('date','<=',self.end_date),('mrp_production_id','=',mo_id)],['unit_amount'],['mrp_production_id'],lazy=True) 
-                wo_duration = float_to_hour(res.get('duration'))
-                total_duration += (wo_duration + (timesheet_mrp[0].get('unit_amount') if timesheet_mrp else 0.0))
+            # use record timesheet & work order
+            mo_id = (res.get('production_id') or res.get('mrp_production_id'))[0] or False
+            wo_duration = float_to_hour(res.get('duration', 0.0))
+            timesheet_duration = res.get('unit_amount', 0.0)
+            line_res = list( filter( lambda each: each[-1].get('mrp_production_id') == mo_id, lines or [(0,{})]) )
+            if not line_res:
                 lines_vals = self._prepare_labour_foh_cost_line(
                                 mrp_production_id=mo_id,
                                 total_duration_wo= wo_duration,
-                                total_timesheet=timesheet_mrp[0].get('unit_amount') if timesheet_mrp else 0.0,
-                                total_duration=(wo_duration + (timesheet_mrp[0].get('unit_amount') if timesheet_mrp else 0.0)),
+                                total_timesheet=timesheet_duration,
                                 mrp_labour_foh_id=self.id
                             )
+                lines.append((0,0,lines_vals))
             else:
-                #Use Record Timesheet
-                mo_id = res.get('mrp_production_id')[0]
-                total_duration += res.get('unit_amount')
-                lines_vals = self._prepare_labour_foh_cost_line(
-                                mrp_production_id=mo_id,
-                                total_timesheet=res.get('unit_amount'),
-                                total_duration=res.get('unit_amount'),
-                                mrp_labour_foh_id=self.id
-                            )
-            lines.append((0,0,lines_vals))
+                line_res[0][-1]['total_duration_wo'] += wo_duration
+                line_res[0][-1]['total_timesheet'] += timesheet_duration
+            total_duration += (wo_duration + timesheet_duration)
         self.total_duration = total_duration
         self.line_ids = lines
         self.line_ids._compute_labour_and_foh_cost()
