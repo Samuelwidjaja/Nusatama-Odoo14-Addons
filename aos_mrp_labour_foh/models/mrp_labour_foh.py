@@ -55,7 +55,7 @@ class MRPLabourFOH(models.Model):
         self.foh_cost = sum(foh_cost.mapped('debit'))
         
         # Compute Cost in line
-        self.line_ids._compute_labour_and_foh_cost()
+        self.line_ids._compute_all()
         self.recompute_different_cost()
     
     def _get_description(self,is_salary=False,is_cogs=False,is_foh=False,prefix_date=True):
@@ -178,7 +178,7 @@ class MRPLabourFOH(models.Model):
             total_duration += (wo_duration + timesheet_duration)
         self.total_duration = total_duration
         self.line_ids = lines
-        self.line_ids._compute_labour_and_foh_cost()
+        self.line_ids._compute_all()
         self.recompute_different_cost()
     
     def _prepare_move(self,):
@@ -278,7 +278,7 @@ class MRPLabourFOHLine(models.Model):
     product_id = fields.Many2one('product.product',string="Product", related='mrp_production_id.product_id',store=True)
     total_duration_wo = fields.Float(string="Total Duration Work Order",readonly=True)
     total_timesheet = fields.Float(string="Total Duration Timesheet",readonly=True)
-    total_duration = fields.Float(string="Total",readonly=True)
+    total_duration = fields.Float(string="Total",readonly=True,store=True)
     labour_cost = fields.Float(string="Labour Cost",digits="Product Price",store=True)
     foh_cost = fields.Float(string="FOH",digits="Product Price",store=True)
     amount_labour_cost = fields.Monetary(string="Amount Labour Cost",currency_field="currency_id",digits="Product Price", store=True)
@@ -289,13 +289,14 @@ class MRPLabourFOHLine(models.Model):
     # @api.depends('mrp_labour_foh_id.total_duration',
     #              'mrp_labour_foh_id.labour_cost',
     #              'mrp_labour_foh_id.foh_cost')
-    def _compute_labour_and_foh_cost(self):
+    def _compute_all(self):
         for rec in self:
+            rec.total_duration = rec.total_duration_wo + rec.total_timesheet
             rec.labour_cost = (rec.total_duration / (rec.mrp_labour_foh_id.total_duration or 1.0)) * rec.mrp_labour_foh_id.labour_cost
             rec.foh_cost = (rec.total_duration / (rec.mrp_labour_foh_id.total_duration or 1.0)) * rec.mrp_labour_foh_id.foh_cost
             rec.amount_labour_cost = rec.labour_cost
             rec.amount_foh_cost = rec.foh_cost
-            
+    
     @api.onchange('mrp_production_id','mrp_labour_foh_id')
     def _onchange_name(self):
         for rec in self:
