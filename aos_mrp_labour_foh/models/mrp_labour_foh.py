@@ -167,7 +167,9 @@ class MRPLabourFOH(models.Model):
         """
         # use query for different timezone 
         self.env.cr.execute(query, [start_date, end_date])
-        res = self.env.cr.dictfetchall()
+        result = self.env.cr.dictfetchall() 
+        if None in result:
+            result = []
         # result = self.env['mrp.workorder'].read_group(['&',('date_finished','>=',self.start_date),('date_finished','<=',self.end_date)],['duration'],['production_id'],lazy=True)
         
         # Append Timesheet
