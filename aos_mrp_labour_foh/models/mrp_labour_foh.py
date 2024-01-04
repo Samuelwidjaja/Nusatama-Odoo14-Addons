@@ -5,6 +5,7 @@ from odoo.tools.float_utils import float_round
 from odoo.tools import float_compare
 import math
 from . import float_to_hour
+from odoo.osv import expression
 class MRPLabourFOH(models.Model):
     _name = "mrp.labour.foh"
     _inherit = ["mail.thread","mail.activity.mixin"]
@@ -153,14 +154,28 @@ class MRPLabourFOH(models.Model):
     def fetch_summary(self):
         total_duration = 0.0
         self.line_ids = [(5,0)]
-        result = self.env['mrp.workorder'].read_group(['&',('date_finished','>=',self.start_date),('date_finished','<=',self.end_date)],['duration'],['production_id'],lazy=True)
+        start_date = datetime.combine(self.start_date, time.min).strftime('%Y-%m-%d %H:%M:%S')
+        end_date = datetime.combine(self.end_date, time.max).strftime('%Y-%m-%d %H:%M:%S')
+        # Workorder Query
+        query = """
+            SELECT 
+                SUM(wo.duration) as duration,
+                wo.production_id
+            FROM mrp_workorder as wo
+            WHERE (wo.date_finished + INTERVAL '7 hours') BETWEEN %s AND %s
+            GROUP BY wo.production_id
+        """
+        # use query for different timezone 
+        self.env.cr.execute(query, [start_date, end_date])
+        res = self.env.cr.dictfetchall()
+        # result = self.env['mrp.workorder'].read_group(['&',('date_finished','>=',self.start_date),('date_finished','<=',self.end_date)],['duration'],['production_id'],lazy=True)
         
         # Append Timesheet
         result += self.env['account.analytic.line'].read_group(['&',('date','>=',self.start_date),('date','<=',self.end_date),('mrp_production_id','!=',False)],['unit_amount'],['mrp_production_id'],lazy=True)
         lines = []
         for res in result:
             # use record timesheet & work order
-            mo_id = (res.get('production_id') or res.get('mrp_production_id'))[0] or False
+            mo_id = (res.get('production_id', False) or res.get('mrp_production_id', False))[0] or False
             wo_duration = float_to_hour(res.get('duration', 0.0))
             timesheet_duration = res.get('unit_amount', 0.0)
             line_res = list( filter( lambda each: each[-1].get('mrp_production_id') == mo_id, lines or [(0,{})]) )
