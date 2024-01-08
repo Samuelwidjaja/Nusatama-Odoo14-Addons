@@ -44,3 +44,4 @@ access_multiple_invoice_layout,multiple_invoice_layout,model_multiple_invoice_la
 
 access_config_filter,access_config_filter,model_config_filter,,1,1,1,1
 access_config_filter_line,access_config_filter_line,model_config_filter_line,,1,1,1,1
+access_global_account_chart_template,access_global_account_chart_template,account.model_account_chart_template,,1,0,0,0
