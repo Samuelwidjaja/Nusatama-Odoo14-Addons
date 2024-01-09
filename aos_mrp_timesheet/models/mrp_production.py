@@ -5,7 +5,6 @@ class MRPProduction(models.Model):
     
     use_timesheet = fields.Boolean(string="Manage Timesheet", help="Manage Timesheet For This MO")
     timesheet_ids = fields.One2many('account.analytic.line','mrp_production_id',string="Timesheet")
-    analytic_account_id = fields.Many2one('account.analytic.account',string="Analytic Account", help="")
     
     def _prepare_mo_analytic_account(self):
         for mo in self:

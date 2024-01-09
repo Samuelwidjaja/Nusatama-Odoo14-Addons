@@ -14,6 +14,7 @@
     'website': 'https://www.alphasoft.co.id/',
     'images':  [],
     'depends' : ['mrp',
+                 'mrp_analytic',
                  'analytic',
                  'hr_timesheet',
     ],
