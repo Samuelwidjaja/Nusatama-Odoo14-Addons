@@ -231,8 +231,13 @@ class MRPLabourFOH(models.Model):
         # Line For COGS
         # Line for Labour Cost or FOH
         # Account COGS DIAMBIL DARI PRODUCT CATEGORY
+        if line.state == 'progress':
+            account_debit = self.account_wip_id.id
+        else:
+            account_debit = get_cogs_account_id(line)
+        
         line_vals = [
-            (0,0,{'account_id':get_cogs_account_id(line),'name':line._get_description_line(is_cogs=True),'debit':abs(amount), 'credit':0.0,'labour_cost_foh_id':line.id}),
+            (0,0,{'account_id': account_debit,'name':line._get_description_line(is_cogs=True),'debit':abs(amount), 'credit':0.0,'labour_cost_foh_id':line.id}),
             (0,0,{'account_id':account.id,'name':credit_description, 'debit':0.0, 'credit':abs(amount),'labour_cost_foh_id':line.id})
         ]
         return line_vals
