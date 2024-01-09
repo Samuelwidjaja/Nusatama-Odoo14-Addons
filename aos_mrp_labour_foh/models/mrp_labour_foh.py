@@ -177,11 +177,13 @@ class MRPLabourFOH(models.Model):
         lines = []
         for res in result:
             # use record timesheet & work order
-            mo_id = ( [res.get('production_id', False)]  or res.get('mrp_production_id', False))[0] or False
+            mo_id = ( res.get('mrp_production_id') or [ res.get('production_id', False) ] )[0] or False
             wo_duration = float_to_hour(res.get('duration', 0.0))
             timesheet_duration = res.get('unit_amount', 0.0)
             line_res = list( filter( lambda each: each[-1].get('mrp_production_id') == mo_id, lines or [(0,{})]) )
             if not line_res:
+                if not mo_id: # mo false tapi ada ada wo duration dan timesheet duration
+                    continue
                 lines_vals = self._prepare_labour_foh_cost_line(
                                 mrp_production_id=mo_id,
                                 total_duration_wo= wo_duration,
