@@ -162,7 +162,8 @@ class MRPLabourFOH(models.Model):
                 SUM(wo.duration) as duration,
                 wo.production_id
             FROM mrp_workorder as wo
-            WHERE (wo.date_finished + INTERVAL '7 hours') BETWEEN %s AND %s
+            JOIN mrp_production as mo ON mo.id = wo.production_id
+            WHERE mo.state != 'cancel' AND (wo.date_finished + INTERVAL '7 hours') BETWEEN %s AND %s
             GROUP BY wo.production_id
         """
         # use query for different timezone 
@@ -173,7 +174,7 @@ class MRPLabourFOH(models.Model):
         # result = self.env['mrp.workorder'].read_group(['&',('date_finished','>=',self.start_date),('date_finished','<=',self.end_date)],['duration'],['production_id'],lazy=True)
         
         # Append Timesheet
-        result += self.env['account.analytic.line'].read_group(['&',('date','>=',self.start_date),('date','<=',self.end_date),('mrp_production_id','!=',False)],['unit_amount'],['mrp_production_id'],lazy=True)
+        result += self.env['account.analytic.line'].read_group(['&',('date','>=',self.start_date),('date','<=',self.end_date),'&',('mrp_production_id','!=',False),('mrp_production_id.state', '!=', 'cancel')],['unit_amount'],['mrp_production_id'],lazy=True)
         lines = []
         for res in result:
             # use record timesheet & work order
