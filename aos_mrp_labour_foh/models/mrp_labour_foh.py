@@ -219,7 +219,7 @@ class MRPLabourFOH(models.Model):
             'line_ids':[],
         }
     
-    def _prepare_move_line(self,line,account=False,amount=0.0):
+    def _prepare_move_line(self, line, account=False,amount=0.0):
         def get_cogs_account_id(line):
             account_cogs = line.product_id.categ_id.property_account_expense_categ_id.id or line.product_id.property_account_expense_id.id
             if not account_cogs:
@@ -263,12 +263,51 @@ class MRPLabourFOH(models.Model):
         moves_vals_list = []
         salary_move_vals = self.with_context({},is_salary=True, journal_id=self.salary_journal_id.id)._prepare_move()
         foh_move_vals = self.with_context({},is_foh=True, journal_id=self.foh_journal_id.id)._prepare_move()
+        # Check Proggress Labour Cost
+        
         for salary_line in self.line_ids:
             salary_move_vals['line_ids'] += self.with_context({}, is_salary=True)._prepare_move_line(salary_line, self.account_labour_id ,salary_line.amount_labour_cost)
+            # Progress Labour Cost
+            if salary_line.mrp_production_id.state == 'done' and any(salary_line.mrp_production_id.labour_cost_line_ids):
+                for line in salary_line.mrp_production_id.labour_cost_line_ids.filtered(lambda each: each.state == 'progress'):
+                    vals = line.mrp_labour_foh_id.with_context({}, is_salary=True)._prepare_move_line(line, line.mrp_labour_foh_id.account_labour_id ,line.amount_labour_cost)
+                    # update reference
+                    # update akun debit ke hpp
+                    vals[0][-1].update({
+                        'name': vals[0][-1]['name'] + f" ({line.mrp_labour_foh_id.name})",
+                        # akun hpp
+                        'account_id': line.product_id.categ_id.property_account_expense_categ_id.id or line.product_id.property_account_expense_id.id
+                    })
+                    
+                    # update akun credit ke wip
+                    vals[1][-1].update({
+                        'name': vals[1][-1]['name'] + f" ({line.mrp_labour_foh_id.name})",
+                        'account_id': line.mrp_labour_foh_id.account_wip_id.id,
+                    })
+                    salary_move_vals['line_ids'] += vals
         moves_vals_list.append(salary_move_vals)
         
         for foh_line in self.line_ids:
             foh_move_vals['line_ids'] += self.with_context({}, is_foh=True)._prepare_move_line(foh_line,self.account_foh_id ,foh_line.amount_foh_cost)
+            # Progress FOH Cost
+            if foh_line.mrp_production_id.state == 'done' and any(foh_line.mrp_production_id.labour_cost_line_ids):
+                for line in foh_line.mrp_production_id.labour_cost_line_ids.filtered(lambda each: each.state == 'progress'):
+                    vals = line.mrp_labour_foh_id.with_context({}, is_foh=True)._prepare_move_line(line, line.mrp_labour_foh_id.account_foh_id , line.amount_foh_cost)
+                    # update reference
+                    # update akun debit ke hpp
+                    vals[0][-1].update({
+                        'name': vals[0][-1]['name'] + f" ({line.mrp_labour_foh_id.name})",
+                        # akun hpp
+                        'account_id': line.product_id.categ_id.property_account_expense_categ_id.id or line.product_id.property_account_expense_id.id
+                    })
+                    
+                    # update akun credit ke wip
+                    vals[1][-1].update({
+                        'name': vals[1][-1]['name'] + f" ({line.mrp_labour_foh_id.name})",
+                        #akun wip
+                        'account_id': line.mrp_labour_foh_id.account_wip_id.id,
+                    })
+                    foh_move_vals['line_ids'] += vals
         moves_vals_list.append(foh_move_vals)
         # foh_moves = AccMoves.with_context(default_move="entry").create([foh_move_vals,])
         AccMoves += AccMoves.with_context(default_move_type="entry").create(moves_vals_list)
@@ -291,6 +330,10 @@ class MRPLabourFOH(models.Model):
             vals['name'] = self.env['ir.sequence'].next_by_code('mrp.labour.foh')
         return super().create(vals)
     
+    def unlink(self):
+        for rec in self:
+            rec.line_ids.unlink()
+        return super().unlink()
     
 class MRPLabourFOHLine(models.Model):
     _name = "mrp.labour.foh.line"
@@ -308,7 +351,12 @@ class MRPLabourFOHLine(models.Model):
     foh_cost = fields.Float(string="FOH",digits="Product Price",store=True)
     amount_labour_cost = fields.Monetary(string="Amount Labour Cost",currency_field="currency_id",digits="Product Price", store=True)
     amount_foh_cost = fields.Monetary(string="Amount FOH Cost",currency_field="currency_id",digits="Product Price", store=True)
-    state = fields.Selection(related="mrp_production_id.state",string="State")
+    state = fields.Selection([('draft', 'Draft'),
+        ('confirmed', 'Confirmed'),
+        ('progress', 'In Progress'),
+        ('to_close', 'To Close'),
+        ('done', 'Done'),
+        ('cancel', 'Cancelled')], string="State", compute="_compute_production_state", inverse="_inverse_production_state", store=True, readonly=True)
     move_line_ids = fields.One2many('account.move.line','labour_cost_foh_id',string="Account Lines")
     
     # @api.depends('mrp_labour_foh_id.total_duration',
@@ -326,7 +374,15 @@ class MRPLabourFOHLine(models.Model):
     def _onchange_name(self):
         for rec in self:
             rec.name = rec.mrp_production_id.name
-
+            
+    @api.depends('mrp_production_id')
+    def _compute_production_state(self):
+        for rec in self.filtered(lambda line: line.state == False):
+            rec.state = rec.mrp_production_id.state
+            
+    def _inverse_production_state(self):
+        return True
+    
     def _get_description_line(self,is_salary=False,is_cogs=False,is_foh=False):
         name = self.name
         if is_salary:
