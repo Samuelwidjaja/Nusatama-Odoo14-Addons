@@ -84,12 +84,14 @@ class MRPLabourFOH(models.Model):
         
     def action_view_moves(self):
         if self.line_ids.move_line_ids:
+            entries = self.line_ids.move_line_ids.mapped('move_id').filtered( lambda x: x.labour_cost_id.id == self.id ) or \
+                        self.line_ids.move_line_ids.filtered(lambda x: x.labour_cost_foh_id.mrp_labour_foh_id.id in self.ids).mapped('move_id')
             return {
                 'type':'ir.actions.act_window',
                 'name':'Journal Entries',
                 'res_model':'account.move',
                 'view_mode':'tree,form', 
-                'domain':[('id','in',self.line_ids.move_line_ids.mapped('move_id').filtered( lambda x: x.labour_cost_id.id == self.id ))],
+                'domain':[('id','in', entries.ids)],
             }
         return {'type':'ir.actions.act_window_close'}
     
