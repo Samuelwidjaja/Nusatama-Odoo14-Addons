@@ -89,7 +89,7 @@ class MRPLabourFOH(models.Model):
                 'name':'Journal Entries',
                 'res_model':'account.move',
                 'view_mode':'tree,form',
-                'domain':[('id','in',self.line_ids.move_line_ids.mapped('move_id').ids)],
+                'domain':[('id','in',self.line_ids.move_line_ids.filtered( lambda x:x.labour_cost_foh_id.mrp_labour_foh_id.id == self.id ).mapped('move_id').ids)],
             }
         return {'type':'ir.actions.act_window_close'}
     
