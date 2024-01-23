@@ -88,8 +88,8 @@ class MRPLabourFOH(models.Model):
                 'type':'ir.actions.act_window',
                 'name':'Journal Entries',
                 'res_model':'account.move',
-                'view_mode':'tree,form',
-                'domain':[('id','in',self.line_ids.move_line_ids.filtered( lambda x:x.labour_cost_foh_id.mrp_labour_foh_id.id == self.id ).mapped('move_id').ids)],
+                'view_mode':'tree,form', 
+                'domain':[('id','in',self.line_ids.move_line_ids.mapped('move_id').filtered( lambda x: x.labour_cost_id.id == self.id ))],
             }
         return {'type':'ir.actions.act_window_close'}
     
@@ -210,6 +210,7 @@ class MRPLabourFOH(models.Model):
         if not journal_id:
             raise UserError("Account Journal Doesnt Exist")
         return {
+            'labour_cost_id': self.id,
             'ref':ref,
             'date':date,
             'currency_id':currency.id,
@@ -275,6 +276,8 @@ class MRPLabourFOH(models.Model):
                     # update akun debit ke hpp
                     vals[0][-1].update({
                         'name': vals[0][-1]['name'] + f" ({line.mrp_labour_foh_id.name})",
+                        # remove dependencies
+                        'labour_cost_foh_id': False,
                         # akun hpp
                         'account_id': line.product_id.categ_id.property_account_expense_categ_id.id or line.product_id.property_account_expense_id.id
                     })
@@ -282,6 +285,8 @@ class MRPLabourFOH(models.Model):
                     # update akun credit ke wip
                     vals[1][-1].update({
                         'name': vals[1][-1]['name'] + f" ({line.mrp_labour_foh_id.name})",
+                        # remove dependencies
+                        'labour_cost_foh_id': False,
                         'account_id': line.mrp_labour_foh_id.account_wip_id.id,
                     })
                     salary_move_vals['line_ids'] += vals
@@ -297,6 +302,8 @@ class MRPLabourFOH(models.Model):
                     # update akun debit ke hpp
                     vals[0][-1].update({
                         'name': vals[0][-1]['name'] + f" ({line.mrp_labour_foh_id.name})",
+                        # remove dependencies for before period
+                        'labour_cost_foh_id': False,
                         # akun hpp
                         'account_id': line.product_id.categ_id.property_account_expense_categ_id.id or line.product_id.property_account_expense_id.id
                     })
@@ -304,6 +311,8 @@ class MRPLabourFOH(models.Model):
                     # update akun credit ke wip
                     vals[1][-1].update({
                         'name': vals[1][-1]['name'] + f" ({line.mrp_labour_foh_id.name})",
+                        # remove dependencies
+                        'labour_cost_foh_id': False,
                         #akun wip
                         'account_id': line.mrp_labour_foh_id.account_wip_id.id,
                     })
