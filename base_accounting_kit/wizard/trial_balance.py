@@ -55,8 +55,16 @@ class AccountBalanceReport(models.TransientModel):
     # using field text for get all data and avoid long query url
     datas = fields.Text(string="datas")
     # using this field for mapping account name 
+    account_name_json = fields.Text()
     _mapping_name = []
     # map_res = fields.Text()
+
+    @api.onchange('filter_selection')
+    def onchange_filter_selection(self):
+        self.from_id = False
+        self.to_id = False
+        self.from_year = False
+        self.to_year = False
 
     def _print_report(self, data):
         data = self.pre_print_report(data)
@@ -102,6 +110,8 @@ class AccountBalanceReport(models.TransientModel):
         data['form']['used_context'].update({'date_from':str(data['form']['date_from']), 'date_to':str(data['form']['date_to'])})
         data.update({'form':[data['form']]})
         self.datas = json.dumps(data)
+        self.account_name_json = json.dumps(getattr(self,'_mapping_name'))
+        getattr(self,'_mapping_name').clear()
 
     def _get_accounts(self, accounts, display_account):
         """ compute the balance, debit and credit for the provided accounts

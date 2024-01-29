@@ -84,5 +84,60 @@
         <field name="type">quarter</field>
         <field name="quarter_sequence">4</field>
     </record>
+
+
+    <!-- QUARTER MONTH -->
+    <record id="quarter1_month_jan" model="config.filter.line">
+        <field name="month" ref="monthly_jan"/>
+        <field name="config_filter_id" ref="quarter_1"/>
+    </record>
+    <record id="quarter1_month_feb" model="config.filter.line">
+        <field name="month" ref="monthly_feb"/>
+        <field name="config_filter_id" ref="quarter_1"/>
+    </record>
+    <record id="quarter1_month_mar" model="config.filter.line">
+        <field name="month" ref="monthly_mar"/>
+        <field name="config_filter_id" ref="quarter_1"/>
+    </record>
+
+    <record id="quarter2_month_jan" model="config.filter.line">
+        <field name="month" ref="monthly_apr"/>
+        <field name="config_filter_id" ref="quarter_2"/>
+    </record>
+    <record id="quarter2_month_feb" model="config.filter.line">
+        <field name="month" ref="monthly_may"/>
+        <field name="config_filter_id" ref="quarter_2"/>
+    </record>
+    <record id="quarter2_month_mar" model="config.filter.line">
+        <field name="month" ref="monthly_june"/>
+        <field name="config_filter_id" ref="quarter_2"/>
+    </record>
+
+    <record id="quarter3_month_jan" model="config.filter.line">
+        <field name="month" ref="monthly_jul"/>
+        <field name="config_filter_id" ref="quarter_3"/>
+    </record>
+    <record id="quarter3_month_feb" model="config.filter.line">
+        <field name="month" ref="monthly_aug"/>
+        <field name="config_filter_id" ref="quarter_3"/>
+    </record>
+    <record id="quarter3_month_mar" model="config.filter.line">
+        <field name="month" ref="monthly_sept"/>
+        <field name="config_filter_id" ref="quarter_3"/>
+    </record>
+
+    <record id="quarter4_month_jan" model="config.filter.line">
+        <field name="month" ref="monthly_oct"/>
+        <field name="config_filter_id" ref="quarter_4"/>
+    </record>
+    <record id="quarter4_month_feb" model="config.filter.line">
+        <field name="month" ref="monthly_nov"/>
+        <field name="config_filter_id" ref="quarter_4"/>
+    </record>
+    <record id="quarter4_month_mar" model="config.filter.line">
+        <field name="month" ref="monthly_dec"/>
+        <field name="config_filter_id" ref="quarter_4"/>
+    </record>
     </data>
+    
 </odoo>

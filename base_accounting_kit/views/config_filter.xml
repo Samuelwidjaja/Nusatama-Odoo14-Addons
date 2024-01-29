@@ -48,10 +48,29 @@
     </record>
 
 
+    <record id="config_filter_line_tree_view" model="ir.ui.view">
+        <field name="name">config_filter_line_tree_view</field>
+        <field name="model">config.filter.line</field>
+        <field name="arch" type="xml">
+            <tree editable="bottom">
+                <field name="config_filter_id"/>
+                <field name="month" options="{'no_create':True}"/>
+                <field name="month_int" optional="hide"/>
+                <field name="type" optional="hide"/>
+            </tree>
+        </field>
+    </record>
+
     <record id="config_filter_action_menu" model="ir.actions.act_window">
         <field name="name">Filter Configuration Action</field>
         <field name="res_model">config.filter</field>
         <field name="view_mode">tree,form</field>
+    </record>
+
+    <record id="config_filter_line_action_menu" model="ir.actions.act_window">
+        <field name="name">Filter Line Action</field>
+        <field name="res_model">config.filter.line</field>
+        <field name="view_mode">tree</field>
     </record>
 
     <menuitem
@@ -65,6 +84,14 @@
         id="filter_configuration_sub_menu"
         name="Filter Configuration"
         action="config_filter_action_menu"
+        groups="base.group_no_one"
+        parent="filter_configuration_menu"
+        sequence="1"/>
+
+    <menuitem
+        id="filter_configuration_line_sub_menu"
+        name="Filter Configuration Line"
+        action="config_filter_line_action_menu"
         groups="base.group_no_one"
         parent="filter_configuration_menu"
         sequence="1"/>

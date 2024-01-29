@@ -1,7 +1,26 @@
 from odoo import models
 
 #from init report import default_column
-from .__init__ import DEFAULT_COLUMN as default_column, DEFAULT_COLUMN_ALPHABET as alp
+DEFAULT_COLUMN = {'default_header_row':6,'default_header_col':0,'default_row':7,'default_col':0}
+DEFAULT_COLUMN_ALPHABET = [
+    'A','B','C','D','E','F','G','H','I','J','K','L',
+    'M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z',
+
+    'AA','AB','AC','AD','AE','AF','AG','AH','AI','AJ','AK','AL',
+    'AM','AN','AO','AP','AQ','AR','AS','AT','AU','AV','AW','AX','AY','AZ',
+
+    'BA','BB','BC','BD','BE','BF','BG','BH','BI','BJ','BK','BL',
+    'BM','BN','BO','BP','BQ','BR','BS','BT','BU','BV','BW','BX','BY','BZ',
+
+    'CA','CB','CC','CD','CE','CF','CG','CH','CI','CJ','CK','CL',
+    'CM','CN','CO','CP','CQ','CR','CS','CT','CU','CV','CW','CX','CY','CZ',
+
+    'DA','DB','DC','DD','DE','DF','DG','DH','DI','DJ','DK','DL',
+    'DM','DN','DO','DP','DQ','DR','DS','DT','DU','DV','DW','DX','DY','DZ',
+
+    'EA','EB','EC','ED','EE','EF','EG','EH','EI','EJ','EK','EL',
+    'EM','EN','EO','EP','EQ','ER','ES','ET','EU','EV','EW','EX','EY','EZ',
+]
 import json
 class PartnerXlsx(models.AbstractModel):
     _name = 'report.base_accounting_kit.report_trial_balance_xlsx'
@@ -11,6 +30,8 @@ class PartnerXlsx(models.AbstractModel):
         company = self.env.company.name
         sheet = workbook.add_worksheet("Test")
         data = json.loads(object.datas) 
+        default_column = DEFAULT_COLUMN
+        alp = DEFAULT_COLUMN_ALPHABET
         sheet.set_column("A:BZ",20)
         sheet.set_column("B:B",34)
         formats = workbook.add_format
@@ -63,7 +84,7 @@ class PartnerXlsx(models.AbstractModel):
         last_line_col = 0
         format_amount = formats({'align':'right','num_format':'[$Rp-421] #,##0;[$Rp-421] -#,##0'})
         font_weight = formats({'bold':True})
-        for name in object._mapping_name:
+        for name in json.loads(object.account_name_json):
             sheet.merge_range(line_row,line_col,line_row,line_col + 1,name)
             line_col += 2
 

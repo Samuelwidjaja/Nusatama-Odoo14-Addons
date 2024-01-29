@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <data>
+    
+        <record id="mrp_labour_foh_module_category_parent" model="ir.module.category">
+            <field name="name">Labour Cost &amp; FOH</field>
+            <field name="sequence" eval="99"/>
+        </record>
+
+        <record id="mrp_labour_foh_module_category" model="ir.module.category">
+            <field name="name">Labour Cost &amp; FOH</field>
+            <field name="sequence" eval="7"/>
+        </record>
+
+        <record id="group_mrp_labour_foh_user" model="res.groups">
+            <field name="name">User</field>
+            <field name="category_id" ref="mrp_labour_foh_module_category"/>
+            <field name="implied_ids" eval="[(4, ref('base.group_user'))]"/>
+        </record>
+
+        <record id="group_mrp_labour_foh_administrator" model="res.groups">
+            <field name="name">Administrator</field>
+            <field name="category_id" ref="mrp_labour_foh_module_category"/>
+            <field name="implied_ids" eval="[(4, ref('group_mrp_labour_foh_user'))]"/>
+            <field name="users" eval="[(4, ref('base.user_root')), (4, ref('base.user_admin'))]"/>
+        </record>
+    </data>
+    
+
+</odoo>

@@ -15,6 +15,7 @@
                     ('working_state', '=', 'blocked'), ('state', '=', 'done'), ('is_user_working', '!=', False), ('button_start_show','=',False)]}
                 </attribute>
             </xpath>
+           
         </field>
     </record>
 </odoo>

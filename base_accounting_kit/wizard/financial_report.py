@@ -90,6 +90,7 @@ class FinancialReport(models.TransientModel):
     
     # set datas to field and avoid long query url
     datas = fields.Text(string="Datas")
+    account_name_json = fields.Text()
     _mapping_account_name = []
     # def view_report_pdf(self):
     #     """This function will be executed when we click the view button
@@ -142,6 +143,14 @@ class FinancialReport(models.TransientModel):
         # checking view type
         # return self.env.ref(
         #         'base_accounting_kit.financial_report_pdf').report_action(self,data)
+    
+    @api.onchange('filter_selection')
+    def onchange_filter_selection(self):
+        self.from_id = False
+        self.to_id = False
+        self.year_from = False
+        self.year_to = False
+        
     def clean_filter(self):
         if not self.enable_filter:
             self.multi_period = False
@@ -187,11 +196,12 @@ class FinancialReport(models.TransientModel):
                 data_copy.update({'date_from':line[1].get('from_month'),'date_to':line[1].get('to_month')})
                 res = self.get_account_lines(data_copy)
                 res = self._get_level(res)
-                result.append((line[0],res))
+                result.append((line[0],res, fields.Date.to_string(line[1].get('from_month'))))
 
-        filter_result = filter_method.set_filter_data(data['form'],self.from_id,self.year_from)
-        data['form']['used_context'].update({'date_from':filter_result.get('from_month'),'date_to':filter_result.get('to_month')})
-        data['form'].update({'date_from':filter_result.get('from_month'),'date_to':filter_result.get('to_month')})
+        from_filter_result = filter_method.set_filter_data(data['form'],self.from_id,self.year_from)
+        data['form']['used_context'].update({'date_from':from_filter_result.get('from_month'),'date_to':from_filter_result.get('to_month')})
+        data['form'].update({'date_from':from_filter_result.get('from_month'),'date_to':from_filter_result.get('to_month')})
+        data['reverse_sort'] = any([from_filter_result['from_month'] >= res[1]['from_month'] for res in filter_result]) if self.enable_filter else False
 
         report_lines = self.get_account_lines(data['form'])
         report_lines = self._get_level(report_lines)
@@ -220,6 +230,8 @@ class FinancialReport(models.TransientModel):
             })
             data.update({'form':[data['form']]})
             self.datas = json.dumps(data)
+            self.account_name_json = json.dumps(getattr(self,'_mapping_account_name'))
+            getattr(self,'_mapping_account_name').clear()
             return self.env.ref(
                 'base_accounting_kit.financial_report_excel').report_action(self)
 

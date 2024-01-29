@@ -7,67 +7,7 @@
         <field name="inherit_id" ref="mrp.mrp_production_form_view"/>
         <field name="arch" type="xml">
             <xpath expr="//field[@name='bom_id']" position="after">
-                    <field name="partner_id" attrs="{'readonly':[('state','!=','draft')]}" options="{'no_create':True,'no_open':True}"/>
-            </xpath>
-            <xpath expr="//button[@name='action_confirm']" position="before">
-                <!-- <button string="Confirm" name="actions_confirm" type="object" class="oe_highlight" attrs="{'invisible':[('state','!=','draft')]}"/> -->
-                <button string="Confirm" name="action_confirm" type="object" groups="mrp.group_mrp_manager" class="oe_highlight" attrs="{'invisible':[('state','!=','draft')]}"/>
-            </xpath>
-            <xpath expr="//button[@name='action_confirm']" position="attributes">
-                <attribute name="attrs">{'invisible':[('state','!=','on_hold')]}</attribute>
-                <attribute name="groups">aos_warning_paid_invoice_mo.approve_confirm_mrp</attribute>
-                <attribute name="context">{'force_approval':True}</attribute>
-                <attribute name="string">Approve</attribute>
-            </xpath>
-            <xpath expr="//field[@name='move_raw_ids']/tree/field[@name='forecast_availability']" position="attributes">
-                <attribute name="attrs">{'column_invisible': [('parent.state', 'in', ['draft','on_hold' ,'done'])]}</attribute>
-            </xpath>
-            <xpath expr="//field[@name='move_raw_ids']/tree/field[@name='quantity_done']" position="attributes">
-                <attribute name="attrs">{'column_invisible': [('parent.state', 'in', ['draft','on_hold'])], 'readonly': [('show_details_visible', '=', True)]}</attribute>
-            </xpath>
-            <xpath expr="//button[@name='button_scrap']" position="attributes">
-                <attribute name="attrs">{'invisible': [('state', 'in', ('cancel', 'draft','on_hold'))]}</attribute>
-            </xpath>
-        </field>
-    </record>
-
-    <record id="search_filter_on_hold" model="ir.ui.view">
-        <field name="name">search.filter.on_hold</field>
-        <field name="model">mrp.production</field>
-        <field name="inherit_id" ref="mrp.view_mrp_production_filter"/>
-        <field name="arch" type="xml">
-            <xpath expr="//filter[@name='filter_draft']" position="after">
-                <filter name="filter_on_hold" string="On Hold" domain="[('state', '=', 'on_hold')]" context="{}" />
-            </xpath>
-        </field>
-    </record>
-
-    <!-- Work Order -->
-    <record id="attributes_state" model="ir.ui.view">
-        <field name="name">attributes.state.mrp.workorder</field>
-        <field name="model">mrp.workorder</field>
-        <field name="inherit_id" ref="mrp.mrp_production_workorder_tree_editable_view"/>
-        <field name="arch" type="xml">
-            <xpath expr="//field[@name='duration']" position="attributes">
-                <attribute name="attrs">{'invisible': [('production_state','in', ['draft','on_hold'])], 'readonly': [('is_user_working', '=', True)]}</attribute>
-            </xpath>
-            <xpath expr="//field[@name='state']" position="attributes">
-                <attribute name="attrs">{'invisible': [('production_state', 'in', ('draft','on_hold', 'done'))]}</attribute>
-            </xpath>
-            <xpath expr="//button[@name='button_start']" position="attributes">
-                <attribute name="attrs">{'invisible': ['|', '|', '|', ('production_state','in', ('draft', 'on_hold','done', 'cancel')), ('working_state', '=', 'blocked'), ('state', '=', 'done'), ('is_user_working', '!=', False)]}</attribute>
-            </xpath>
-            <xpath expr="//button[@name='button_pending']" position="attributes">
-                <attribute name="attrs">{'invisible': ['|', '|', ('production_state', 'in', ('draft', 'on_hold','done', 'cancel')), ('working_state', '=', 'blocked'), ('is_user_working', '=', False)]}</attribute>
-            </xpath>
-            <xpath expr="//button[@name='button_finish']" position="attributes">
-                <attribute name="attrs">{'invisible': ['|', '|', ('production_state', 'in', ('draft', 'on_hold','done', 'cancel')), ('working_state', '=', 'blocked'), ('is_user_working', '=', False)]}</attribute>
-            </xpath>
-            <xpath expr="//button[4]" position="attributes">
-                <attribute name="attrs">{'invisible': ['|', ('production_state', 'in', ('draft', 'on_hold','done', 'cancel')), ('working_state', '=', 'blocked')]}</attribute>
-            </xpath>
-            <xpath expr="//button[@name='button_unblock']" position="attributes">
-                <attribute name="attrs">{'invisible': ['|', ('production_state', 'in', ('draft', 'on_hold','done', 'cancel')), ('working_state', '!=', 'blocked')]}</attribute>
+                <field name="partner_id" attrs="{'readonly':[('state','!=','draft')]}" options="{'no_create':True,'no_open':True}"/>
             </xpath>
         </field>
     </record>

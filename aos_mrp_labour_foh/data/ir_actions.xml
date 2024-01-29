@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="fix_difference_cost" model="ir.actions.server">
+        <field name="name">Fix Difference Cost</field>
+        <field name="model_id" ref="model_mrp_labour_foh"/>
+        <field name="state">code</field>
+        <field name="code">
+            records.recompute_different_cost()
+        </field>
+        <field name="binding_model_id" ref="model_mrp_labour_foh"/>
+    </record>
+
+</odoo>

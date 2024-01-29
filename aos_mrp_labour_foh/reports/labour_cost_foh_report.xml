@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="report_mrp_labour_foh_document_detail">
+        <div class="page" style="padding:0; margin:0;">
+            <style>
+                .data-table tr, .data-table th, .data-table td {
+                    border:1px solid #000;
+                }
+            </style>
+            <table class="table table-sm table-borderless w-100 text-center">
+                <tr>
+                    <td style="padding-left:20px; font-weight:bold;">Report Reklass Salary + FOH</td>
+                    <td style="width:13%;">Start Date :</td>
+                    <td style="width:10%; text-align:right;"><t t-esc="doc.start_date.strftime('%m/%d/%Y')"/></td>
+                </tr>
+                <tr>
+                    <td></td>
+                    <td style="width:13%;">End Date :</td>
+                    <td style="width:10%; text-align:right;"><t t-esc="doc.end_date.strftime('%m/%d/%Y')"/></td>
+                </tr>
+            </table>
+
+            <div class="mt-3">
+                <table class="table table-sm table-bordered data-table" cellpadding="0" cellspacing="0">
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Account</th>
+                            <th>Label</th>
+                            <th>Product</th>
+                            <th>Debit</th>
+                            <th>Credit</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <t t-if="doc.line_ids.move_line_ids" t-foreach="doc.line_ids.move_line_ids" t-as="line">
+                            <tr>
+                                <td><t t-esc="line.date.strftime('%m/%d/%Y')"/></td>
+                                <td><t t-esc="line.account_id.display_name"/></td>
+                                <td><t t-esc="line.name"/></td>
+                                <td><t t-esc="line.labour_cost_foh_id.product_id.name"/></td>
+                                <td><t t-esc="line.debit or ''" t-if="line.debit" t-options="{'widget':'monetary','display_currency':doc.currency_id}"/></td>
+                                <td><t t-esc="line.credit or ''" t-if="line.credit" t-options="{'widget':'monetary','display_currency':doc.currency_id}"/></td>
+                            </tr>
+                        </t>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </template>
+
+    <template id="report_mrp_labour_foh_document" name="report_mrp_labour_foh_document">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="doc">
+                <t t-call="web.basic_layout">
+                    <t t-call="aos_mrp_labour_foh.report_mrp_labour_foh_document_detail"/>
+                </t>
+            </t>
+        </t>
+    </template>
+
+    <record id="mrp_labour_cost_foh_action_report" model="ir.actions.report">
+        <field name="name">Reklass Salary &amp; FOH</field>
+        <field name="model">mrp.labour.foh</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">aos_mrp_labour_foh.report_mrp_labour_foh_document</field>
+        <field name="report_file">aos_mrp_labour_foh.report_mrp_labour_foh_document</field>
+        <field name="print_report_name">('Report Reklass Salary + FOH '+'('+object.name +')')</field>
+        <field name="binding_model_id" ref="model_mrp_labour_foh"/>
+        <field name="binding_type">report</field>
+    </record>
+
+    <record id="paperformat_labour_cost_foh_a4" model="report.paperformat">
+        <field name="name">Paperformat Labour Cost &amp; FOH A4</field>
+        <field name="default" eval="True" />
+        <field name="format">A4</field>
+        <field name="page_height">0</field>
+        <field name="page_width">0</field>
+        <field name="orientation">Portrait</field>
+        <field name="margin_top">30</field>
+        <field name="margin_bottom">7</field>
+        <field name="margin_left">7</field>
+        <field name="margin_right">7</field>
+        <field name="header_spacing">27</field>
+        <field name="dpi">90</field>
+        <field name="report_ids" eval="[
+                        (6,0,[ref('aos_mrp_labour_foh.mrp_labour_cost_foh_action_report')]),
+        ]"/>
+    </record>
+
+</odoo>

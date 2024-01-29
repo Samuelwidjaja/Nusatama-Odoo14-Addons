@@ -81,7 +81,19 @@ class MrpWorkorder(models.Model):
 
     def button_start(self):
         self.validate_to_start()
-        return super().button_start()
+        res = super().button_start()
+        account_move = self.env['account.analytic.line'].search([('manufacturing_order_id','=',self.production_id.name)])
+        if account_move:
+             account_move.unlink()
+        return res
+    
+
+    def button_finish(self):
+        res = super(MrpWorkorder,self).button_finish()
+        account_move = self.env['account.analytic.line'].search([('manufacturing_order_id','=',self.production_id.name)])
+        if account_move:
+             account_move.unlink()
+        return res
 
     def _start_nextworkorder(self):
         if self.state == 'done':
@@ -95,6 +107,34 @@ class MrpWorkorder(models.Model):
             #     next_order = self.next_work_order_id
             #     if next_order.state == 'pending':
             #         next_order.state = 'ready'
+
+    # @api.depends('production_id.workorder_ids','production_id.move_raw_ids')
+    # def _compute_button_finish_show(self):
+    #     show = True
+    #     # value = 0
+    #     level = min(self.mapped('operation_level'))
+    #     # for rec in self :
+    #     #     if rec.operation_level > level :
+    #     #         self.button_start_show = False
+    #     #     else :
+    #     #         value += 1 
+    #     # for move in self.mapped('production_id').move_raw_ids:
+    #     #     if move.state not in {'partially_available','assigned','done'} :
+    #     #         self.button_start_show = False
+    #     #     else :
+    #     #         value +=1
+    #     # if value >= 1 :
+    #     for rec in self:
+    #         operation_not_done = []
+    #         for workorder in self.production_id.workorder_ids:
+    #             if workorder.operation_level < rec.operation_level and workorder.state != 'done':
+    #                         operation_not_done.append(workorder)
+    #         if operation_not_done and rec.operation_level != level:
+    #             show = False
+    #         if rec.operation_level == level and 0 in rec.production_id.move_raw_ids.mapped('forecast_availability') :
+                
+    #         rec.button_finish_show = show
+
 
     
     @api.depends('production_id.workorder_ids','production_id.move_raw_ids')
@@ -119,6 +159,8 @@ class MrpWorkorder(models.Model):
                 if workorder.operation_level < rec.operation_level and workorder.state != 'done':
                             operation_not_done.append(workorder)
             if operation_not_done and rec.operation_level != level:
+                show = False
+            if 'done' not in  self.production_id.picking_ids.mapped('state'):
                 show = False
             rec.button_start_show = show
         # else :

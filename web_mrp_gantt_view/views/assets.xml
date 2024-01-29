@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="assets_backend" name="web_mrp_gantt_view assets" inherit_id="web.assets_backend">
+        <xpath expr="." position="inside">
+            <script type="text/javascript" src="/web_mrp_gantt_view/static/lib/dhtmlxGantt/sources/dhtmlxgantt.js"></script>
+            <script type="text/javascript" src="/web_mrp_gantt_view/static/lib/dhtmlxGantt/sources/api.js"></script>
+            <link rel="stylesheet" type="text/css" href="/web_mrp_gantt_view/static/lib/dhtmlxGantt/sources/dhtmlxgantt.css"/>
+            
+            <link rel="stylesheet" type="text/css" href="/web_mrp_gantt_view/static/src/css/gantt.css"/>
+            <script type="text/javascript" src="/web_mrp_gantt_view/static/src/js/gantt_renderer.js"></script>
+            <script type="text/javascript" src="/web_mrp_gantt_view/static/src/js/gantt_view.js"></script>
+            <script type="text/javascript" src="/web_mrp_gantt_view/static/src/js/gantt_model.js"></script>
+            <script type="text/javascript" src="/web_mrp_gantt_view/static/src/js/gantt_controller.js"></script>
+        </xpath>
+    </template>
+</odoo>

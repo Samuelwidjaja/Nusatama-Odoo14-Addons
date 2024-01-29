@@ -5,6 +5,15 @@ class MrpAutomation(models.Model):
     _inherit = "mrp.production"
         
     confirm =fields.Boolean()
+
+    def action_confirm(self):
+        for production in self :
+            if production['state'] == 'draft' and production['confirm'] == True :
+                return super(MrpAutomation,self).action_confirm()
+            else:
+                production['confirm'] = True
+                return
+
     # def action_confirm(self):
         
     #     for production in self :
