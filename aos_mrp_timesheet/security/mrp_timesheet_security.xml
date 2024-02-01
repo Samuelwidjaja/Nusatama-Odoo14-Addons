@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-
+    <!-- Override Domain Record Rules -->
+    <function model="account.analytic.line" name="_rewrite_timesheet_rule" eval="[[]]"/>
     <data>
 
         <record id="allow_manage_mrp_timesheet" model="res.groups">
@@ -19,6 +20,7 @@
                 ]
             </field>
             <field name="groups" eval="[(4, ref('mrp.group_mrp_user'))]"/>
+            <field name="active" eval="False"/>
         </record>
 
         <record id="mrp_timesheet_line_rule_manager" model="ir.rule">
@@ -26,6 +28,11 @@
             <field name="model_id" ref="analytic.model_account_analytic_line"/>
             <field name="domain_force">[('mrp_production_id', '!=', False)]</field>
             <field name="groups" eval="[(4, ref('mrp.group_mrp_manager'))]"/>
+            <field name="active" eval="False"/>
         </record>
+
+
+        <!-- Override Domain Existing Rules For Timesheet -->
+        <!-- See Own Timesheet -->
     </data>
 </odoo>

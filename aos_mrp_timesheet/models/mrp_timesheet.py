@@ -88,4 +88,52 @@ class AccountAnalyticLine(models.Model):
             self.filtered(lambda x:x.mrp_production_id)._check_account_mrp()
         return res
         
+    
+    def _rewrite_timesheet_rule(self):
+        mrp_user_groups = self.env.ref('mrp.group_mrp_user', raise_if_not_found=False)
+        mrp_manager_groups = self.env.ref('mrp.group_mrp_manager', raise_if_not_found=False)
+        
+        # See Own Timesheet
+        rules = self.env.ref('hr_timesheet.timesheet_line_rule_user', raise_if_not_found=False)
+        rules_groups = rules.sudo().groups
+        
+        # domain 
+        domain = """[
+                ('user_id', '=', user.id),
+                '|',
+                ('mrp_production_id', '!=', False),
+                ('project_id', '!=', False),
+                '|', '|',
+                    ('project_id.privacy_visibility', '!=', 'followers'),
+                    ('project_id.allowed_internal_user_ids', 'in', user.ids),
+                    ('task_id.allowed_user_ids', 'in', user.ids)
+            ]"""
+        rules.sudo().write({'domain_force': domain, 'groups': [(6, 0, rules_groups.ids + [mrp_user_groups.id])]})
+        
+        
+        # Timesheet Approver
+        rules = self.env.ref('hr_timesheet.timesheet_line_rule_approver', raise_if_not_found=False)
+        rules_groups = rules.sudo().groups
+        
+        # domain
+        domain = """[
+                '|',
+                ('mrp_production_id', '!=', False),
+                ('project_id', '!=', False),
+                '|',
+                    ('project_id.privacy_visibility', '!=', 'followers'),
+                    ('project_id.allowed_internal_user_ids', 'in', user.ids)
+            ]"""
+            
+        rules.sudo().write({'domain_force': domain, 'groups': [(6, 0, rules_groups.ids + [mrp_manager_groups.id])]})
+        
+        
+        # Timesheet Manager
+        rules = self.env.ref('hr_timesheet.timesheet_line_rule_manager', raise_if_not_found=False)
+        rules_groups = rules.sudo().groups
+        
+        # domain
+        domain = """['|', ('mrp_production_id', '!=', False), ('project_id', '!=', False)]"""
+            
+        rules.sudo().write({'domain_force': domain, 'groups': [(6, 0, rules_groups.ids + [mrp_manager_groups.id])]})
         
