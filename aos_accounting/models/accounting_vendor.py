@@ -30,7 +30,7 @@ class AccountAnalyticDefault(models.Model):
         account_type_id = self.env.ref('account.data_account_type_expenses', raise_if_not_found=False)
         
         account = self.env['account.account'].browse(account_id)
-        if not account or account.user_type_id.id == account_type_id.id:
+        if account.user_type_id.id == account_type_id.id:
             return self.env['account.analytic.default']
 
         return super(AccountAnalyticDefault, self).account_get(product_id, partner_id, account_id, user_id, date, company_id)

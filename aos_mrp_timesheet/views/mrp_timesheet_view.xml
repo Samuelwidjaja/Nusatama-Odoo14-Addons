@@ -1,6 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
 
+    <!-- Override record action domain all timesheet -->
+    <record id="hr_timesheet.timesheet_action_all" model="ir.actions.act_window">
+        <field name="domain">['|', ('project_id', '!=', False), ('mrp_production_id', '!=', False)]</field>
+    </record>
+    
     <record id="mrp_timesheet_tree_view" model="ir.ui.view">
         <field name="name">mrp.timesheet.tree.view</field>
         <field name="model">account.analytic.line</field>
