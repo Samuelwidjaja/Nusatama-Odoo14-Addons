@@ -17,35 +17,15 @@ class AccountMoveLine(models.Model):
     mrp_id = fields.Char(string="MO ID " ,related="move_id.mrp_id")
     
     
-    #override method
-    @api.depends('product_id', 'account_id', 'partner_id', 'date')
-    def _compute_analytic_account_id(self):
-        for record in self:
-            if not record.exclude_from_invoice_tab or not record.move_id.is_invoice(include_receipts=True):
-                if record.account_id.user_type_id.internal_group == 'expense':
-                    continue
-                rec = self.env['account.analytic.default'].account_get(
-                    product_id=record.product_id.id,
-                    partner_id=record.partner_id.commercial_partner_id.id or record.move_id.partner_id.commercial_partner_id.id,
-                    account_id=record.account_id.id,
-                    user_id=record.env.uid,
-                    date=record.date,
-                    company_id=record.move_id.company_id.id
-                )
-                if rec:
-                    record.analytic_account_id = rec.analytic_id
-
-# class AccountAnalyticDefault(models.Model):
-#     _inherit = "account.analytic.default"
-    
-#     # inherit existing method
-#     # do not add analytic account if account type is expense
-#     @api.model
-#     def account_get(self, product_id=None, partner_id=None, account_id=None, user_id=None, date=None, company_id=None):
-#         # account_type_id = self.env.ref('account.data_account_type_expenses', raise_if_not_found=False)
-        
-#         account = self.env['account.account'].browse(account_id)
-#         if account.user_type_id.internal_group == 'expense':
-#             return self.env['account.analytic.default']
-
-#         return super(AccountAnalyticDefault, self).account_get(product_id, partner_id, account_id, user_id, date, company_id)
+    @api.model_create_multi
+    def create(self, vals_list):
+        # if line ids has account type expense and has analytic set to false
+        # trigger when create from ui
+        # just for invoice and cause for invoice we need context move_type from action or using with_context
+        invoice_type = self.env.context.get('default_move_type') or self.env.context.get('move_type') or False
+        if invoice_type and invoice_type in ('out_invoice', 'out_refund'):
+            for vals in vals_list:
+                account = self.env['account.account'].browse(vals.get('account_id', []))
+                if account.user_type_id.internal_group == 'expense' and vals.get('analytic_account_id', False):
+                    vals['analytic_account_id'] = False
+        return super(AccountMoveLine, self).create(vals_list)
