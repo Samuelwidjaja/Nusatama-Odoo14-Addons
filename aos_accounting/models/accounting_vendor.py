@@ -27,10 +27,10 @@ class AccountAnalyticDefault(models.Model):
     # do not add analytic account if account type is expense
     @api.model
     def account_get(self, product_id=None, partner_id=None, account_id=None, user_id=None, date=None, company_id=None):
-        account_type_id = self.env.ref('account.data_account_type_expenses', raise_if_not_found=False)
+        # account_type_id = self.env.ref('account.data_account_type_expenses', raise_if_not_found=False)
         
         account = self.env['account.account'].browse(account_id)
-        if account.user_type_id.id == account_type_id.id:
+        if account.user_type_id.internal_group == 'expense':
             return self.env['account.analytic.default']
 
         return super(AccountAnalyticDefault, self).account_get(product_id, partner_id, account_id, user_id, date, company_id)
