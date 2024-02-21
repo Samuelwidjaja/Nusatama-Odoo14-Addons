@@ -59,8 +59,6 @@ class AccountAnalyticLine(models.Model):
         if vals.get('employee_id') and not vals.get('user_id'):
             employee = self.env['hr.employee'].browse(vals['employee_id'])
             vals['user_id'] = employee.user_id.id
-        if not vals.get('name'):
-            vals['name'] = '/'
         return vals
             
     def _check_account_mrp(self):        
@@ -71,6 +69,8 @@ class AccountAnalyticLine(models.Model):
     @api.model_create_multi
     def create(self,vals_list):
         for vals in vals_list:
+            if 'mrp_production_id' in vals and not vals.get('name'):
+                vals['name'] = '/'
             # if vals._context.get('timesheet_mrp'):
             if vals.get('mrp_production_id'):
                 vals.update(self._mrp_timesheet_preprocess(vals))
@@ -81,6 +81,8 @@ class AccountAnalyticLine(models.Model):
         return res
     
     def write(self,vals):
+        if 'name' in vals and not vals.get('name'):
+            vals['name'] = '/'
         if self.mrp_production_id or self._context.get('timesheet_mrp'):
             vals.update(self._mrp_timesheet_preprocess(vals))
         res = super(AccountAnalyticLine,self).write(vals)
