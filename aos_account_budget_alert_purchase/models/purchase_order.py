@@ -301,7 +301,7 @@ class PurchaseOrderLine(models.Model):
                     vals_line = move_line._auth_update_analytic_line()
                     obj_line.write(vals_line)
         else:
-            self.mapped('analytic_line_ids').unlink()
+            # self.mapped('analytic_line_ids').unlink()
             for obj_line in self:
                 if obj_line.account_analytic_id:
                     vals_line = obj_line._prepare_analytic_line()
