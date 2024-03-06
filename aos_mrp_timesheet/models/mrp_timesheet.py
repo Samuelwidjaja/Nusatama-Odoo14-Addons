@@ -21,10 +21,10 @@ class AccountAnalyticLine(models.Model):
     is_mrp_timesheet = fields.Boolean(compute="_compute_is_mrp_timesheet",readonly=False)
 
     @api.depends_context('timesheet_mrp','search_default_todo')
-    # @api.depends('project_id')
+    @api.depends('project_id', 'mrp_production_id')
     def _compute_is_mrp_timesheet(self):
         for line in self:
-            line.is_mrp_timesheet = line._context.get('timesheet_mrp',False)
+            line.is_mrp_timesheet = line._context.get('timesheet_mrp',False) or bool( line.mrp_production_id ) or bool( line.project_id )
             
     @api.depends('mrp_workorder_id', 'mrp_workorder_id.production_id')
     def _compute_mrp_production(self):
@@ -90,6 +90,19 @@ class AccountAnalyticLine(models.Model):
             self.filtered(lambda x:x.mrp_production_id)._check_account_mrp()
         return res
         
+    def unlink(self):
+        """
+            Issue terdelete nya timesheet ketika validate picking(?)
+            * filter analytic jika is timesheet mrp atau ini timesheet
+            * jika ada konteks mrp_timesheet == True maka user yang mendelete timesheet dari view
+            * jika tidak delete yang bukan timesheet
+        """
+        timesheet = self.filtered( lambda line: line.is_mrp_timesheet or line.mrp_production_id or line.mrp_workorder_id or line.project_id )
+        if self.env.context.get('timesheet_mrp') and timesheet:
+            pass
+        elif not self.env.context.get('timesheet_mrp') and timesheet:
+            self = self - timesheet
+        return super(AccountAnalyticLine, self).unlink()
     
     def _rewrite_timesheet_rule(self):
         mrp_user_groups = self.env.ref('mrp.group_mrp_user', raise_if_not_found=False)

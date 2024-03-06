@@ -92,6 +92,15 @@
         ]"/>
     </record>
 
+    <!-- Reappend Context -->
+    <record id="hr_timesheet.act_hr_timesheet_line" model="ir.actions.act_window">
+        <field name="context">{"search_default_week":1, "timesheet_mrp": True}</field>
+    </record>
+
+    <record id="hr_timesheet.timesheet_action_all" model="ir.actions.act_window">
+        <field name="context">{"search_default_week":1, "timesheet_mrp": True}</field>
+    </record>
+
     <menuitem
         id="mrp_timesheet_root_menu"
         name="Timesheet"
