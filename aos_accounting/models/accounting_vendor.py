@@ -29,3 +29,18 @@ class AccountMoveLine(models.Model):
                 if account.user_type_id.internal_group == 'expense' and vals.get('analytic_account_id', False):
                     vals['analytic_account_id'] = False
         return super(AccountMoveLine, self).create(vals_list)
+    
+class AccountAnalyticLine(models.Model):
+    _inherit = "account.analytic.line"
+    
+    @api.model_create_multi
+    def create(self, vals_list):
+        for vals in vals_list:
+            if not vals.get('name'):
+                vals['name'] = '/'
+        return super(AccountAnalyticLine, self).create(vals_list)
+    
+    def write(self, vals):
+        if not vals.get('name'):
+            vals['name'] = '/'
+        return super(AccountAnalyticLine, self).write(vals)
