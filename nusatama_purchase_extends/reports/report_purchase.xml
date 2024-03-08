@@ -76,7 +76,7 @@
                                             <t t-set="number" t-value="number + 1"/>
                                     </td>
                                     <td style="padding:5px; border-right:1px solid #000; border-left:1px solid #000;">
-                                            <span t-esc="product.name"/>
+                                            <p t-field="product.name"/>
                                     </td>
                                     <td style="padding:5px; border-right:1px solid #000; border-left:1px solid #000;" align="center">
                                             <span t-esc="'{0:,.2f}'.format(product.product_qty)"/>
