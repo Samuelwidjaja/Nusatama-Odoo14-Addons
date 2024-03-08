@@ -53,11 +53,14 @@ class AccountMoveLine(models.Model):
                 obj_line.committed_analytic_line_ids.product_id = obj_line.product_id.id
                 if obj_line.move_id.state == 'draft':
                     #print ('---draft---',obj_line.committed_analytic_line_ids,'commited',obj_line.committed_analytic_line_ids.committed_amount,'amount',obj_line.committed_analytic_line_ids.amount,'practical',amount_practical)
+                    print ('==committed_analytic_line_ids==',obj_line.committed_analytic_line_ids,obj_line.committed_analytic_line_ids.filtered(lambda al: al.product_id == obj_line.product_id))
                     obj_line.committed_analytic_line_ids.unit_amount = \
                         obj_line.committed_analytic_line_ids.filtered(lambda al: al.product_id == obj_line.product_id).unit_amount \
                             - obj_line.quantity if obj_line.move_id.move_type in ('in_invoice', 'out_refund') else -obj_line.quantity
-                    obj_line.committed_analytic_line_ids.filtered(lambda al: al.product_id == obj_line.product_id).committed_amount = obj_line.committed_analytic_line_ids.filtered(lambda al: al.product_id == obj_line.product_id).committed_amount + amount_practical if obj_line.move_id.move_type in ('in_invoice', 'out_refund') else -amount_practical
-                    obj_line.committed_analytic_line_ids.filtered(lambda al: al.product_id == obj_line.product_id).amount = obj_line.committed_analytic_line_ids.filtered(lambda al: al.product_id == obj_line.product_id).amount - amount_practical if obj_line.move_id.move_type in ('in_invoice', 'out_refund') else amount_practical
+                    obj_line.committed_analytic_line_ids.committed_amount = \
+                        obj_line.committed_analytic_line_ids.filtered(lambda al: al.product_id == obj_line.product_id).committed_amount \
+                            + amount_practical if obj_line.move_id.move_type in ('in_invoice', 'out_refund') else -amount_practical
+                    obj_line.committed_analytic_line_ids.amount = obj_line.committed_analytic_line_ids.amount - amount_practical if obj_line.move_id.move_type in ('in_invoice', 'out_refund') else amount_practical
                     # obj_line.committed_analytic_line_ids.unit_amount = obj_line.committed_analytic_line_ids.unit_amount - obj_line.quantity if obj_line.move_id.move_type in ('in_invoice', 'out_refund') else -obj_line.quantity
                     # obj_line.committed_analytic_line_ids.committed_amount = obj_line.committed_analytic_line_ids.committed_amount + amount_practical if obj_line.move_id.move_type in ('in_invoice', 'out_refund') else -amount_practical
                     # obj_line.committed_analytic_line_ids.amount = obj_line.committed_analytic_line_ids.amount - amount_practical if obj_line.move_id.move_type in ('in_invoice', 'out_refund') else amount_practical
