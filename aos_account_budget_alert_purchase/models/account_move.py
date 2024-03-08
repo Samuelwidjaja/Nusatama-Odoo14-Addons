@@ -47,13 +47,13 @@ class AccountMoveLine(models.Model):
             #print ('=====auth_create_analytic_lines11====',obj_line.move_id.state,obj_line.committed_analytic_line_ids,amount_practical,obj_line.committed_analytic_line_ids.amount,obj_line.committed_analytic_line_ids.committed_amount)
             #print ('---auth_create_analytic_lines22---',obj_line.committed_analytic_line_ids,self._context.get('picking_id'),self._context.get('move_lines'))
             #print ('----auth_create_analytic_lines33-----',obj_line.purchase_line_id.committed_analytic_line_ids, obj_line.analytic_account_id)
-            if obj_line.committed_analytic_line_ids.filtered(lambda al: al.product_id == obj_line.product_id) and obj_line.analytic_account_id:
+            if obj_line.committed_analytic_line_ids and obj_line.analytic_account_id:
                 obj_line.committed_analytic_line_ids.committed_account_id = obj_line.account_id.id
                 obj_line.committed_analytic_line_ids.account_id = obj_line.analytic_account_id.id
                 obj_line.committed_analytic_line_ids.product_id = obj_line.product_id.id
                 if obj_line.move_id.state == 'draft':
                     #print ('---draft---',obj_line.committed_analytic_line_ids,'commited',obj_line.committed_analytic_line_ids.committed_amount,'amount',obj_line.committed_analytic_line_ids.amount,'practical',amount_practical)
-                    print ('==committed_analytic_line_ids==',obj_line.committed_analytic_line_ids,obj_line.product_id,obj_line.committed_analytic_line_ids.mapped('product_id'),obj_line.committed_analytic_line_ids.filtered(lambda al: al.product_id == obj_line.product_id))
+                    print ('==committed_analytic_line_ids==',self.env['account.analytic.line'].search([('product_id','=',obj_line.product_id.id),('id','in',obj_line.committed_analytic_line_ids)]),obj_line.product_id,obj_line.committed_analytic_line_ids.mapped('product_id'),obj_line.committed_analytic_line_ids.filtered(lambda al: al.product_id == obj_line.product_id))
                     for al in obj_line.committed_analytic_line_ids:
                         print ('==obj_line==',al,al.product_id)
                     obj_line.committed_analytic_line_ids.unit_amount = \
