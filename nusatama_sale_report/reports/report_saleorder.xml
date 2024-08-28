@@ -37,15 +37,23 @@
             <div class="oe_structure"/>
 
             <h2 class="mt16" style="color:#1A5FCA;">
-                <t t-if="not (env.context.get('proforma', False) or is_pro_forma)">
-                    <span t-if="doc.state not in ['draft','sent']">Order # </span>
-                    <span t-if="doc.state in ['draft','sent']">Quotation # </span>
-                </t>
-                <t t-if="env.context.get('proforma', False) or is_pro_forma">
-                    <span>Pro-Forma Invoice # </span>
-                </t>
-                <span t-field="doc.name"/>
-            </h2>
+             <t t-if="not (env.context.get('proforma', False) or is_pro_forma)">
+              <span t-if="doc.state not in ['draft','sent']">Order # </span>
+              <span t-if="doc.state in ['draft','sent']">Quotation # </span>
+             </t>
+             <t t-if="env.context.get('proforma', False) or is_pro_forma">
+              <span>Pro-Forma Invoice # </span>
+             </t>
+    
+           <!-- Conditional t-field logic -->
+           <t t-if="doc.state not in ['draft', 'sent']">
+            <span t-field="doc.name"/>
+           </t>
+           <t t-else="">
+            <span t-field="doc.no_penawaran"/>
+           </t>
+           </h2>
+
 
             <div class="row mt32 mb32" id="informations">
                 <div t-if="doc.client_order_ref" class="col-auto col-3 mw-100 mb-2">
@@ -63,6 +71,10 @@
                 <div t-if="doc.validity_date and doc.state in ['draft', 'sent']" class="col-auto col-3 mw-100 mb-2" name="expiration_date">
                     <strong style="color:#1A5FCA;">Expiration:</strong>
                     <p class="m-0" t-field="doc.validity_date"/>
+                </div>
+                <div t-if="doc.date_order and doc.state not in ['draft','sent']" class="col-auto col-3 mw-100 mb-2">
+                    <strong style="color:#1A5FCA;">Quotation Number:</strong>
+                    <p class="m-0" t-field="doc.no_penawaran"/>
                 </div>
                 <div t-if="doc.user_id.name" class="col-auto col-3 mw-100 mb-2">
                     <strong style="color:#1A5FCA;">Salesperson:</strong>
@@ -195,6 +207,7 @@
             <div t-if="doc.signature" class="mt32 ml64 mr4" name="signature">
                 <div class="offset-8">
                     <strong>Signature</strong>
+
                 </div>
                 <div class="offset-8">
                     <img t-att-src="image_data_uri(doc.signature)" style="max-height: 4cm; max-width: 8cm;"/>
@@ -214,7 +227,18 @@
                 <strong>Fiscal Position Remark:</strong>
                 <span t-field="doc.fiscal_position_id.sudo().note"/>
             </p>
+		<p align="right"><span t-field="doc.company_id.city"/>, <span t-field="doc.date_order" t-options='{"format":"MM-dd-yyyy"}'/>
+                                <br/><br/><br/><br/><br/>
+                               <span style="text-decoration: underline; font-weight: bold;" t-field="doc.user_id"/>
+				<br/>
+				<span style="font-weight: bold;">Business Consultant</span>
+                               
+                                
+                            </p>
         </div>
+      
+
+
         <div t-attf-class="footer o_clean_footer o_company_#{company.id}_layout" style="border-top:3px solid #1A5FCA;">
             <div class="row mt8">
                 <div class="col-3">

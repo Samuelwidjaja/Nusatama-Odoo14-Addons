@@ -10,11 +10,11 @@ class SaleOrder(models.Model):
 
 
 
-    no_po = fields.Char(string="No Pesanan",required=False)
+    no_po = fields.Char(string="Customer PO Number",required=False)
 
 
     def action_confirm(self):
         if not self.no_po:
-            raise UserError("No Pesanan is required and cannot empty")
+            raise UserError("Customer PO Number  is required and cannot empty")
 
         return super(SaleOrder,self).action_confirm()
