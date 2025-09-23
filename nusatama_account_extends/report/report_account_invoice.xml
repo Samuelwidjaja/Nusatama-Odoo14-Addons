@@ -74,13 +74,16 @@
                                 <td colspan="4" style="padding: 10px; border-top:1px solid #000;">Jumlah (Amount)</td>
                                 <td align="right" style="border-left:1px solid #000; padding: 10px; border-top:1px solid #000;"><span t-field="o.amount_untaxed" t-options='{"widget": "monetary", "display_currency": o.currency_id}'/></td>
                             </tr>
+			  <tr>
+                                <td colspan="4" style="padding: 10px;">DPP Lain Lain 11/12 (Other Amount)</td>
+                                <td align="right" style="border-left:1px solid #000; padding: 10px;"><span t-field="o.eleven_twelve_untaxed_amount" t-options='{"widget": "monetary", "display_currency": o.currency_id}'/></td></tr>
                             <tr>
                                 <td colspan="4" style="padding: 10px;">PPN (VAT)</td>
                                 <td align="right" style="border-left:1px solid #000; padding: 10px;"><span t-field="o.amount_tax" t-options='{"widget": "monetary", "display_currency": o.currency_id}'/></td>
                             </tr>
                             <tr>
-                                <td colspan="4" style="padding: 10px;">TOTAL</td>
-                                <td align="right" style="border-left:1px solid #000; padding: 10px;"><span t-field="o.amount_total" t-options='{"widget": "monetary", "display_currency": o.currency_id}'/></td>
+                                <td colspan="4" style="padding: 10px; border-top:1px solid #000;">TOTAL</td>
+                                <td align="right" style="border-left:1px solid #000; padding: 10px; border-top:1px solid #000;"><span t-field="o.amount_total" t-options='{"widget": "monetary", "display_currency": o.currency_id}'/></td>
                             </tr>
                         </table>
                     </div>

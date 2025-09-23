@@ -72,28 +72,41 @@ class StockMove(models.Model):
         precision = self.env["decimal.precision"].precision_get("Product Price")
         res = super()._get_price_unit()
         moves_todo = self._context.get('moves_todo')
-        if len(self) == 1 and self.production_id and self.product_id == self.production_id.product_id and self.location_id.usage=='production' and moves_todo:
-            # valuation porduction is calculated from consumed unit price valuation
-            # print(res)
-            order_moves = moves_todo.get(self.production_id.id)
+    
+        if len(self) == 1 and self.production_id and self.product_id == self.production_id.product_id and self.location_id.usage == 'production' and moves_todo:
             res = 0
+            order_moves = moves_todo.get(self.production_id.id)
+        
             for move in order_moves:
                 totalvalues = 0
-                for valuation in move.move_raw_origin_ids.filtered(lambda r:r.state=='done'):
-                    diffqty = move.quantity_done-valuation.quantity_done
-                    qty_done = move.quantity_done
-                    if diffqty<0:
-                        qty_done = move.quantity_done
-                    elif diffqty>0:
-                        qty_done = move.quantity_done-diffqty
-                    totalvalues = abs(valuation.stock_valuation_layer_ids.unit_cost * qty_done)
-                    alreadytransferbefore = valuation.move_dest_ids.move_orig_ids.filtered(lambda r:r.to_consume_raw_qty<0)
+                for valuation in move.move_raw_origin_ids.filtered(lambda r: r.state == 'done'):
+                    # Calculate quantity differences
+                    diffqty = move.quantity_done - valuation.quantity_done
+                    qty_done = move.quantity_done if diffqty < 0 else (move.quantity_done - diffqty)
+
+                    # Handle multiple valuation layers
+                    if valuation.stock_valuation_layer_ids:
+                        # Calculate total value and quantity from all layers
+                        total_value = sum(valuation.stock_valuation_layer_ids.mapped('value'))
+                        total_quantity = sum(valuation.stock_valuation_layer_ids.mapped('quantity'))
+                    
+                        # Compute average unit cost (handle division by zero)
+                        avg_unit_cost = total_value / total_quantity if total_quantity else 0
+                        totalvalues += abs(avg_unit_cost * qty_done)
+
+                    # Handle transfers from previous moves
+                    alreadytransferbefore = valuation.move_dest_ids.move_orig_ids.filtered(lambda r: r.to_consume_raw_qty < 0)
                     if alreadytransferbefore:
                         val = (alreadytransferbefore.move_dest_ids - alreadytransferbefore.move_raw_dest_ids).move_raw_origin_ids.stock_valuation_layer_ids
-                        totalvalues += abs(val.unit_cost * sum(alreadytransferbefore.mapped('to_consume_raw_qty'))) # FIXME: how if many transfers
+                        if val:
+                            # Calculate average for these values too
+                            total_val_value = sum(val.mapped('value'))
+                            total_val_quantity = sum(val.mapped('quantity'))
+                            avg_val_cost = total_val_value / total_val_quantity if total_val_quantity else 0
+                            totalvalues += abs(avg_val_cost * sum(alreadytransferbefore.mapped('to_consume_raw_qty')))
 
-                res += float_round((totalvalues), precision_digits=precision) # price per unit
-            # print(order_moves)
+                res += float_round(totalvalues, precision_digits=precision)
+            
         return res
 
     def _create_in_svl_mo(self, forced_quantity=None):
