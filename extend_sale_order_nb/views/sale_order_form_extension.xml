@@ -1,0 +1,15 @@
+<odoo>
+    <data>
+        <record id="view_sale_order_form_inherit" model="ir.ui.view">
+            <field name="name">sale.order.form.inherit</field>
+            <field name="model">sale.order</field>
+            <field name="inherit_id" ref="sale.view_order_form"/>
+            <field name="arch" type="xml">
+                <!-- Move commitment_date field after partner_shipping_id -->
+                <xpath expr="//field[@name='partner_shipping_id']" position="after">
+                   <field name="no_penawaran"/>
+               </xpath>
+            </field>
+        </record>
+    </data>
+</odoo>
