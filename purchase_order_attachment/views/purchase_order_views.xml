@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <record id="view_purchase_order_form_inherit_attachment" model="ir.ui.view">
+    <field name="name">purchase.order.form.attachment</field>
+    <field name="model">purchase.order</field>
+    <field name="inherit_id" ref="purchase.purchase_order_form"/>
+    <field name="arch" type="xml">
+      <xpath expr="//field[@name='order_line']" position="after">
+        <group>
+          <separator string="Quotation Vendor"/>
+          <field name="attachment_ids" widget="many2many_binary"/>
+        </group>
+      </xpath>
+    </field>
+  </record>
+</odoo>
+

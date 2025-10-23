@@ -1,0 +1,31 @@
+<odoo>
+    <data>
+
+        <record id="purchase_order_form_alert_popup" model="ir.ui.view">
+            <field name="name">purchase.order.form.alert.inherit</field>
+            <field name="model">purchase.order</field>
+            <field name="inherit_id" ref="purchase.purchase_order_form"/>
+            <field name="arch" type="xml">
+                <div name="button_box" position="after">
+                    <div class="alert alert-info" role="alert" style="margin-bottom:0px;" attrs="{'invisible': [('has_budget_alert_warn','=',False)]}">
+                        <b>Budget Warning Exceed Alert</b>
+                        <field name="budget_alert_info"/>
+                    </div>
+                    <div class="alert alert-danger" role="alert" style="margin-bottom:0px;" attrs="{'invisible': [('has_budget_alert_stop','=',False)]}">
+                        <b>Budget Stop Exceed Alert</b>
+                        <field name="budget_alert_info"/>
+                    </div>
+                    <field name="has_budget_alert_warn" invisible="1"/>
+                    <field name="has_budget_alert_stop" invisible="1"/>
+                    <field name="notify_budget_alert" invisible="1"/>
+                </div>
+
+                <field name="user_id" position="after">
+                    <field name="approval_user_id" readonly="1"/>
+                    <field name="approval_datetime" readonly="1"/>
+                </field>
+            </field>
+        </record>
+
+    </data>
+</odoo>

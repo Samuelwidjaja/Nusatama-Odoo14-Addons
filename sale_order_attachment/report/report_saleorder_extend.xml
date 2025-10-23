@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <template id="report_saleorder_inherit" inherit_id="sale.report_saleorder_document">
+    <xpath expr="//p[span[@t-field='doc.payment_term_id.note']]" position="after">
+      <div class="row" name="partner_info_block" style="margin-top:80px;">
+        <div class="col-6 text-left">
+          <p>
+            <span t-field="doc.partner_id.name"/><br/>
+            <span t-field="doc.partner_id.function"/>
+          </p>
+        </div>
+      </div>
+    </xpath>
+  </template>
+</odoo>

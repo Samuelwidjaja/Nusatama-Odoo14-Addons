@@ -95,8 +95,9 @@ class PurchaseOrder(models.Model):
         for inv in self:
             #print ('_check_budget_alert_info',inv,inv.has_budget_alert_stop,self.move_type)
             if inv.has_budget_alert_stop:# and inv.move_type in ('in_invoice', 'in_refund'):       
-                raise UserError(_('Budget Exceed Alert\n%s'%inv.budget_alert_info))
-
+                #raise UserError(_('Budget Exceed Alert\n%s'%inv.budget_alert_info))
+               pass
+        return True
     def _invoice_make_url(self,model='account.move'):
         base_url = self.env['ir.config_parameter'].get_param('web.base.url', default='http://localhost:8069')
         if base_url:

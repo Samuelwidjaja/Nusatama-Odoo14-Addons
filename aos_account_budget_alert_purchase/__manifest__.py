@@ -40,6 +40,7 @@ Module based on Alphasoft
         # 'wizard/password_auth_view.xml',
         # 'views/account_budget_view.xml',
         'views/purchase_order_view.xml',
+        'views/purchase_order_budget_alert_view.xml',
      ],
     'css': [],
     'js': [],

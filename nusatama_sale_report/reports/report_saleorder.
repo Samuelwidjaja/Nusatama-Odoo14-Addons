@@ -85,6 +85,7 @@
             <!-- Is there a discount on at least one line? -->
             <t t-set="display_discount" t-value="any(l.discount for l in doc.order_line)"/>
             <table class="table table-sm o_main_table">
+                <!-- In case we want to repeat the header, remove "display: table-row-group" -->
                 <thead style="display: table-row-group">
                     <tr>
                         <th name="th_description" style="color:#1A5FCA;" class="text-left">Description</th>
@@ -206,6 +207,7 @@
             <div t-if="doc.signature" class="mt32 ml64 mr4" name="signature">
                 <div class="offset-8">
                     <strong>Signature</strong>
+
                 </div>
                 <div class="offset-8">
                     <img t-att-src="image_data_uri(doc.signature)" style="max-height: 4cm; max-width: 8cm;"/>
@@ -225,28 +227,18 @@
                 <strong>Fiscal Position Remark:</strong>
                 <span t-field="doc.fiscal_position_id.sudo().note"/>
             </p>
-<!-- BAGIAN TANDA TANGAN RAPIH -->
-<div class="row mt32 mb32">
-    <div class="col-12 text-right">
-        <p>
-            <span t-field="doc.company_id.city"/>,
-            <span t-field="doc.date_order" t-optio>
-        </p>
-    </div>
-</div>
-
-<div class="row mt32 mb32">
-    <div class="col-12 text-right">
-        <br/><br/><br/><br/><br/>
-        <p>
-            <span style="text-decoration: underlin>
-            <br/>
-            <span style="font-weight: bold;">Busin>
-        </p>
-    </div>
-</div>
+		<p align="right"><span t-field="doc.company_id.city"/>, <span t-field="doc.date_order" t-options='{"format":"MM-dd-yyyy"}'/>
+                                <br/><br/><br/><br/><br/>
+                               <span style="text-decoration: underline; font-weight: bold;" t-field="doc.user_id"/>
+				<br/>
+				<span style="font-weight: bold;">Business Consultant</span>
+                               
+                                
+                            </p>
         </div>
       
+
+
         <div t-attf-class="footer o_clean_footer o_company_#{company.id}_layout" style="border-top:3px solid #1A5FCA;">
             <div class="row mt8">
                 <div class="col-3">
@@ -289,3 +281,26 @@
 </template>
 
 </odoo>
+
+ini adalah kode report saleorder yang saya mau extend, buatkan agar doc id partner name dan function nya dibawah doc notes
+
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <template id="report_saleorder_inherit" inherit_id="sale.report_saleorder_doc>
+    <xpath expr="//div[contains(@name,'signature')]" position="replace">
+      <div class="row mt32 ml64 mr4" name="signature_block">
+        <!-- Contact Person kiri -->
+        <div class="col-6 text-left mt64"> <!-- tambah mt64 biar turun -->
+          <div>
+            <span t-field="doc.partner_id.name"/>
+          </div>
+          <div>
+            <span t-field="doc.partner_id.function"/>
+          </div>
+        </div>
+      </div>
+    </xpath>
+  </template>
+</odoo>
+
+ini kode saya yang sekarang
