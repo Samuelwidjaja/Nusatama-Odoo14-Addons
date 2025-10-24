@@ -17,7 +17,7 @@ class SaleOrder(models.Model):
         for order in self:
             # Cek apakah ada attachment
             if not order.attachment_ids:
-                raise UserError("Quotation Attachment is required before confirm.")
+                raise UserError("PO Customer Attachment is required before confirm.")
 
             # Cek maksimal 2 PDF
             pdf_attachments = order.attachment_ids.filtered(
